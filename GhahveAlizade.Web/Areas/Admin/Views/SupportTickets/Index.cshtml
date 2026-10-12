@@ -1,0 +1,138 @@
+@model PaginatedList<AdminTicketListItemDto>
+@{
+	var search = ViewBag.Search as string;
+	var status = ViewBag.Status as TicketStatus?;
+	var priority = ViewBag.Priority as TicketPriority?;
+	string StatusName(TicketStatus s) => s switch
+	{
+		TicketStatus.Open => "جدید", TicketStatus.InProgress => "در حال بررسی",
+		TicketStatus.WaitingCustomer => "منتظر مشتری", TicketStatus.Resolved => "حل شده",
+		TicketStatus.Closed => "بسته", _ => s.ToString()
+	};
+	string StatusClass(TicketStatus s) => s switch
+	{
+		TicketStatus.Open => "bg-primary", TicketStatus.InProgress => "bg-info text-dark",
+		TicketStatus.WaitingCustomer => "bg-warning text-dark", TicketStatus.Resolved => "bg-success",
+		TicketStatus.Closed => "bg-secondary", _ => "bg-secondary"
+	};
+	string PriorityName(TicketPriority p) => p switch
+	{
+		TicketPriority.Low => "کم", TicketPriority.Normal => "عادی",
+		TicketPriority.High => "زیاد", TicketPriority.Urgent => "فوری", _ => p.ToString()
+	};
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+	<span class="text-muted">مجموع: <strong>@Model.TotalCount</strong> تیکت</span>
+</div>
+
+<div class="admin-card mb-3">
+	<form method="get" class="row g-2 align-items-end">
+		<div class="col-md-4">
+			<label class="form-label small">جستجو</label>
+			<input type="text" name="search" class="form-control" value="@search"
+				   placeholder="شماره تیکت، موضوع، موبایل..." />
+		</div>
+		<div class="col-md-3">
+			<label class="form-label small">وضعیت</label>
+			<select name="status" class="form-select">
+				<option value="">همه</option>
+				@foreach (TicketStatus s in Enum.GetValues<TicketStatus>())
+				{
+					<option value="@((int)s)" selected="@(status == s)">@StatusName(s)</option>
+				}
+			</select>
+		</div>
+		<div class="col-md-3">
+			<label class="form-label small">اولویت</label>
+			<select name="priority" class="form-select">
+				<option value="">همه</option>
+				@foreach (TicketPriority p in Enum.GetValues<TicketPriority>())
+				{
+					<option value="@((int)p)" selected="@(priority == p)">@PriorityName(p)</option>
+				}
+			</select>
+		</div>
+		<div class="col-md-2 d-flex gap-2">
+			<button type="submit" class="btn btn-primary flex-grow-1"><i class="bi bi-search"></i></button>
+			<a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
+		</div>
+	</form>
+</div>
+
+<div class="admin-card p-0 overflow-hidden">
+	@if (Model.Items.Count == 0)
+	{
+		<div class="text-center py-5">
+			<div class="fs-1 text-muted mb-3"><i class="bi bi-inbox"></i></div>
+			<h5 class="text-muted">تیکتی یافت نشد</h5>
+		</div>
+	}
+	else
+	{
+		<div class="table-responsive">
+			<table class="table table-hover align-middle mb-0">
+				<thead class="table-light">
+					<tr>
+						<th>شماره</th><th>موضوع</th><th>مشتری</th>
+						<th class="text-center">وضعیت</th><th class="text-center">اولویت</th>
+						<th class="text-center">پیام‌ها</th><th class="text-center">مسئول</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var t in Model.Items)
+					{
+						<tr>
+							<td class="small" dir="ltr">@t.TicketNumber</td>
+							<td>
+								<a asp-action="Detail" asp-route-id="@t.Id" class="fw-bold text-decoration-none">
+									@t.Subject
+								</a>
+								@if (t.HasUnreadCustomerMessage)
+								{
+									<span class="badge bg-danger ms-1">پیام جدید</span>
+								}
+							</td>
+							<td class="small">
+								@(t.CustomerName ?? "-")<br />
+								<span class="text-muted" dir="ltr">@(t.CustomerPhone ?? "")</span>
+							</td>
+							<td class="text-center"><span class="badge @StatusClass(t.Status)">@StatusName(t.Status)</span></td>
+							<td class="text-center small">@PriorityName(t.Priority)</td>
+							<td class="text-center"><span class="badge bg-secondary">@t.MessageCount</span></td>
+							<td class="text-center small">@(t.AssignedToName ?? "—")</td>
+							<td class="text-center">
+								<a asp-action="Detail" asp-route-id="@t.Id" class="btn btn-sm btn-outline-info">
+									<i class="bi bi-eye"></i>
+								</a>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+
+		@if (Model.TotalPages > 1)
+		{
+			<div class="p-3 border-top">
+				<nav><ul class="pagination justify-content-center mb-0">
+					@if (Model.HasPrevious)
+					{
+						<li class="page-item"><a class="page-link" asp-route-pageNumber="@(Model.PageNumber-1)">قبلی</a></li>
+					}
+					@for (var i = 1; i <= Model.TotalPages; i++)
+					{
+						<li class="page-item @(i == Model.PageNumber ? "active" : "")">
+							<a class="page-link" asp-route-pageNumber="@i">@i</a>
+						</li>
+					}
+					@if (Model.HasNext)
+					{
+						<li class="page-item"><a class="page-link" asp-route-pageNumber="@(Model.PageNumber+1)">بعدی</a></li>
+					}
+				</ul></nav>
+			</div>
+		}
+	}
+</div>
