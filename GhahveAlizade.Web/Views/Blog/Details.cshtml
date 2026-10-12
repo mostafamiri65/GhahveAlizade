@@ -1,8 +1,8 @@
 @using GhahveAlizade.Application.Features.Content.Dtos
 @model BlogPostDto
 
-<div class="container py-4" dir="rtl" style="max-width: 860px;">
-    <nav aria-label="breadcrumb">
+<div class="container py-4" dir="rtl" style="max-width: 820px;">
+    <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb small">
             <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">خانه</a></li>
             <li class="breadcrumb-item"><a asp-controller="Blog" asp-action="Index">وبلاگ</a></li>
@@ -11,9 +11,10 @@
     </nav>
 
     <article>
-        <h1 class="fw-bold mb-2" style="color:var(--coffee-espresso)">@Model.Title</h1>
+        <span class="kicker">📖 مجله قهوه</span>
+        <h1 class="display-serif mb-3" style="font-size:clamp(1.5rem,3.5vw,2.2rem)">@Model.Title</h1>
 
-        <div class="text-muted small mb-3 d-flex flex-wrap gap-3">
+        <div class="blog-meta mb-4 d-flex flex-wrap gap-3">
             @if (!string.IsNullOrEmpty(Model.AuthorName))
             {
                 <span><i class="bi bi-person"></i> @Model.AuthorName</span>
@@ -29,13 +30,13 @@
         @if (!string.IsNullOrEmpty(Model.FeaturedImageUrl))
         {
             <img src="@Model.FeaturedImageUrl" alt="@(Model.FeaturedImageAlt ?? Model.Title)"
-                 class="w-100 rounded-4 mb-4" style="max-height:420px;object-fit:cover" />
+                 class="w-100 rounded-4 shadow mb-4" style="max-height:430px;object-fit:cover" />
         }
 
         @if (!string.IsNullOrEmpty(Model.Summary))
         {
-            <div class="coffee-panel p-3 mb-4 border-start border-4" style="border-color:var(--coffee-gold)!important">
-                <em class="coffee-content">@Model.Summary</em>
+            <div class="quote-block mb-4">
+                @Model.Summary
             </div>
         }
 
@@ -52,11 +53,14 @@
                 }
             </div>
         }
-    </article>
 
-    <div class="text-center mt-5">
-        <a asp-controller="Blog" asp-action="Index" class="btn btn-coffee">
-            <i class="bi bi-arrow-right"></i> بازگشت به وبلاگ
-        </a>
-    </div>
+        <hr style="border-color:rgba(197,143,74,.35);opacity:1" class="my-5" />
+
+        <div class="text-center">
+            <p class="text-muted small mb-3">از خواندن این مطلب لذت بردید؟ قهوه‌ی تازه‌ی ما را امتحان کنید ☕</p>
+            <a asp-controller="Products" asp-action="Index" class="btn btn-coffee px-4">
+                مشاهده فروشگاه <i class="bi bi-arrow-left"></i>
+            </a>
+        </div>
+    </article>
 </div>
