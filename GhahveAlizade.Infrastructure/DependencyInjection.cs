@@ -1,4 +1,4 @@
-﻿using GhahveAlizade.Application.Common.Interfaces;
+using GhahveAlizade.Application.Common.Interfaces;
 using GhahveAlizade.Domain.Identity;
 using GhahveAlizade.Infrastructure.Identity;
 using GhahveAlizade.Infrastructure.Identity.Authorization;
@@ -125,6 +125,7 @@ public static class DependencyInjection
 		services.AddScoped<ICurrentUserService, CurrentUserService>();
 		services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
 		services.AddScoped<IFileStorageService, LocalFileStorageService>();
+		services.AddSingleton<IImageValidator, ImageDimensionValidator>();
 		// Redis Cache
 		var redisConnection = configuration.GetConnectionString("Redis")
 			?? configuration["Redis:ConnectionString"];
