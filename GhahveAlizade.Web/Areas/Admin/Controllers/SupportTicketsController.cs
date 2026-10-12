@@ -52,7 +52,7 @@ public class SupportTicketsController : AdminBaseController
 		if (adminId is null) return Challenge();
 
 		var r = await Mediator.Send(new AddTicketReplyCommand(
-			adminId.Value, id, body, IsFromAdmin: true), ct);
+			adminId.Value, id, body, IsFromAdmin: true, IsInternalNote: isInternalNote), ct);
 
 		if (r.IsError)
 			return Json(new { success = false, message = r.FirstError.Description });
