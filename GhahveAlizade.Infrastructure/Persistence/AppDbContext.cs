@@ -1,4 +1,5 @@
 using GhahveAlizade.Application.Common.Interfaces;
+using GhahveAlizade.Domain.AiAdvisor;
 using GhahveAlizade.Domain.Catalog;
 using GhahveAlizade.Domain.Coffee;
 using GhahveAlizade.Domain.Commerce;
@@ -147,6 +148,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
 	// Support (چت آنلاین)
 	public DbSet<SupportChatSession> SupportChatSessions => Set<SupportChatSession>();
 	public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
+
+	// AI Advisor (مشاور هوشمند قهوه)
+	public DbSet<AiAdvisorSession> AiAdvisorSessions => Set<AiAdvisorSession>();
+	public DbSet<AiAdvisorMessage> AiAdvisorMessages => Set<AiAdvisorMessage>();
 
 	// Identity
 	public DbSet<Permission> Permissions => Set<Permission>();
