@@ -37,11 +37,6 @@ public class ProductSeeder
 		var roasts = await _context.RoastProfiles.IgnoreQueryFilters().ToListAsync(cancellationToken);
 		var flavorNotes = await _context.FlavorNotes.IgnoreQueryFilters().ToListAsync(cancellationToken);
 
-		Origin(string name) => origins.FirstOrDefault(o => o.Name.Contains(name, StringComparison.OrdinalIgnoreCase)) ?? origins.FirstOrDefault();
-		Process(string name) => processes.FirstOrDefault(p => p.Name.Contains(name, StringComparison.OrdinalIgnoreCase)) ?? processes.FirstOrDefault();
-		Roast(string name) => roasts.FirstOrDefault(r => r.Name.Contains(name, StringComparison.OrdinalIgnoreCase)) ?? roasts.FirstOrDefault();
-		FlavorNote? Note(string slug) => flavorNotes.FirstOrDefault(n => n.Slug == slug);
-
 		var products = new List<Product>
 		{
 			new()
@@ -51,7 +46,7 @@ public class ProductSeeder
 				Description = "<p>قهوه <strong>اتیوپی ییرگاچف</strong> از ارتفاعات ۱۹۰۰ متری جنوب اتیوپی می‌آید. با پروسس شسته، طعمی تمیز و شفاف با عطر یاس، طعم بلوبری و شیرینی لیمو دارد. انتخاب اول عاشقان قهوه فیلتر و پورآور.</p><p><strong>پیشنهاد دم‌آوری:</strong> V60 با نسبت ۱ به ۱۶ و آب ۹۳ درجه.</p>",
 				Sku = "GA-YIRG-250", HasVariants = true,
 				CategoryId = category?.Id, BrandId = brand?.Id,
-				CoffeeOriginId = Origin("اتیوپی")?.Id, CoffeeProcessId = Process("شسته")?.Id, RoastProfileId = Roast("روشن")?.Id,
+				CoffeeOriginId = FindByName(origins, "اتیوپی")?.Id, CoffeeProcessId = FindByName(processes, "شسته")?.Id, RoastProfileId = FindByName(roasts, "روشن")?.Id,
 				IsActive = true, IsPublished = true, IsFeatured = true, IsNew = true,
 				PublishedAtUtc = DateTime.UtcNow.AddDays(-2),
 				MetaTitle = "خرید قهوه اتیوپی ییرگاچف | قهوه علیزاده",
@@ -61,11 +56,11 @@ public class ProductSeeder
 			new()
 			{
 				Name = "قهوه کلمبیا هوئلا", Slug = "colombia-huila",
-				ShortDescription = "تعادل کامل؛ کارامل، هزل‌نات و اسیدیته ملایم مرکبات.",
+				ShortDescription = "تعادل کامل؛ کارامل، فندق و اسیدیته ملایم مرکبات.",
 				Description = "<p>از منطقه معروف <strong>هوئلا</strong> کلمبیا؛ قهوه‌ای با بدنه متوسط، شیرینی کارامل، فندق و نوک اسیدیته پرتقالی. برای هر روش دم‌آوری جواب می‌دهد.</p>",
 				Sku = "GA-HUIL-250", HasVariants = true,
 				CategoryId = category?.Id, BrandId = brand?.Id,
-				CoffeeOriginId = Origin("کلمبیا")?.Id, CoffeeProcessId = Process("شسته")?.Id, RoastProfileId = Roast("متوسط")?.Id,
+				CoffeeOriginId = FindByName(origins, "کلمبیا")?.Id, CoffeeProcessId = FindByName(processes, "شسته")?.Id, RoastProfileId = FindByName(roasts, "متوسط")?.Id,
 				IsActive = true, IsPublished = true, IsFeatured = true, IsBestSeller = true,
 				PublishedAtUtc = DateTime.UtcNow.AddDays(-6),
 				MetaTitle = "خرید قهوه کلمبیا هوئلا | قهوه علیزاده",
@@ -79,7 +74,7 @@ public class ProductSeeder
 				Description = "<p>بلند اختصاصی ما برای <strong>اسپرسو و کاپوچینو</strong>؛ ترکیب عربیکای برزیل و روبوستای هندوراس با رُست متوسط-تیره. کرمای غنی، شکلات تلخ و ماندگاری عالی.</p><p><strong>دستور اسپرسو:</strong> ۱۸ گرم، خروجی ۳۶ گرم در ۲۸ ثانیه.</p>",
 				Sku = "GA-ESP-500", HasVariants = true,
 				CategoryId = category?.Id, BrandId = brand?.Id,
-				CoffeeOriginId = Origin("برزیل")?.Id, CoffeeProcessId = Process("طبیعی")?.Id, RoastProfileId = Roast("متوسط-تیره")?.Id,
+				CoffeeOriginId = FindByName(origins, "برزیل")?.Id, CoffeeProcessId = FindByName(processes, "طبیعی")?.Id, RoastProfileId = FindByName(roasts, "متوسط-تیره")?.Id,
 				IsActive = true, IsPublished = true, IsBestSeller = true,
 				PublishedAtUtc = DateTime.UtcNow.AddDays(-30),
 				MetaTitle = "خرید بلند اسپرسو | قهوه علیزاده",
@@ -93,7 +88,7 @@ public class ProductSeeder
 				Description = "<p><strong>کنیا AA</strong> درجه‌بندی بالاترین کیفیت کنیایی است؛ اسیدیته جسورانه و آبدار با طعم گیلاس، گریپ‌فروت و نکته‌های شیرین. برای قهوه‌شناس‌هایی که اسیدیته دوست دارند.</p>",
 				Sku = "GA-KEN-250", HasVariants = true,
 				CategoryId = category?.Id, BrandId = brand?.Id,
-				CoffeeOriginId = Origin("کنیا")?.Id, CoffeeProcessId = Process("شسته")?.Id, RoastProfileId = Roast("روشن")?.Id,
+				CoffeeOriginId = FindByName(origins, "کنیا")?.Id, CoffeeProcessId = FindByName(processes, "شسته")?.Id, RoastProfileId = FindByName(roasts, "روشن")?.Id,
 				IsActive = true, IsPublished = true, IsNew = true,
 				PublishedAtUtc = DateTime.UtcNow.AddDays(-1),
 				MetaTitle = "خرید قهوه کنیا AA | قهوه علیزاده",
@@ -107,7 +102,7 @@ public class ProductSeeder
 				Description = "<p>قهوه <strong>برزیل سانتوس</strong> با پروسس طبیعی؛ بدنه سنگین، شکلات شیری، بادام و شیرینی کم. انتخابی عالی برای موکاپات و قهوه‌های شیرین.</p>",
 				Sku = "GA-BRZ-250", HasVariants = true,
 				CategoryId = category?.Id, BrandId = brand?.Id,
-				CoffeeOriginId = Origin("برزیل")?.Id, CoffeeProcessId = Process("طبیعی")?.Id, RoastProfileId = Roast("متوسط")?.Id,
+				CoffeeOriginId = FindByName(origins, "برزیل")?.Id, CoffeeProcessId = FindByName(processes, "طبیعی")?.Id, RoastProfileId = FindByName(roasts, "متوسط")?.Id,
 				IsActive = true, IsPublished = true,
 				PublishedAtUtc = DateTime.UtcNow.AddDays(-45),
 				MetaTitle = "خرید قهوه برزیل سانتوس | قهوه علیزاده",
@@ -121,7 +116,7 @@ public class ProductSeeder
 				Description = "<p>از دره آتشفشانی <strong>آنتیگوا</strong>؛ شکلات تلخ، دارچین و نکته دودی ملایم با بدنه کرمی. مناسب قهوه‌های تلخ‌پسند.</p>",
 				Sku = "GA-GUA-250", HasVariants = true,
 				CategoryId = category?.Id, BrandId = brand?.Id,
-				CoffeeOriginId = Origin("گواتمالا")?.Id, CoffeeProcessId = Process("شسته")?.Id, RoastProfileId = Roast("تیره")?.Id,
+				CoffeeOriginId = FindByName(origins, "گواتمالا")?.Id, CoffeeProcessId = FindByName(processes, "شسته")?.Id, RoastProfileId = FindByName(roasts, "تیره")?.Id,
 				IsActive = true, IsPublished = true,
 				PublishedAtUtc = DateTime.UtcNow.AddDays(-20),
 				MetaTitle = "خرید قهوه گواتمالا آنتیگوا | قهوه علیزاده",
@@ -135,7 +130,7 @@ public class ProductSeeder
 				Description = "<p><strong>پاناما گیشا</strong> افسانه دنیای قهوه؛ عطر گل رز، طعم هلو و لیمو با شیرینی عسلی. بچ محدود — ویژه مجموعه‌داران و قهوه‌شناس‌ها.</p>",
 				Sku = "GA-GEI-100", HasVariants = false, BasePrice = 1_950_000m, CompareAtPrice = 2_300_000m,
 				CategoryId = category?.Id, BrandId = brand?.Id,
-				CoffeeOriginId = Origin("پاناما")?.Id, CoffeeProcessId = Process("شسته")?.Id, RoastProfileId = Roast("روشن")?.Id,
+				CoffeeOriginId = FindByName(origins, "پاناما")?.Id, CoffeeProcessId = FindByName(processes, "شسته")?.Id, RoastProfileId = FindByName(roasts, "روشن")?.Id,
 				IsActive = true, IsPublished = true, IsFeatured = true,
 				PublishedAtUtc = DateTime.UtcNow.AddDays(-3),
 				MetaTitle = "خرید قهوه پاناما گیشا | قهوه علیزاده",
@@ -149,7 +144,7 @@ public class ProductSeeder
 				Description = "<p>پروسس <strong>هانی</strong> کاستاریکا؛ بین شسته و طبیعی — شیرینی عسلی، زردآلو و بدنه کرمی با اسیدیته متعادل.</p>",
 				Sku = "GA-CRH-250", HasVariants = true,
 				CategoryId = category?.Id, BrandId = brand?.Id,
-				CoffeeOriginId = Origin("کاستاریکا")?.Id, CoffeeProcessId = Process("هانی")?.Id, RoastProfileId = Roast("روشن-متوسط")?.Id,
+				CoffeeOriginId = FindByName(origins, "کاستاریکا")?.Id, CoffeeProcessId = FindByName(processes, "هانی")?.Id, RoastProfileId = FindByName(roasts, "روشن-متوسط")?.Id,
 				IsActive = true, IsPublished = true,
 				PublishedAtUtc = DateTime.UtcNow.AddDays(-10),
 				MetaTitle = "خرید قهوه کاستاریکا هانی | قهوه علیزاده",
@@ -212,14 +207,14 @@ public class ProductSeeder
 			];
 
 			// نکته‌های طعمی
-			if (Note("jasmine") is { } n1) p.FlavorNotes.Add(n1);
-			if (Note("blueberry") is { } n2) p.FlavorNotes.Add(n2);
-			if (Note("caramel") is { } n3 && p.Slug.Contains("colombia")) p.FlavorNotes.Add(n3);
-			if (Note("dark-chocolate") is { } n4 && p.Slug.Contains("espresso")) p.FlavorNotes.Add(n4);
-			if (Note("cherry") is { } n5 && p.Slug.Contains("kenya")) p.FlavorNotes.Add(n5);
-			if (Note("milk-chocolate") is { } n6 && p.Slug.Contains("brazil")) p.FlavorNotes.Add(n6);
-			if (Note("rose") is { } n7 && p.Slug.Contains("geisha")) p.FlavorNotes.Add(n7);
-			if (Note("honey") is { } n8 && p.Slug.Contains("honey")) p.FlavorNotes.Add(n8);
+			if (FindFlavorNote(flavorNotes, "jasmine") is { } n1) p.FlavorNotes.Add(n1);
+			if (FindFlavorNote(flavorNotes, "blueberry") is { } n2) p.FlavorNotes.Add(n2);
+			if (p.Slug.Contains("colombia") && FindFlavorNote(flavorNotes, "caramel") is { } n3) p.FlavorNotes.Add(n3);
+			if (p.Slug.Contains("espresso") && FindFlavorNote(flavorNotes, "dark-chocolate") is { } n4) p.FlavorNotes.Add(n4);
+			if (p.Slug.Contains("kenya") && FindFlavorNote(flavorNotes, "cherry") is { } n5) p.FlavorNotes.Add(n5);
+			if (p.Slug.Contains("brazil") && FindFlavorNote(flavorNotes, "milk-chocolate") is { } n6) p.FlavorNotes.Add(n6);
+			if (p.Slug.Contains("geisha") && FindFlavorNote(flavorNotes, "rose") is { } n7) p.FlavorNotes.Add(n7);
+			if (p.Slug.Contains("honey") && FindFlavorNote(flavorNotes, "honey") is { } n8) p.FlavorNotes.Add(n8);
 		}
 
 		await _context.Products.AddRangeAsync(products, cancellationToken);
@@ -227,4 +222,11 @@ public class ProductSeeder
 
 		_logger.LogInformation("Seeded {Count} demo products.", products.Count);
 	}
+
+	private static T? FindByName<T>(IEnumerable<T> items, string keyword) where T : class =>
+		items.FirstOrDefault(i => i.GetType().GetProperty("Name")?.GetValue(i) is string name
+			&& name.Contains(keyword, StringComparison.OrdinalIgnoreCase));
+
+	private static FlavorNote? FindFlavorNote(IEnumerable<FlavorNote> notes, string slug) =>
+		notes.FirstOrDefault(n => n.Slug == slug);
 }
