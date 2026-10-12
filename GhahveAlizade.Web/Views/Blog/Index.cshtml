@@ -1,0 +1,115 @@
+@using GhahveAlizade.Web.Models
+@model BlogListViewModel
+@{
+    ViewData["Title"] = "وبلاگ قهوه";
+}
+
+<div class="coffee-hero slim">
+    <div class="hero-inner">
+        <span class="kicker">📖 مجله قهوه</span>
+        <h1 class="rise-in" style="font-size:clamp(1.8rem,4vw,2.6rem)">دانش قهوه، دم‌آوری و داستان دانه‌ها</h1>
+        <p class="lead-text mb-0">مقالات تخصصی برای عاشقان قهوه — از انتخاب دانه تا تکنیک دم‌آوری.</p>
+    </div>
+</div>
+
+<div class="container py-5" dir="rtl">
+    <div class="row g-4">
+        <div class="col-lg-3">
+            <form method="get" class="coffee-panel sticky-filter" style="overflow:hidden">
+                <div class="panel-head"><i class="bi bi-funnel"></i> فیلتر مطالب</div>
+                <div class="p-3">
+                    <input type="hidden" asp-for="Filter.PageNumber" value="1" />
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">جستجو</label>
+                        <input asp-for="Filter.Search" class="form-control form-control-sm" placeholder="عنوان مطلب..." />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">دسته‌بندی</label>
+                        <select asp-for="Filter.CategoryId" class="form-select form-select-sm">
+                            <option value="">همه</option>
+                            @foreach (var c in Model.Categories)
+                            {
+                                <option value="@c.Id">@c.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-coffee w-100 btn-sm rounded-pill">اعمال</button>
+                    <a asp-controller="Blog" asp-action="Index" class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill">حذف فیلترها</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-lg-9">
+            @if (Model.Posts.Items.Count == 0)
+            {
+                <div class="coffee-panel p-5 text-center text-muted">
+                    <i class="bi bi-journal-x fs-1 d-block mb-3" style="color:var(--caramel)"></i>
+                    <h6 class="fw-bold">مطلبی پیدا نشد!</h6>
+                    بعداً سر بزنید — هر هفته مقاله جدید منتشر می‌کنیم.
+                </div>
+            }
+            else
+            {
+                <div class="row g-4">
+                    @foreach (var post in Model.Posts.Items)
+                    {
+                        <div class="col-md-6">
+                            <div class="blog-card">
+                                <a asp-controller="Blog" asp-action="Details" asp-route-slug="@post.Slug" class="blog-img d-block">
+                                    @if (!string.IsNullOrEmpty(post.FeaturedImageUrl))
+                                    {
+                                        <img src="@post.FeaturedImageUrl" alt="@post.Title" loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <div class="d-flex align-items-center justify-content-center h-100">
+                                            <i class="bi bi-cup-hot fs-1" style="color:var(--caramel)"></i>
+                                        </div>
+                                    }
+                                </a>
+                                <div class="blog-body">
+                                    @if (!string.IsNullOrEmpty(post.CategoryName))
+                                    {
+                                        <span class="badge badge-outline-coffee mb-2 align-self-start">@post.CategoryName</span>
+                                    }
+                                    <a asp-controller="Blog" asp-action="Details" asp-route-slug="@post.Slug"
+                                       class="product-title d-block mb-2" style="font-size:1.05rem">@post.Title</a>
+                                    @if (!string.IsNullOrEmpty(post.Summary))
+                                    {
+                                        <p class="text-muted small mb-3">@(post.Summary.Length > 130 ? post.Summary[..130] + "…" : post.Summary)</p>
+                                    }
+                                    <div class="blog-meta d-flex gap-3 mt-auto">
+                                        <span><i class="bi bi-clock"></i> @post.ReadingTimeMinutes دقیقه</span>
+                                        <span><i class="bi bi-eye"></i> @post.ViewCount</span>
+                                        @if (post.IsFeatured)
+                                        {
+                                            <span class="text-gold"><i class="bi bi-star-fill"></i> ویژه</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @if (Model.Posts.TotalPages > 1)
+                {
+                    <nav class="mt-5">
+                        <ul class="pagination justify-content-center">
+                            @for (var i = 1; i <= Model.Posts.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == Model.Posts.PageNumber ? "active" : "")">
+                                    <a class="page-link"
+                                       asp-controller="Blog" asp-action="Index"
+                                       asp-route-Filter.PageNumber="@i"
+                                       asp-route-Filter.Search="@Model.Filter.Search"
+                                       asp-route-Filter.CategoryId="@Model.Filter.CategoryId">@i</a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                }
+            }
+        </div>
+    </div>
+</div>

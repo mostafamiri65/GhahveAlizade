@@ -1,0 +1,67 @@
+@using GhahveAlizade.Application.Features.Content.Dtos
+@model BlogPostDto
+
+<div class="container py-4" dir="rtl" style="max-width: 820px;">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">خانه</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Blog" asp-action="Index">وبلاگ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Title</li>
+        </ol>
+    </nav>
+
+    <article>
+        <span class="kicker">📖 مجله قهوه</span>
+        <h1 class="display-serif mb-3" style="font-size:clamp(1.5rem,3.5vw,2.2rem)">@Model.Title</h1>
+
+        <div class="blog-meta mb-4 d-flex flex-wrap gap-3">
+            @if (!string.IsNullOrEmpty(Model.AuthorName))
+            {
+                <span><i class="bi bi-person"></i> @Model.AuthorName</span>
+            }
+            @if (Model.PublishedAtUtc.HasValue)
+            {
+                <span><i class="bi bi-calendar3"></i> @Model.PublishedAtUtc.Value.ToString("yyyy/MM/dd")</span>
+            }
+            <span><i class="bi bi-clock"></i> @Model.ReadingTimeMinutes دقیقه مطالعه</span>
+            <span><i class="bi bi-eye"></i> @Model.ViewCount بازدید</span>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.FeaturedImageUrl))
+        {
+            <div class="blog-single-img rounded-4 shadow mb-4 overflow-hidden">
+                <img src="@Model.FeaturedImageUrl" alt="@(Model.FeaturedImageAlt ?? Model.Title)" />
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.Summary))
+        {
+            <div class="quote-block mb-4">
+                @Model.Summary
+            </div>
+        }
+
+        <div class="coffee-content">
+            @Html.Raw(Model.Content)
+        </div>
+
+        @if (Model.TagNames.Count > 0)
+        {
+            <div class="d-flex flex-wrap gap-2 mt-4">
+                @foreach (var tag in Model.TagNames)
+                {
+                    <span class="badge badge-coffee"><i class="bi bi-tag"></i> @tag</span>
+                }
+            </div>
+        }
+
+        <hr style="border-color:rgba(197,143,74,.35);opacity:1" class="my-5" />
+
+        <div class="text-center">
+            <p class="text-muted small mb-3">از خواندن این مطلب لذت بردید؟ قهوه‌ی تازه‌ی ما را امتحان کنید ☕</p>
+            <a asp-controller="Products" asp-action="Index" class="btn btn-coffee px-4">
+                مشاهده فروشگاه <i class="bi bi-arrow-left"></i>
+            </a>
+        </div>
+    </article>
+</div>

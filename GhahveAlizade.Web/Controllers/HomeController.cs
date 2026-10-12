@@ -21,6 +21,16 @@ namespace GhahveAlizade.Web.Controllers
 			return View();
 		}
 
+		public IActionResult About()
+		{
+			ViewData["Title"] = "درباره ما";
+			return View();
+		}
 
+		public IActionResult Contact()
+		{
+			ViewData["Title"] = "تماس با ما";
+			return View();
+		}
 	}
 }
