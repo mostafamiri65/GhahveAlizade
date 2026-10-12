@@ -1,0 +1,69 @@
+@model TicketDetailDto
+@{
+	string StatusName(string s) => s switch
+	{
+		"Open" => "جدید", "InProgress" => "در حال بررسی",
+		"WaitingCustomer" => "منتظر پاسخ شما", "Resolved" => "حل شده",
+		"Closed" => "بسته", _ => s
+	};
+	var isClosed = Model.Status == TicketStatus.Closed;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+	<h4 class="mb-0">
+		<i class="bi bi-life-preserver"></i>
+		@Model.Subject
+		<span class="badge bg-secondary ms-2">@StatusName(Model.Status.ToString())</span>
+	</h4>
+	<div class="d-flex gap-2">
+		<small class="text-muted align-self-center" dir="ltr">@Model.TicketNumber</small>
+		<a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-right"></i> بازگشت</a>
+	</div>
+</div>
+
+<div class="user-card p-0">
+	<div class="p-3" style="max-height: 500px; overflow-y: auto;">
+		@foreach (var m in Model.Messages)
+		{
+			<div class="d-flex mb-3 @(m.IsFromAdmin ? "justify-content-start" : "justify-content-end")">
+				<div class="@(m.IsFromAdmin ? "border" : "bg-light") rounded-3 p-3"
+					 style="max-width: 75%; @(m.IsFromAdmin ? "" : "background:#fff8ec;border:1px solid #f0e0c0;")">
+					<div class="d-flex justify-content-between mb-1">
+						<strong class="small">@m.SenderName</strong>
+						<small class="text-muted ms-3">@m.CreatedAtUtc.ToLocalTime().ToString("yyyy/MM/dd HH:mm")</small>
+					</div>
+					<div style="white-space: pre-wrap;">@m.Body</div>
+				</div>
+			</div>
+		}
+	</div>
+
+	@if (!isClosed)
+	{
+		<div class="border-top p-3">
+			<form asp-action="Reply" method="post" class="d-flex gap-2">
+				<input type="hidden" name="id" value="@Model.Id" />
+				<textarea name="body" class="form-control" rows="2" required minlength="2"
+						  placeholder="پاسخ خود را بنویسید..."></textarea>
+				<button type="submit" class="btn btn-primary align-self-end">
+					<i class="bi bi-send"></i> ارسال
+				</button>
+			</form>
+		</div>
+	}
+	else
+	{
+		<div class="border-top p-3 text-center text-muted small">این تیکت بسته شده است.</div>
+	}
+</div>
+
+@if (!isClosed)
+{
+	<form asp-action="Close" method="post" class="mt-2 text-center"
+		  onsubmit="return confirm('تیکت بسته شود؟');">
+		<input type="hidden" name="id" value="@Model.Id" />
+		<button type="submit" class="btn btn-outline-secondary btn-sm">
+			<i class="bi bi-check-circle"></i> مشکل حل شد — بستن تیکت
+		</button>
+	</form>
+}
