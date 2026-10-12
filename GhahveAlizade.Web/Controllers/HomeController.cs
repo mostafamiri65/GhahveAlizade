@@ -9,10 +9,10 @@ namespace GhahveAlizade.Web.Controllers
 	{
 		public IActionResult Index()
 		{
-			if (User.Identity?.IsAuthenticated == true && User.IsAdmin())
-			{
-				return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
-			}
+			//	if (User.Identity?.IsAuthenticated == true && User.IsAdmin())
+			//	{
+			//		return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+			//	}
 			return View();
 		}
 

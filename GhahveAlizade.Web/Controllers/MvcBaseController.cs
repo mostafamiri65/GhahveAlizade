@@ -29,6 +29,18 @@ public abstract class MvcBaseController : BaseController
 	}
 
 	/// <summary>
+	/// نمایش صفحه خطای عمومی سایت برای خطاهای سطح صفحه (مثلاً داده پیدا نشد).
+	/// </summary>
+	protected IActionResult HandleError(Error error)
+	{
+		ViewData["ErrorTitle"] = error.Description;
+		return View("~/Views/Shared/Error.cshtml", new ErrorViewModel
+		{
+			TraceId = HttpContext.TraceIdentifier
+		});
+	}
+
+	/// <summary>
 	/// افزودن Errorها به ModelState.
 	/// </summary>
 	protected void AddErrorsToModelState(IEnumerable<Error> errors)
