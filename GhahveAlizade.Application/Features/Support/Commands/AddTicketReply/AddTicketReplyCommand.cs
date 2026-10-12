@@ -7,4 +7,5 @@ public record AddTicketReplyCommand(
 	long UserId,          // فرستنده (کاربر یا ادمین)
 	long TicketId,
 	string Body,
-	bool IsFromAdmin = false) : IRequest<ErrorOr<Success>>;
+	bool IsFromAdmin = false,
+	bool IsInternalNote = false) : IRequest<ErrorOr<Success>>;
