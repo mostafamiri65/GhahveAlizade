@@ -1,0 +1,97 @@
+@model ChatHistoryDto
+@{
+	var isOpen = Model.Status != Domain.Support.ChatSessionStatus.Closed;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+	<h4 class="mb-0">
+		<i class="bi bi-chat-dots"></i> گفتگو با @(Model.CustomerName ?? Model.GuestName ?? "مشتری")
+		<span class="badge bg-secondary ms-2">@Model.Status</span>
+	</h4>
+	<a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-right"></i> بازگشت</a>
+</div>
+
+<div class="admin-card p-0">
+	<div id="chatMessages" class="p-3" style="height: 460px; overflow-y: auto; display: flex; flex-direction: column;"></div>
+
+	@if (isOpen)
+	{
+		<div class="border-top p-3 d-flex gap-2">
+			<input type="text" id="chatInput" class="form-control" maxlength="2000"
+				   placeholder="پیام خود را بنویسید..." autocomplete="off" />
+			<button id="sendBtn" class="btn btn-admin-primary"><i class="bi bi-send"></i></button>
+			<button id="closeBtn" class="btn btn-outline-danger"><i class="bi bi-x-circle"></i> پایان</button>
+		</div>
+	}
+	else
+	{
+		<div class="border-top p-3 text-center text-muted small">این گفتگو بسته شده است.</div>
+	}
+</div>
+
+@section Scripts {
+<style>
+	.chat-bubble { max-width: 75%; padding: .6rem 1rem; border-radius: 1rem; margin-bottom: .5rem; }
+	.chat-admin { background: #fff3e0; border: 1px solid #ffe0b2; margin-left: auto; }
+	.chat-cust  { background: #eef2ff; border: 1px solid #dbe4ff; margin-right: auto; }
+</style>
+<script>
+	const sessionId = @ViewBag.SessionId;
+	let lastMessageId = 0;
+
+	function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+
+	function renderMessage(m) {
+		const cls = m.isFromAdmin ? 'chat-admin' : 'chat-cust';
+		$('#chatMessages').append(`
+			<div class="chat-bubble ${cls}">
+				<div class="d-flex justify-content-between mb-1">
+					<strong class="small">${escapeHtml(m.senderName || '')}</strong>
+					<small class="text-muted ms-2">${m.createdAt}</small>
+				</div>
+				<div style="white-space: pre-wrap;">${escapeHtml(m.body)}</div>
+			</div>`);
+		lastMessageId = Math.max(lastMessageId, m.id);
+		$('#chatMessages').scrollTop($('#chatMessages')[0].scrollHeight);
+	}
+
+	async function poll() {
+		try {
+			const res = await fetch(`/admin/supportchat/poll?id=${sessionId}&afterMessageId=${lastMessageId}`);
+			const data = await res.json();
+			if (data.success && data.messages) data.messages.forEach(renderMessage);
+		} catch (e) { /* silent */ }
+	}
+
+	async function send() {
+		const body = $('#chatInput').val().trim();
+		if (!body) return;
+		$('#chatInput').val('');
+		const token = $('input[name="__RequestVerificationToken"]').first().val();
+		const res = await fetch('/admin/supportchat/send', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+			body: `sessionId=${sessionId}&body=${encodeURIComponent(body)}&__RequestVerificationToken=${encodeURIComponent(token)}`
+		});
+		const data = await res.json();
+		if (data.success) renderMessage(data.message);
+		else alert(data.message);
+	}
+
+	$('#sendBtn').on('click', send);
+	$('#chatInput').on('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); send(); } });
+
+	$('#closeBtn').on('click', async () => {
+		if (!confirm('گفتگو بسته شود؟')) return;
+		const token = $('input[name="__RequestVerificationToken"]').first().val();
+		await fetch('/admin/supportchat/close', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+			body: `sessionId=${sessionId}&__RequestVerificationToken=${encodeURIComponent(token)}`
+		});
+		location.reload();
+	});
+
+	poll().then(() => setInterval(poll, 3000));
+</script>
+}
