@@ -13,8 +13,6 @@ namespace GhahveAlizade.Web.Controllers;
 [Route("products")]
 public class ProductsController : MvcBaseController
 {
-	public ProductsController(IMediator mediator) : base(mediator) { }
-
 	// GET /products
 	[HttpGet("")]
 	public async Task<IActionResult> Index(
@@ -73,7 +71,7 @@ public class ProductsController : MvcBaseController
 	private async Task<List<CategoryOption>> GetCategoryOptions(CancellationToken ct)
 	{
 		var result = await Mediator.Send(
-			new GetCategoriesListQuery(PageNumber: 1, PageSize: 100, OnlyActive: true), ct);
+			new GetCategoriesListQuery(PageNumber: 1, PageSize: 100, IsActive: true), ct);
 		return result.IsError
 			? new List<CategoryOption>()
 			: result.Value.Items
