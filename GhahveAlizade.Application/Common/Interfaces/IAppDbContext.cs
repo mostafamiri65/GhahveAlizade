@@ -1,8 +1,9 @@
-﻿using GhahveAlizade.Domain.Accounting;
+using GhahveAlizade.Domain.Accounting;
 using GhahveAlizade.Domain.Bundle;
 using GhahveAlizade.Domain.Catalog;
 using GhahveAlizade.Domain.Coffee;
 using GhahveAlizade.Domain.Commerce;
+using GhahveAlizade.Domain.Common;
 using GhahveAlizade.Domain.Content;
 using GhahveAlizade.Domain.Customer;
 using GhahveAlizade.Domain.Identity;
@@ -17,6 +18,7 @@ using GhahveAlizade.Domain.Review;
 using GhahveAlizade.Domain.SEO;
 using GhahveAlizade.Domain.Settings;
 using GhahveAlizade.Domain.Shipping;
+using GhahveAlizade.Domain.Support;
 using GhahveAlizade.Domain.Wholesale;
 using GhahveAlizade.Domain.Wishlist;
 using Microsoft.EntityFrameworkCore;
@@ -119,6 +121,14 @@ public interface IAppDbContext
 
 	DbSet<AccountingSyncLog> AccountingSyncLogs { get; }
 	DbSet<AccountingMapping> AccountingMappings { get; }
+
+	// Support (تیکتینگ)
+	DbSet<SupportTicket> SupportTickets { get; }
+	DbSet<TicketMessage> TicketMessages { get; }
+
+	// Support (چت آنلاین)
+	DbSet<SupportChatSession> SupportChatSessions { get; }
+	DbSet<ChatMessage> ChatMessages { get; }
 
 	Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
