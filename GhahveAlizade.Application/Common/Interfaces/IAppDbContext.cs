@@ -1,9 +1,9 @@
 using GhahveAlizade.Domain.Accounting;
+using GhahveAlizade.Domain.AiAdvisor;
 using GhahveAlizade.Domain.Bundle;
 using GhahveAlizade.Domain.Catalog;
 using GhahveAlizade.Domain.Coffee;
 using GhahveAlizade.Domain.Commerce;
-using GhahveAlizade.Domain.Common;
 using GhahveAlizade.Domain.Content;
 using GhahveAlizade.Domain.Customer;
 using GhahveAlizade.Domain.Identity;
@@ -129,6 +129,10 @@ public interface IAppDbContext
 	// Support (چت آنلاین)
 	DbSet<SupportChatSession> SupportChatSessions { get; }
 	DbSet<ChatMessage> ChatMessages { get; }
+
+	// AI Advisor (مشاور هوشمند قهوه)
+	DbSet<AiAdvisorSession> AiAdvisorSessions { get; }
+	DbSet<AiAdvisorMessage> AiAdvisorMessages { get; }
 
 	Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
