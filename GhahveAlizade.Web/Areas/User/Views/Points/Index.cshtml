@@ -1,0 +1,71 @@
+@model MyPointDto
+@{
+	var tierName = Model.Tier switch
+	{
+		"Gold" => "طلایی", "Silver" => "نقره‌ای",
+		"Platinum" => "پلاتینیوم", "Bronze" => "برنزی", _ => "عضو عادی"
+	};
+}
+
+<h4 class="mb-4"><i class="bi bi-star"></i> امتیاز و باشگاه مشتریان</h4>
+
+<div class="row g-3 mb-4">
+	<div class="col-md-4">
+		<div class="user-card text-center">
+			<div class="fs-2 fw-bold text-primary">@Model.CurrentPoints</div>
+			<div class="text-muted small">امتیاز فعلی</div>
+		</div>
+	</div>
+	<div class="col-md-4">
+		<div class="user-card text-center">
+			<div class="fs-2 fw-bold text-success">@Model.TotalEarned</div>
+			<div class="text-muted small">مجموع کسب‌شده</div>
+		</div>
+	</div>
+	<div class="col-md-4">
+		<div class="user-card text-center">
+			<div class="fs-2 fw-bold text-danger">@Model.TotalRedeemed</div>
+			<div class="text-muted small">مجموع مصرف‌شده</div>
+		</div>
+	</div>
+</div>
+
+<div class="user-card">
+	<div class="d-flex justify-content-between align-items-center mb-3">
+		<h5 class="mb-0">تاریخچه امتیازها</h5>
+		<span class="badge bg-warning text-dark">سطح: @tierName</span>
+	</div>
+
+	@if (Model.Transactions.Count == 0)
+	{
+		<p class="text-muted text-center py-4">هنوز تراکنش امتیازی ندارید. با هر خرید امتیاز جمع کنید!</p>
+	}
+	else
+	{
+		<div class="table-responsive">
+			<table class="table table-hover align-middle">
+				<thead class="table-light">
+					<tr>
+						<th>شرح</th>
+						<th class="text-center">امتیاز</th>
+						<th class="text-center">مانده پس از تراکنش</th>
+						<th class="text-center">تاریخ</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var t in Model.Transactions)
+					{
+						<tr>
+							<td>@t.Description</td>
+							<td class="text-center fw-bold @(t.Points >= 0 ? "text-success" : "text-danger")">
+								@(t.Points >= 0 ? "+" : "")@t.Points
+							</td>
+							<td class="text-center">@t.BalanceAfter</td>
+							<td class="text-center small text-muted">@t.CreatedAtUtc.ToLocalTime().ToString("yyyy/MM/dd")</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	}
+</div>
