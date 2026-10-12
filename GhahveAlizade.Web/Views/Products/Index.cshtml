@@ -4,89 +4,106 @@
     ViewData["Title"] = "فروشگاه قهوه";
 }
 
-<div class="container py-4" dir="rtl">
-    <h2 class="section-title mb-4"><i class="bi bi-cup-hot"></i> فروشگاه قهوه</h2>
+<!-- هدر صفحه -->
+<div class="coffee-hero slim">
+    <div class="hero-inner">
+        <span class="kicker">☕ فروشگاه</span>
+        <h1 class="rise-in" style="font-size:clamp(1.8rem,4vw,2.6rem)">
+            @(string.IsNullOrWhiteSpace(Model.Filter.Search) ? "کالکشن قهوه ما" : $"نتایج «{Model.Filter.Search}»")
+        </h1>
+        <p class="lead-text mb-0">از اسپرسو تلخ تا بلندهای میوه‌ای — قهوه‌ی دلخواهتان را پیدا کنید.</p>
+    </div>
+</div>
 
+<div class="container py-5" dir="rtl">
     <div class="row g-4">
         <!-- فیلترها -->
         <div class="col-lg-3">
-            <form method="get" class="coffee-panel p-3">
-                <h6 class="fw-bold mb-3"><i class="bi bi-funnel"></i> فیلترها</h6>
+            <form method="get" class="coffee-panel sticky-filter" style="overflow:hidden">
+                <div class="panel-head"><i class="bi bi-funnel"></i> فیلترها</div>
+                <div class="p-3">
+                    <input type="hidden" asp-for="Filter.PageNumber" value="1" />
 
-                <input type="hidden" asp-for="Filter.PageNumber" value="1" />
-
-                <div class="mb-3">
-                    <label class="form-label small fw-semibold">جستجو</label>
-                    <input asp-for="Filter.Search" class="form-control form-control-sm" placeholder="نام محصول..." />
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label small fw-semibold">دسته‌بندی</label>
-                    <select asp-for="Filter.CategoryId" class="form-select form-select-sm">
-                        <option value="">همه</option>
-                        @if (ViewBag.Categories is List<CategoryOption> cats)
-                        {
-                            @foreach (var c in cats)
-                            {
-                                <option value="@c.Id">@c.Name</option>
-                            }
-                        }
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label small fw-semibold">برند</label>
-                    <select asp-for="Filter.BrandId" class="form-select form-select-sm">
-                        <option value="">همه</option>
-                        @if (ViewBag.Brands is List<CategoryOption> brands)
-                        {
-                            @foreach (var b in brands)
-                            {
-                                <option value="@b.Id">@b.Name</option>
-                            }
-                        }
-                    </select>
-                </div>
-
-                <div class="row g-2 mb-3">
-                    <div class="col-6">
-                        <label class="form-label small fw-semibold">حداقل قیمت</label>
-                        <input asp-for="Filter.MinPrice" class="form-control form-control-sm" type="number" min="0" />
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">جستجو</label>
+                        <input asp-for="Filter.Search" class="form-control form-control-sm" placeholder="نام محصول..." />
                     </div>
-                    <div class="col-6">
-                        <label class="form-label small fw-semibold">حداکثر قیمت</label>
-                        <input asp-for="Filter.MaxPrice" class="form-control form-control-sm" type="number" min="0" />
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">دسته‌بندی</label>
+                        <select asp-for="Filter.CategoryId" class="form-select form-select-sm">
+                            <option value="">همه</option>
+                            @if (ViewBag.Categories is List<CategoryOption> cats)
+                            {
+                                @foreach (var c in cats)
+                                {
+                                    <option value="@c.Id">@c.Name</option>
+                                }
+                            }
+                        </select>
                     </div>
-                </div>
 
-                <div class="mb-3">
-                    <label class="form-label small fw-semibold">مرتب‌سازی</label>
-                    <select asp-for="Filter.SortBy" class="form-select form-select-sm">
-                        <option value="createdAt">جدیدترین</option>
-                        <option value="price">ارزان‌ترین</option>
-                        <option value="soldcount">پرفروش‌ترین</option>
-                        <option value="viewcount">پربازدیدترین</option>
-                        <option value="name">نام (الفبا)</option>
-                    </select>
-                </div>
-                <select asp-for="Filter.SortDir" class="d-none" hidden></select>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">برند</label>
+                        <select asp-for="Filter.BrandId" class="form-select form-select-sm">
+                            <option value="">همه</option>
+                            @if (ViewBag.Brands is List<CategoryOption> brands)
+                            {
+                                @foreach (var b in brands)
+                                {
+                                    <option value="@b.Id">@b.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
 
-                <button type="submit" class="btn btn-coffee w-100 btn-sm">
-                    <i class="bi bi-check2-circle"></i> اعمال فیلتر
-                </button>
-                <a asp-controller="Products" asp-action="Index" class="btn btn-outline-secondary btn-sm w-100 mt-2">
-                    حذف فیلترها
-                </a>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">حداقل قیمت</label>
+                            <input asp-for="Filter.MinPrice" class="form-control form-control-sm" type="number" min="0" />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">حداکثر قیمت</label>
+                            <input asp-for="Filter.MaxPrice" class="form-control form-control-sm" type="number" min="0" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">مرتب‌سازی</label>
+                        <select asp-for="Filter.SortBy" class="form-select form-select-sm">
+                            <option value="createdAt">جدیدترین</option>
+                            <option value="price">ارزان‌ترین</option>
+                            <option value="soldcount">پرفروش‌ترین</option>
+                            <option value="viewcount">پربازدیدترین</option>
+                            <option value="name">نام (الفبا)</option>
+                        </select>
+                    </div>
+                    <select asp-for="Filter.SortDir" class="d-none" hidden></select>
+
+                    <button type="submit" class="btn btn-coffee w-100 btn-sm rounded-pill">
+                        <i class="bi bi-check2-circle"></i> اعمال فیلتر
+                    </button>
+                    <a asp-controller="Products" asp-action="Index" class="btn btn-outline-secondary btn-sm w-100 mt-2 rounded-pill">
+                        حذف فیلترها
+                    </a>
+                </div>
             </form>
         </div>
 
         <!-- محصولات -->
         <div class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted small">
+                    <i class="bi bi-cup-hot"></i> @Model.Products.TotalCount محصول
+                </span>
+            </div>
+
             @if (Model.Products.Items.Count == 0)
             {
                 <div class="coffee-panel p-5 text-center text-muted">
-                    <i class="bi bi-cup fs-1 d-block mb-3"></i>
-                    محصولی با این فیلترها پیدا نشد.
+                    <i class="bi bi-cup fs-1 d-block mb-3" style="color:var(--caramel)"></i>
+                    <h6 class="fw-bold">چیزی پیدا نشد!</h6>
+                    فیلترها را تغییر دهید یا عبارت دیگری جستجو کنید.
                 </div>
             }
             else
@@ -104,45 +121,48 @@
                                     else
                                     {
                                         <div class="d-flex align-items-center justify-content-center h-100">
-                                            <i class="bi bi-cup-hot fs-1" style="color:var(--coffee-caramel)"></i>
+                                            <i class="bi bi-cup-hot fs-1" style="color:var(--caramel)"></i>
                                         </div>
                                     }
                                 </a>
+
+                                @if (p.IsBestSeller)
+                                {
+                                    <span class="badge badge-coffee position-absolute top-0 end-0 m-2">پرفروش</span>
+                                }
+                                else if (p.IsNew)
+                                {
+                                    <span class="badge badge-outline-coffee position-absolute top-0 end-0 m-2 bg-white">جدید</span>
+                                }
+
                                 <div class="product-body">
-                                    @if (p.IsBestSeller)
+                                    @if (!string.IsNullOrEmpty(p.BrandName))
                                     {
-                                        <span class="badge badge-coffee mb-2">پرفروش</span>
-                                    }
-                                    else if (p.IsNew)
-                                    {
-                                        <span class="badge badge-outline-coffee mb-2">جدید</span>
+                                        <div class="blog-meta mb-1"><i class="bi bi-award"></i> @p.BrandName</div>
                                     }
                                     <a asp-controller="Products" asp-action="Details" asp-route-slug="@p.Slug"
                                        class="product-title d-block mb-2">@p.Name</a>
 
-                                    @if (!string.IsNullOrEmpty(p.BrandName))
-                                    {
-                                        <div class="text-muted small mb-2"><i class="bi bi-award"></i> @p.BrandName</div>
-                                    }
-
-                                    <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex justify-content-between align-items-end">
                                         @if (p.HasVariants)
                                         {
                                             <span class="product-price small">
-                                                از @(p.MinVariantPrice?.ToString("N0")) تومان
+                                                از @(p.MinVariantPrice?.ToString("N0")) <small>تومان</small>
                                             </span>
                                         }
                                         else if (p.BasePrice.HasValue)
                                         {
-                                            <span class="product-price">@p.BasePrice.Value.ToString("N0") تومان</span>
-                                            if (p.CompareAtPrice.HasValue && p.CompareAtPrice > p.BasePrice)
-                                            {
-                                                <span class="product-price-old">@p.CompareAtPrice.Value.ToString("N0")</span>
-                                            }
+                                            <div>
+                                                @if (p.CompareAtPrice.HasValue && p.CompareAtPrice > p.BasePrice)
+                                                {
+                                                    <span class="product-price-old d-block">@p.CompareAtPrice.Value.ToString("N0")</span>
+                                                }
+                                                <span class="product-price">@p.BasePrice.Value.ToString("N0") <small>تومان</small></span>
+                                            </div>
                                         }
                                         else
                                         {
-                                            <span class="text-muted small">قیمت تماس بگیرید</span>
+                                            <span class="text-muted small">استعلام قیمت</span>
                                         }
                                     </div>
 
@@ -159,7 +179,7 @@
                 <!-- صفحه‌بندی -->
                 @if (Model.Products.TotalPages > 1)
                 {
-                    <nav class="mt-4">
+                    <nav class="mt-5">
                         <ul class="pagination justify-content-center">
                             @for (var i = 1; i <= Model.Products.TotalPages; i++)
                             {
