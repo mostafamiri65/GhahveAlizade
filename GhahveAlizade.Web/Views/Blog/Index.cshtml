@@ -1,0 +1,102 @@
+@using GhahveAlizade.Web.Models
+@model BlogListViewModel
+@{
+    ViewData["Title"] = "وبلاگ قهوه";
+}
+
+<div class="container py-4" dir="rtl">
+    <h2 class="section-title mb-4"><i class="bi bi-journal-richtext"></i> وبلاگ قهوه</h2>
+
+    <div class="row g-4">
+        <div class="col-lg-3">
+            <form method="get" class="coffee-panel p-3">
+                <h6 class="fw-bold mb-3"><i class="bi bi-funnel"></i> فیلتر مطالب</h6>
+                <input type="hidden" asp-for="Filter.PageNumber" value="1" />
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">جستجو</label>
+                    <input asp-for="Filter.Search" class="form-control form-control-sm" placeholder="عنوان مطلب..." />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">دسته‌بندی</label>
+                    <select asp-for="Filter.CategoryId" class="form-select form-select-sm">
+                        <option value="">همه</option>
+                        @foreach (var c in Model.Categories)
+                        {
+                            <option value="@c.Id">@c.Name</option>
+                        }
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-coffee w-100 btn-sm">اعمال</button>
+                <a asp-controller="Blog" asp-action="Index" class="btn btn-outline-secondary btn-sm w-100 mt-2">حذف فیلترها</a>
+            </form>
+        </div>
+
+        <div class="col-lg-9">
+            @if (Model.Posts.Items.Count == 0)
+            {
+                <div class="coffee-panel p-5 text-center text-muted">
+                    <i class="bi bi-journal-x fs-1 d-block mb-3"></i>
+                    مطلبی با این فیلترها پیدا نشد.
+                </div>
+            }
+            else
+            {
+                <div class="row g-3">
+                    @foreach (var post in Model.Posts.Items)
+                    {
+                        <div class="col-md-4 col-sm-6">
+                            <div class="blog-card">
+                                <a asp-controller="Blog" asp-action="Details" asp-route-slug="@post.Slug" class="blog-img d-block">
+                                    @if (!string.IsNullOrEmpty(post.FeaturedImageUrl))
+                                    {
+                                        <img src="@post.FeaturedImageUrl" alt="@post.Title" loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <div class="d-flex align-items-center justify-content-center h-100">
+                                            <i class="bi bi-cup-hot fs-1" style="color:var(--coffee-caramel)"></i>
+                                        </div>
+                                    }
+                                </a>
+                                <div class="p-3">
+                                    @if (!string.IsNullOrEmpty(post.CategoryName))
+                                    {
+                                        <span class="badge badge-outline-coffee mb-2">@post.CategoryName</span>
+                                    }
+                                    <a asp-controller="Blog" asp-action="Details" asp-route-slug="@post.Slug"
+                                       class="product-title d-block mb-2">@post.Title</a>
+                                    @if (!string.IsNullOrEmpty(post.Summary))
+                                    {
+                                        <p class="text-muted small mb-2">@(post.Summary.Length > 110 ? post.Summary[..110] + "…" : post.Summary)</p>
+                                    }
+                                    <div class="text-muted small d-flex justify-content-between">
+                                        <span><i class="bi bi-clock"></i> @post.ReadingTimeMinutes دقیقه مطالعه</span>
+                                        <span><i class="bi bi-eye"></i> @post.ViewCount</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @if (Model.Posts.TotalPages > 1)
+                {
+                    <nav class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            @for (var i = 1; i <= Model.Posts.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == Model.Posts.PageNumber ? "active" : "")">
+                                    <a class="page-link"
+                                       asp-controller="Blog" asp-action="Index"
+                                       asp-route-Filter.PageNumber="@i"
+                                       asp-route-Filter.Search="@Model.Filter.Search"
+                                       asp-route-Filter.CategoryId="@Model.Filter.CategoryId">@i</a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                }
+            }
+        </div>
+    </div>
+</div>
