@@ -1,0 +1,23 @@
+/*
+ * کلاس‌های یکسان‌ساز تصاویر برای صفحات فروشگاه و وبلاگ.
+ * با aspect-ratio + object-fit: cover، همه عکس‌ها در کارت‌ها هم‌اندازه و هم‌نسبت نمایش داده می‌شوند
+ * حتی اگر فایل اصلی نسبت متفاوتی داشته باشد (برش از مرکز).
+ */
+
+/* تصاویر وبلاگ — نسبت 3:2 افقی */
+.img-card {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+/* تصاویر محصولات — مربع 1:1 */
+.img-card-square {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}

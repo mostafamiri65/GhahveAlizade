@@ -1,4 +1,4 @@
-﻿using GhahveAlizade.Application.Common.Interfaces;
+using GhahveAlizade.Application.Common.Interfaces;
 using GhahveAlizade.Application.Features.Content.Commands.SaveBlogPost;
 using GhahveAlizade.Application.Features.Content.Queries.GetBlogPostById;
 using GhahveAlizade.Application.Features.Content.Queries.GetBlogPostFormData;
@@ -13,6 +13,9 @@ namespace GhahveAlizade.Web.Areas.Admin.Controllers;
 public class BlogPostsController : AdminBaseController
 {
 	private readonly IFileStorageService _fileStorage;
+
+	// حداقل 1200×800 با نسبت 3:2 برای یکسان‌بودن عکس‌ها در لیست وبلاگ
+	private static readonly ImageConstraints BlogImageConstraints = new(1200, 800, 1.5);
 
 	public BlogPostsController(IFileStorageService fileStorage) => _fileStorage = fileStorage;
 
@@ -67,12 +70,7 @@ public class BlogPostsController : AdminBaseController
 		IFormFile? featuredImageFile,
 		CancellationToken ct)
 	{
-		if (featuredImageFile is not null && featuredImageFile.Length > 0)
-		{
-			await using var s = featuredImageFile.OpenReadStream();
-			var r = await _fileStorage.UploadAsync(s, featuredImageFile.FileName, featuredImageFile.ContentType, "blog", ct);
-			if (r.Success) model.FeaturedImageUrl = r.Url!;
-		}
+		await UploadFeaturedImageAsync(model, featuredImageFile, ct);
 
 		if (!ModelState.IsValid)
 		{
@@ -151,12 +149,7 @@ public class BlogPostsController : AdminBaseController
 		IFormFile? featuredImageFile,
 		CancellationToken ct)
 	{
-		if (featuredImageFile is not null && featuredImageFile.Length > 0)
-		{
-			await using var s = featuredImageFile.OpenReadStream();
-			var r = await _fileStorage.UploadAsync(s, featuredImageFile.FileName, featuredImageFile.ContentType, "blog", ct);
-			if (r.Success) model.FeaturedImageUrl = r.Url!;
-		}
+		await UploadFeaturedImageAsync(model, featuredImageFile, ct);
 
 		if (!ModelState.IsValid)
 		{
@@ -214,6 +207,22 @@ public class BlogPostsController : AdminBaseController
 		var r = await Mediator.Send(new ToggleBlogPostFeaturedCommand(id), ct);
 		if (r.IsError) return Json(new { success = false, message = r.FirstError.Description });
 		return Json(new { success = true, isFeatured = r.Value });
+	}
+
+	private async Task UploadFeaturedImageAsync(
+		BlogPostFormViewModel model, IFormFile? featuredImageFile, CancellationToken ct)
+	{
+		if (featuredImageFile is null || featuredImageFile.Length == 0) return;
+
+		await using var s = featuredImageFile.OpenReadStream();
+		var r = await _fileStorage.UploadAsync(
+			s, featuredImageFile.FileName, featuredImageFile.ContentType,
+			"blog", BlogImageConstraints, ct);
+
+		if (r.Success)
+			model.FeaturedImageUrl = r.Url!;
+		else
+			ModelState.AddModelError("FeaturedImageUrl", r.ErrorMessage ?? "آپلود تصویر ناموفق بود.");
 	}
 
 	private async Task ReloadFormDataAsync(BlogPostFormViewModel model, CancellationToken ct)
