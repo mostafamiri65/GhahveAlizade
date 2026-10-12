@@ -1,0 +1,143 @@
+@model TicketDetailWithMetaDto
+@{
+	string StatusName(TicketStatus s) => s switch
+	{
+		TicketStatus.Open => "جدید", TicketStatus.InProgress => "در حال بررسی",
+		TicketStatus.WaitingCustomer => "منتظر مشتری", TicketStatus.Resolved => "حل شده",
+		TicketStatus.Closed => "بسته", _ => s.ToString()
+	};
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+	<h4 class="mb-0">
+		<i class="bi bi-life-preserver"></i> @Model.Subject
+		<span class="badge bg-secondary ms-2">@StatusName(Model.Status)</span>
+	</h4>
+	<a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-right"></i> بازگشت</a>
+</div>
+
+<div class="row g-3">
+	<div class="col-md-8">
+		<div class="admin-card p-0">
+			<div class="p-3" id="ticketMessages" style="max-height: 500px; overflow-y: auto;">
+				@foreach (var m in Model.Messages)
+				{
+					<div class="mb-3 @(m.IsFromAdmin ? "text-start ms-auto" : "")" style="max-width: 80%;">
+						<div class="rounded-3 p-3 @(m.IsFromAdmin ? "bg-light border" : "border")">
+							<div class="d-flex justify-content-between mb-1">
+								<strong class="small">@m.SenderName @(m.IsFromAdmin ? "(پشتیبانی)" : "(مشتری)")</strong>
+								<small class="text-muted">@m.CreatedAtUtc.ToLocalTime().ToString("yyyy/MM/dd HH:mm")</small>
+							</div>
+							<div style="white-space: pre-wrap;">@m.Body</div>
+						</div>
+					</div>
+				}
+			</div>
+			@if (Model.Status != TicketStatus.Closed)
+			{
+				<div class="border-top p-3">
+					<form id="replyForm" class="mb-2">
+						<textarea id="replyBody" class="form-control mb-2" rows="3" required
+								  placeholder="پاسخ به مشتری..."></textarea>
+						<div class="form-check mb-2">
+							<input type="checkbox" id="isInternalNote" class="form-check-input" />
+							<label class="form-check-label small" for="isInternalNote">
+								یادداشت داخلی (برای مشتری نمایش داده نمی‌شود)
+							</label>
+						</div>
+						<button type="submit" class="btn btn-admin-primary"><i class="bi bi-send"></i> ارسال پاسخ</button>
+					</form>
+				</div>
+			}
+		</div>
+	</div>
+
+	<div class="col-md-4">
+		<div class="admin-card">
+			<h6 class="mb-3">اطلاعات تیکت</h6>
+			<dl class="row small mb-0">
+				<dt class="col-5">شماره</dt><dd class="col-7" dir="ltr">@Model.TicketNumber</dd>
+				<dt class="col-5">مشتری</dt><dd class="col-7">@Model.CustomerName</dd>
+				<dt class="col-5">موبایل</dt><dd class="col-7" dir="ltr">@(Model.CustomerPhone ?? "—")</dd>
+				<dt class="col-5">دسته</dt><dd class="col-7">@Model.Category</dd>
+				<dt class="col-5">تاریخ ثبت</dt>
+				<dd class="col-7">@Model.CreatedAtUtc.ToLocalTime().ToString("yyyy/MM/dd HH:mm")</dd>
+				@if (Model.RelatedOrderId.HasValue)
+				{
+					<dt class="col-5">سفارش مرتبط</dt>
+					<dd class="col-7">
+						<a asp-controller="Orders" asp-action="Detail" asp-route-id="@Model.RelatedOrderId">
+							#@Model.RelatedOrderId
+						</a>
+					</dd>
+				}
+			</dl>
+		</div>
+
+		@if (Model.Status != TicketStatus.Closed)
+		{
+			<div class="admin-card">
+				<h6 class="mb-3">مدیریت تیکت</h6>
+				<div class="mb-2">
+					<label class="form-label small">تغییر وضعیت</label>
+					<select id="ticketStatus" class="form-select form-select-sm">
+						<option value="">—</option>
+						<option value="1">در حال بررسی</option>
+						<option value="2">منتظر مشتری</option>
+						<option value="3">حل شده</option>
+						<option value="4">بسته</option>
+					</select>
+				</div>
+				<div class="mb-3">
+					<label class="form-label small">اولویت</label>
+					<select id="ticketPriority" class="form-select form-select-sm">
+						<option value="">—</option>
+						<option value="0">کم</option>
+						<option value="1">عادی</option>
+						<option value="2">زیاد</option>
+						<option value="3">فوری</option>
+					</select>
+				</div>
+				<button class="btn btn-admin-primary btn-sm w-100" onclick="updateTicket()">
+					ذخیره تغییرات
+				</button>
+			</div>
+		}
+	</div>
+</div>
+
+@section Scripts {
+<script>
+	const ticketId = @Model.Id;
+	const token = $('input[name="__RequestVerificationToken"]').first().val();
+
+	$('#replyForm').on('submit', async function (e) {
+		e.preventDefault();
+		const body = $('#replyBody').val().trim();
+		if (!body) return;
+		const internal = $('#isInternalNote').is(':checked');
+
+		const res = await fetch('/admin/supporttickets/reply', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+			body: `id=${ticketId}&body=${encodeURIComponent(body)}&isInternalNote=${internal}&__RequestVerificationToken=${encodeURIComponent(token)}`
+		});
+		const data = await res.json();
+		if (data.success) location.reload();
+		else alert(data.message);
+	});
+
+	async function updateTicket() {
+		const status = $('#ticketStatus').val();
+		const priority = $('#ticketPriority').val();
+		const res = await fetch('/admin/supporttickets/update', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+			body: `id=${ticketId}&status=${status}&priority=${priority}&__RequestVerificationToken=${encodeURIComponent(token)}`
+		});
+		const data = await res.json();
+		if (data.success) location.reload();
+		else alert(data.message);
+	}
+</script>
+}
