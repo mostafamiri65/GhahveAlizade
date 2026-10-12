@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="GhahveAlizade.Application/GhahveAlizade.Application.csproj" />
+    <Project Path="GhahveAlizade.Domain/GhahveAlizade.Domain.csproj" />
+    <Project Path="GhahveAlizade.Infrastructure/GhahveAlizade.Infrastructure.csproj" />
+    <Project Path="GhahveAlizade.Web/GhahveAlizade.Web.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="GhahveAlizade.Application.Tests/GhahveAlizade.Application.Tests.csproj" />
+    <Project Path="GhahveAlizade.Domain.Tests/GhahveAlizade.Domain.Tests.csproj" />
+    <Project Path="GhahveAlizade.Integration.Tests/GhahveAlizade.Integration.Tests.csproj" />
+  </Folder>
+</Solution>

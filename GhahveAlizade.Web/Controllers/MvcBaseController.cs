@@ -1,0 +1,53 @@
+﻿using ErrorOr;
+using Microsoft.AspNetCore.Mvc;
+
+namespace GhahveAlizade.Web.Controllers;
+
+/// <summary>
+/// BaseController مخصوص MVC (View-based).
+/// - از View و PartialView پشتیبانی می‌کنه
+/// - خطاها به صورت ModelState نمایش داده می‌شن
+/// </summary>
+public abstract class MvcBaseController : BaseController
+{
+	// ⬅️ حالا از BaseController ارث می‌بره، پس Mediator رو داره
+
+	/// <summary>
+	/// تبدیل ErrorOr<T> به ModelState + نمایش View.
+	/// </summary>
+	protected IActionResult HandleErrorsAndReturn<T>(
+		ErrorOr<T> result,
+		Func<ErrorOr<T>, IActionResult> onSuccess)
+	{
+		if (result.IsError)
+		{
+			AddErrorsToModelState(result.Errors);
+			return View();
+		}
+
+		return onSuccess(result);
+	}
+
+	/// <summary>
+	/// افزودن Errorها به ModelState.
+	/// </summary>
+	protected void AddErrorsToModelState(IEnumerable<Error> errors)
+	{
+		foreach (var error in errors)
+		{
+			var key = string.IsNullOrEmpty(error.Code) ? string.Empty : error.Code;
+			ModelState.AddModelError(key, error.Description);
+		}
+	}
+
+	/// <summary>
+	/// Redirect به URL محلی یا Home.
+	/// </summary>
+	protected IActionResult RedirectToLocal(string? returnUrl)
+	{
+		if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+			return Redirect(returnUrl);
+
+		return RedirectToAction("Index", "Home", new { area = "" });
+	}
+}

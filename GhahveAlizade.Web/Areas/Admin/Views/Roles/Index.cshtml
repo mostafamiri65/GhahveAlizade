@@ -1,0 +1,170 @@
+﻿@model List<RoleDto>
+@using GhahveAlizade.Application.Features.Identity.Roles.Dtos
+@using GhahveAlizade.Infrastructure.Persistence.Seed
+@{
+    ViewData["Title"] = "نقش‌ها";
+    ViewData["PageIcon"] = "bi-shield-lock";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="text-muted">مجموع: <strong>@Model.Count</strong> نقش</span>
+    @if (User.HasPermission(Permissions.Roles.Create))
+    {
+        <button class="btn btn-admin-primary" data-bs-toggle="modal" data-bs-target="#createRoleModal">
+            <i class="bi bi-plus-lg"></i> افزودن نقش
+        </button>
+    }
+</div>
+
+<div class="row g-3">
+    @foreach (var r in Model)
+    {
+        <div class="col-md-6 col-lg-4">
+            <div class="admin-card h-100">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <h5 class="mb-1">@r.Name</h5>
+                        @if (r.IsSystemRole)
+                        {
+                            <span class="badge bg-warning text-dark">سیستمی</span>
+                        }
+                    </div>
+                </div>
+
+                <p class="text-muted small mb-3">@(r.Description ?? "—")</p>
+
+                <div class="d-flex gap-3 small text-muted mb-3">
+                    <span><i class="bi bi-key"></i> @r.PermissionCount دسترسی</span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    @if (User.HasPermission(Permissions.Roles.ManagePermissions))
+                    {
+                        <a asp-action="Permissions" asp-route-id="@r.Id"
+                           class="btn btn-sm btn-primary flex-grow-1">
+                            <i class="bi bi-key"></i> دسترسی‌ها
+                        </a>
+                    }
+                    @if (!r.IsSystemRole && User.HasPermission(Permissions.Roles.Edit))
+                    {
+                        <button type="button" class="btn btn-sm btn-outline-primary edit-role"
+                                data-id="@r.Id" data-name="@r.Name" data-desc="@r.Description">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                    }
+                    @if (!r.IsSystemRole && User.HasPermission(Permissions.Roles.Delete))
+                    {
+                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                onclick="deleteRole(@r.Id, '@r.Name')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Create Modal -->
+<div class="modal fade" id="createRoleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">افزودن نقش</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-2">
+                    <label class="form-label">نام نقش *</label>
+                    <input id="roleName" class="form-control" dir="ltr" />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">توضیحات</label>
+                    <textarea id="roleDesc" rows="2" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                <button type="button" class="btn btn-admin-primary" onclick="createRole()">ذخیره</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editRoleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">ویرایش نقش</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editRoleId" />
+                <div class="mb-2">
+                    <label class="form-label">نام *</label>
+                    <input id="editRoleName" class="form-control" dir="ltr" />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">توضیحات</label>
+                    <textarea id="editRoleDesc" rows="2" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                <button type="button" class="btn btn-admin-primary" onclick="updateRole()">ذخیره</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value
+            || document.querySelector('meta[name="csrf"]')?.content;
+
+        async function post(url, params) {
+            const body = new URLSearchParams(params);
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body
+            });
+            return await res.json();
+        }
+
+        async function createRole() {
+            const name = document.getElementById('roleName').value.trim();
+            if (!name) { alert('نام الزامی است'); return; }
+            const desc = document.getElementById('roleDesc').value.trim();
+            const d = await post('@Url.Action("Create")', { name, description: desc });
+            alert(d.message);
+            if (d.success) location.reload();
+        }
+
+        document.querySelectorAll('.edit-role').forEach(b => {
+            b.addEventListener('click', function () {
+                document.getElementById('editRoleId').value = this.dataset.id;
+                document.getElementById('editRoleName').value = this.dataset.name;
+                document.getElementById('editRoleDesc').value = this.dataset.desc || '';
+                new bootstrap.Modal(document.getElementById('editRoleModal')).show();
+            });
+        });
+
+        async function updateRole() {
+            const id = document.getElementById('editRoleId').value;
+            const name = document.getElementById('editRoleName').value.trim();
+            const desc = document.getElementById('editRoleDesc').value.trim();
+            const d = await post('@Url.Action("Update")', { id, name, description: desc });
+            alert(d.message);
+            if (d.success) location.reload();
+        }
+
+        async function deleteRole(id, name) {
+            if (!confirm(`حذف نقش "${name}"؟`)) return;
+            const d = await post('@Url.Action("Delete")', { id });
+            alert(d.message);
+            if (d.success) location.reload();
+        }
+    </script>
+}

@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <partial name="_Head" />
+    <title>@ViewData["Title"] - قهوه علیزاده</title>
+
+    @await Component.InvokeAsync("MetaTags", new { seo = ViewData["SeoData"] })
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <partial name="_Analytics" />
+
+    <partial name="_Header" />
+
+    <main>
+        @RenderBody()
+    </main>
+
+    <partial name="_Footer" />
+
+    <partial name="_Scripts" />
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

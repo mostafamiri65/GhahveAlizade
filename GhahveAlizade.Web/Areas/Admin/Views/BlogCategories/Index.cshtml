@@ -1,0 +1,147 @@
+﻿@model PaginatedList<BlogCategoryListItemDto>
+@using GhahveAlizade.Application.Common.Models
+@using GhahveAlizade.Application.Features.Content.Dtos
+@using GhahveAlizade.Infrastructure.Persistence.Seed
+@{
+    ViewData["Title"] = "دسته‌های وبلاگ";
+    ViewData["PageIcon"] = "bi-folder";
+    var search = ViewBag.Search as string;
+    var isActive = ViewBag.IsActive as bool?;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="text-muted">مجموع: <strong>@Model.TotalCount</strong> دسته</span>
+    @if (User.HasPermission(Permissions.Blog.ManageCategories))
+    {
+        <a asp-action="Create" class="btn btn-admin-primary">
+            <i class="bi bi-plus-lg"></i> افزودن دسته
+        </a>
+    }
+</div>
+
+<div class="admin-card mb-3">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-5">
+            <label class="form-label small">جستجو</label>
+            <input type="text" name="search" class="form-control" value="@search" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small">وضعیت</label>
+            <select name="isActive" class="form-select">
+                <option value="">همه</option>
+                <option value="true" selected="@(isActive == true)">فعال</option>
+                <option value="false" selected="@(isActive == false)">غیرفعال</option>
+            </select>
+        </div>
+        <div class="col-md-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1"><i class="bi bi-search"></i> فیلتر</button>
+            <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
+        </div>
+    </form>
+</div>
+
+<div class="admin-card p-0 overflow-hidden">
+    @if (Model.Items.Count == 0)
+    {
+        <div class="text-center py-5">
+            <div class="fs-1 text-muted mb-3"><i class="bi bi-folder"></i></div>
+            <h5 class="text-muted">دسته‌ای یافت نشد</h5>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>نام</th>
+                        <th>نامک</th>
+                        <th>والد</th>
+                        <th class="text-center">مقاله‌ها</th>
+                        <th class="text-center">ترتیب</th>
+                        <th class="text-center">وضعیت</th>
+                        <th class="text-center" style="width: 130px;">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in Model.Items)
+                    {
+                        <tr>
+                            <td class="fw-bold">@c.Name</td>
+                            <td><code class="small">@c.Slug</code></td>
+                            <td class="small text-muted">@(c.ParentName ?? "—")</td>
+                            <td class="text-center"><span class="badge bg-secondary">@c.PostCount</span></td>
+                            <td class="text-center text-muted small">@c.DisplayOrder</td>
+                            <td class="text-center">
+                                @if (User.HasPermission(Permissions.Blog.ManageCategories))
+                                {
+                                    <div class="form-check form-switch d-inline-block">
+                                        <input class="form-check-input toggle-active" type="checkbox"
+                                               data-id="@c.Id" @(c.IsActive ? "checked" : "") />
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="badge @(c.IsActive ? "bg-success" : "bg-secondary")">@(c.IsActive ? "فعال" : "غیرفعال")</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    @if (User.HasPermission(Permissions.Blog.ManageCategories))
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@c.Id" class="btn btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                                        <button type="button" class="btn btn-outline-danger"
+                                                data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                data-id="@c.Id" data-name="@c.Name">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Delete" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="deleteId" />
+                <div class="modal-header"><h5 class="modal-title">تایید حذف</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">حذف دسته <strong id="deleteName" class="text-danger"></strong>؟</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+        document.querySelectorAll('.toggle-active').forEach(el => {
+            el.addEventListener('change', async function() {
+                const id = this.dataset.id;
+                const r = await fetch('@Url.Action("ToggleActive")', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'RequestVerificationToken': token },
+                    body: `id=${id}&__RequestVerificationToken=${token}`
+                });
+                const d = await r.json();
+                if (!d.success) { alert(d.message); this.checked = !this.checked; }
+            });
+        });
+        document.getElementById('deleteModal')?.addEventListener('show.bs.modal', function(e) {
+            const b = e.relatedTarget;
+            document.getElementById('deleteId').value = b.dataset.id;
+            document.getElementById('deleteName').textContent = b.dataset.name;
+        });
+    </script>
+}

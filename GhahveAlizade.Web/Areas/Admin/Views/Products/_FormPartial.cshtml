@@ -1,0 +1,652 @@
+﻿@model ProductFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+<ul class="nav nav-tabs mb-4" id="productTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-basic" type="button">
+            <i class="bi bi-info-circle"></i> اطلاعات اصلی
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-pricing" type="button">
+            <i class="bi bi-currency-dollar"></i> قیمت و ابعاد
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-images" type="button">
+            <i class="bi bi-images"></i> تصاویر
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-variants" type="button">
+            <i class="bi bi-diagram-2"></i> واریانت‌ها
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-attributes" type="button">
+            <i class="bi bi-tags"></i> ویژگی‌ها
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-coffee" type="button">
+            <i class="bi bi-cup-hot"></i> قهوه
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-seo" type="button">
+            <i class="bi bi-search"></i> سئو
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content">
+
+    <!-- ============ TAB 1: اطلاعات اصلی ============ -->
+    <div class="tab-pane fade show active" id="tab-basic">
+        <div class="row g-3">
+            <div class="col-md-8">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control" autofocus />
+                <span asp-validation-for="Name" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="Sku" class="form-label"></label>
+                <input asp-for="Sku" class="form-control" dir="ltr" />
+                <span asp-validation-for="Sku" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Slug" class="form-label"></label>
+                <input asp-for="Slug" class="form-control" dir="ltr" placeholder="خودکار از نام" />
+                <span asp-validation-for="Slug" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Barcode" class="form-label"></label>
+                <input asp-for="Barcode" class="form-control" dir="ltr" />
+            </div>
+
+            <div class="col-12">
+                <label asp-for="ShortDescription" class="form-label"></label>
+                <textarea asp-for="ShortDescription" rows="2" class="form-control"></textarea>
+                <span asp-validation-for="ShortDescription" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12">
+                <label asp-for="Description" class="form-label"></label>
+                <textarea asp-for="Description" rows="8" class="form-control" id="descriptionEditor"></textarea>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="CategoryId" class="form-label"></label>
+                <select asp-for="CategoryId" class="form-select">
+                    <option value="">— انتخاب کنید —</option>
+                    @foreach (var cat in Model.FormData.Categories)
+                    {
+                        <option value="@cat.Id" selected="@(Model.CategoryId == cat.Id)">
+                            @cat.Name @(cat.Extra != null ? $"({cat.Extra})" : "")
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="BrandId" class="form-label"></label>
+                <select asp-for="BrandId" class="form-select">
+                    <option value="">— انتخاب کنید —</option>
+                    @foreach (var b in Model.FormData.Brands)
+                    {
+                        <option value="@b.Id" selected="@(Model.BrandId == b.Id)">@b.Name</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-12">
+                <h6 class="text-muted border-bottom pb-2 mt-3">وضعیت</h6>
+                <div class="d-flex gap-4 flex-wrap">
+                    <div class="form-check form-switch">
+                        <input asp-for="IsActive" class="form-check-input" />
+                        <label asp-for="IsActive" class="form-check-label"></label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input asp-for="IsPublished" class="form-check-input" />
+                        <label asp-for="IsPublished" class="form-check-label"></label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input asp-for="IsFeatured" class="form-check-input" />
+                        <label asp-for="IsFeatured" class="form-check-label"></label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input asp-for="IsNew" class="form-check-input" />
+                        <label asp-for="IsNew" class="form-check-label"></label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input asp-for="IsBestSeller" class="form-check-input" />
+                        <label asp-for="IsBestSeller" class="form-check-label"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ TAB 2: قیمت و ابعاد ============ -->
+    <div class="tab-pane fade" id="tab-pricing">
+        <div class="alert alert-info small">
+            <i class="bi bi-info-circle"></i>
+            اگر محصول شما واریانت دارد (مثل وزن‌های مختلف)، تیک «دارای واریانت» را بزنید و قیمت‌ها را در تب
+            <strong>واریانت‌ها</strong> وارد کنید.
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12">
+                <div class="form-check form-switch">
+                    <input asp-for="HasVariants" class="form-check-input" id="hasVariantsToggle" />
+                    <label asp-for="HasVariants" class="form-check-label fw-bold"></label>
+                </div>
+            </div>
+
+            <div class="col-12" id="pricingBaseSection">
+                <h6 class="text-muted border-bottom pb-2">قیمت پایه</h6>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label asp-for="BasePrice" class="form-label"></label>
+                        <input asp-for="BasePrice" type="number" step="1000" class="form-control" dir="ltr" />
+                        <span asp-validation-for="BasePrice" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="CompareAtPrice" class="form-label"></label>
+                        <input asp-for="CompareAtPrice" type="number" step="1000" class="form-control" dir="ltr" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="CostPrice" class="form-label"></label>
+                        <input asp-for="CostPrice" type="number" step="1000" class="form-control" dir="ltr" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <h6 class="text-muted border-bottom pb-2 mt-3">مالیات</h6>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="form-check form-switch mt-4">
+                            <input asp-for="IsTaxable" class="form-check-input" />
+                            <label asp-for="IsTaxable" class="form-check-label"></label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="TaxRate" class="form-label"></label>
+                        <input asp-for="TaxRate" type="number" step="0.01" class="form-control" dir="ltr" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <h6 class="text-muted border-bottom pb-2 mt-3">ابعاد و وزن</h6>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label asp-for="Weight" class="form-label"></label>
+                        <input asp-for="Weight" type="number" step="1" class="form-control" dir="ltr" />
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="Length" class="form-label"></label>
+                        <input asp-for="Length" type="number" step="0.1" class="form-control" dir="ltr" />
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="Width" class="form-label"></label>
+                        <input asp-for="Width" type="number" step="0.1" class="form-control" dir="ltr" />
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="Height" class="form-label"></label>
+                        <input asp-for="Height" type="number" step="0.1" class="form-control" dir="ltr" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ TAB 3: تصاویر ============ -->
+    <div class="tab-pane fade" id="tab-images">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="text-muted mb-0">تصاویر محصول</h6>
+            <label class="btn btn-sm btn-admin-primary mb-0">
+                <i class="bi bi-upload"></i> آپلود تصاویر
+                <input type="file" asp-for="NewImages" accept="image/*" multiple hidden id="imageUpload" />
+            </label>
+        </div>
+
+        <div id="imagePreviewGrid" class="row g-3 mb-3">
+            @for (var i = 0; i < Model.Images.Count; i++)
+            {
+                var img = Model.Images[i];
+                <div class="col-md-3 image-item" data-index="@i">
+                    <div class="card">
+                        <img src="@img.ImageUrl" class="card-img-top" style="height: 150px; object-fit: cover;" />
+                        <div class="card-body p-2">
+                            <input type="hidden" name="Images[@i].Id" value="@img.Id" />
+                            <input type="hidden" name="Images[@i].ImageUrl" value="@img.ImageUrl" />
+                            <input type="hidden" name="Images[@i].DisplayOrder" value="@img.DisplayOrder" class="img-order" />
+
+                            <input name="Images[@i].AltText" value="@img.AltText"
+                                   class="form-control form-control-sm mb-1" placeholder="متن Alt (سئو)" />
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="form-check form-check-inline mb-0">
+                                    <input type="radio" name="PrimaryImageIndex" value="@i"
+                                           class="form-check-input" @(img.IsPrimary ? "checked" : "")
+                                           onchange="updatePrimary(this)" />
+                                    <label class="form-check-label small">اصلی</label>
+                                    <input type="hidden" name="Images[@i].IsPrimary" value="@(img.IsPrimary ? "true" : "false")" class="img-primary" />
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                        onclick="removeImage(this)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (Model.Images.Count == 0)
+        {
+            <div class="text-center py-5 text-muted border rounded">
+                <i class="bi bi-image fs-1"></i>
+                <p class="mt-2">هنوز تصویری اضافه نشده است</p>
+            </div>
+        }
+    </div>
+
+    <!-- ============ TAB 4: واریانت‌ها ============ -->
+    <div class="tab-pane fade" id="tab-variants">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="text-muted mb-0">
+                واریانت‌های محصول (مثل وزن، آسیاب، بسته‌بندی)
+            </h6>
+            <button type="button" class="btn btn-sm btn-admin-primary" onclick="addVariant()">
+                <i class="bi bi-plus-lg"></i> افزودن واریانت
+            </button>
+        </div>
+
+        <div id="variantsContainer">
+            @for (var i = 0; i < Model.Variants.Count; i++)
+            {
+                var v = Model.Variants[i];
+                <div class="card mb-2 variant-item" data-index="@i">
+                    <div class="card-body">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label small">نام واریانت *</label>
+                                <input name="Variants[@i].Name" value="@v.Name" class="form-control form-control-sm" required />
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small">SKU</label>
+                                <input name="Variants[@i].Sku" value="@v.Sku" class="form-control form-control-sm" dir="ltr" />
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small">قیمت *</label>
+                                <input name="Variants[@i].Price" value="@v.Price" type="number" step="1000"
+                                       class="form-control form-control-sm" dir="ltr" required />
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small">قیمت قبل تخفیف</label>
+                                <input name="Variants[@i].CompareAtPrice" value="@v.CompareAtPrice" type="number" step="1000"
+                                       class="form-control form-control-sm" dir="ltr" />
+                            </div>
+                            <div class="col-md-1">
+                                <label class="form-label small">وزن</label>
+                                <input name="Variants[@i].Weight" value="@v.Weight" type="number" class="form-control form-control-sm" dir="ltr" />
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <div class="form-check form-check-inline">
+                                    <input name="Variants[@i].IsActive" type="checkbox" value="true"
+                                           class="form-check-input" @(v.IsActive ? "checked" : "") />
+                                    <label class="form-check-label small">فعال</label>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeVariant(this)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <input type="hidden" name="Variants[@i].Id" value="@v.Id" />
+                        <input type="hidden" name="Variants[@i].DisplayOrder" value="@v.DisplayOrder" class="variant-order" />
+                        <input type="hidden" name="Variants[@i].AttributesJson" value="@v.AttributesJson" />
+                        <input type="hidden" name="Variants[@i].Barcode" value="@v.Barcode" />
+                        <input type="hidden" name="Variants[@i].CostPrice" value="@v.CostPrice" />
+                        <input type="hidden" name="Variants[@i].ImageUrl" value="@v.ImageUrl" />
+                        <input type="hidden" name="Variants[@i].IsDefault" value="@(v.IsDefault ? "true" : "false")" />
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (Model.Variants.Count == 0)
+        {
+            <div class="text-center py-4 text-muted border rounded">
+                <i class="bi bi-diagram-2 fs-1"></i>
+                <p class="mt-2">هنوز واریانتی اضافه نشده است</p>
+            </div>
+        }
+    </div>
+
+    <!-- ============ TAB 5: ویژگی‌ها ============ -->
+    <div class="tab-pane fade" id="tab-attributes">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="text-muted mb-0">ویژگی‌های محصول</h6>
+            <button type="button" class="btn btn-sm btn-admin-primary" onclick="addAttribute()">
+                <i class="bi bi-plus-lg"></i> افزودن ویژگی
+            </button>
+        </div>
+
+        <div id="attributesContainer">
+            @for (var i = 0; i < Model.Attributes.Count; i++)
+            {
+                var a = Model.Attributes[i];
+                <div class="card mb-2 attribute-item" data-index="@i">
+                    <div class="card-body">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label small">ویژگی</label>
+                                <select name="Attributes[@i].AttributeId" class="form-select form-select-sm">
+                                    <option value="">انتخاب کنید</option>
+                                    @foreach (var attr in Model.FormData.Attributes)
+                                    {
+                                        <option value="@attr.Id" selected="@(a.AttributeId == attr.Id)">
+                                            @attr.Name @(attr.Extra != null ? $"({attr.Extra})" : "")
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">مقدار</label>
+                                <input name="Attributes[@i].CustomValue" value="@a.CustomValue"
+                                       class="form-control form-control-sm" />
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeAttribute(this)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <input type="hidden" name="Attributes[@i].Id" value="@a.Id" />
+                        <input type="hidden" name="Attributes[@i].AttributeValueId" value="@a.AttributeValueId" />
+                        <input type="hidden" name="Attributes[@i].DisplayOrder" value="@a.DisplayOrder" class="attr-order" />
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (Model.Attributes.Count == 0)
+        {
+            <div class="text-center py-4 text-muted border rounded">
+                <i class="bi bi-tags fs-1"></i>
+                <p class="mt-2">هنوز ویژگی‌ای اضافه نشده است</p>
+            </div>
+        }
+    </div>
+
+    <!-- ============ TAB 6: قهوه ============ -->
+    <div class="tab-pane fade" id="tab-coffee">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="CoffeeOriginId" class="form-label"></label>
+                <select asp-for="CoffeeOriginId" class="form-select">
+                    <option value="">— انتخاب کنید —</option>
+                    @foreach (var o in Model.FormData.CoffeeOrigins)
+                    {
+                        <option value="@o.Id" selected="@(Model.CoffeeOriginId == o.Id)">
+                            @o.Name @(o.Extra != null ? $"({o.Extra})" : "")
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="CoffeeProcessId" class="form-label"></label>
+                <select asp-for="CoffeeProcessId" class="form-select">
+                    <option value="">— انتخاب کنید —</option>
+                    @foreach (var p in Model.FormData.CoffeeProcesses)
+                    {
+                        <option value="@p.Id" selected="@(Model.CoffeeProcessId == p.Id)">@p.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="RoastProfileId" class="form-label"></label>
+                <select asp-for="RoastProfileId" class="form-select">
+                    <option value="">— انتخاب کنید —</option>
+                    @foreach (var r in Model.FormData.RoastProfiles)
+                    {
+                        <option value="@r.Id" selected="@(Model.RoastProfileId == r.Id)">@r.Name</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-12">
+                <label asp-for="FlavorNoteIds" class="form-label"></label>
+                <div class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
+                    <div class="row g-2">
+                        @foreach (var note in Model.FormData.FlavorNotes)
+                        {
+                            <div class="col-md-4 col-6">
+                                <div class="form-check">
+                                    <input type="checkbox" name="FlavorNoteIds" value="@note.Id"
+                                           class="form-check-input" id="flavor_@note.Id"
+                                    @(Model.FlavorNoteIds.Contains(note.Id) ? "checked" : "") />
+                                    <label class="form-check-label small" for="flavor_@note.Id">
+                                        @note.Name
+                                        @if (note.Extra != null)
+                                        {
+                                            <span class="text-muted">(@note.Extra)</span>
+                                        }
+                                    </label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ TAB 7: سئو ============ -->
+    <div class="tab-pane fade" id="tab-seo">
+        <div class="row g-3">
+            <div class="col-12">
+                <label asp-for="MetaTitle" class="form-label"></label>
+                <input asp-for="MetaTitle" class="form-control" maxlength="200" />
+                <small class="text-muted">توصیه: 50-60 کاراکتر</small>
+            </div>
+
+            <div class="col-12">
+                <label asp-for="MetaDescription" class="form-label"></label>
+                <textarea asp-for="MetaDescription" rows="2" class="form-control" maxlength="500"></textarea>
+                <small class="text-muted">توصیه: 150-160 کاراکتر</small>
+            </div>
+
+            <div class="col-12">
+                <label asp-for="MetaKeywords" class="form-label"></label>
+                <input asp-for="MetaKeywords" class="form-control" maxlength="500" />
+            </div>
+
+            <div class="col-12">
+                <label asp-for="CanonicalUrl" class="form-label"></label>
+                <input asp-for="CanonicalUrl" class="form-control" dir="ltr" />
+            </div>
+
+            <div class="col-12">
+                <label asp-for="OgImage" class="form-label"></label>
+                <input asp-for="OgImage" class="form-control" dir="ltr" placeholder="/uploads/..." />
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ Hidden template برای Variant جدید ============ -->
+<template id="variantTemplate">
+    <div class="card mb-2 variant-item" data-index="__INDEX__">
+        <div class="card-body">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label small">نام واریانت *</label>
+                    <input name="Variants[__INDEX__].Name" class="form-control form-control-sm" required />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">SKU</label>
+                    <input name="Variants[__INDEX__].Sku" class="form-control form-control-sm" dir="ltr" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">قیمت *</label>
+                    <input name="Variants[__INDEX__].Price" type="number" step="1000"
+                           class="form-control form-control-sm" dir="ltr" required />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">قیمت قبل تخفیف</label>
+                    <input name="Variants[__INDEX__].CompareAtPrice" type="number" step="1000"
+                           class="form-control form-control-sm" dir="ltr" />
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label small">وزن</label>
+                    <input name="Variants[__INDEX__].Weight" type="number" class="form-control form-control-sm" dir="ltr" />
+                </div>
+                <div class="col-md-2 text-end">
+                    <div class="form-check form-check-inline">
+                        <input name="Variants[__INDEX__].IsActive" type="checkbox" value="true"
+                               class="form-check-input" checked />
+                        <label class="form-check-label small">فعال</label>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeVariant(this)">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <input type="hidden" name="Variants[__INDEX__].Id" value="0" />
+            <input type="hidden" name="Variants[__INDEX__].DisplayOrder" value="__INDEX__" class="variant-order" />
+            <input type="hidden" name="Variants[__INDEX__].IsDefault" value="false" />
+        </div>
+    </div>
+</template>
+
+<!-- ============ Hidden template برای Attribute جدید ============ -->
+<template id="attributeTemplate">
+    <div class="card mb-2 attribute-item" data-index="__INDEX__">
+        <div class="card-body">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label small">ویژگی</label>
+                    <select name="Attributes[__INDEX__].AttributeId" class="form-select form-select-sm">
+                        <option value="">انتخاب کنید</option>
+                        @foreach (var attr in Model.FormData.Attributes)
+                        {
+                            <option value="@attr.Id">@attr.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small">مقدار</label>
+                    <input name="Attributes[__INDEX__].CustomValue" class="form-control form-control-sm" />
+                </div>
+                <div class="col-md-2 text-end">
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeAttribute(this)">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <input type="hidden" name="Attributes[__INDEX__].Id" value="0" />
+            <input type="hidden" name="Attributes[__INDEX__].DisplayOrder" value="__INDEX__" class="attr-order" />
+        </div>
+    </div>
+</template>
+
+<script>
+    // ============ Variants ============
+    let variantIndex = @Model.Variants.Count;
+
+    function addVariant() {
+        const template = document.getElementById('variantTemplate').innerHTML;
+        const html = template.replace(/__INDEX__/g, variantIndex);
+        document.getElementById('variantsContainer')
+            .insertAdjacentHTML('beforeend', html);
+        variantIndex++;
+    }
+
+    function removeVariant(btn) {
+        if (confirm('حذف این واریانت؟')) {
+            btn.closest('.variant-item').remove();
+        }
+    }
+
+    // ============ Attributes ============
+    let attributeIndex = @Model.Attributes.Count;
+
+    function addAttribute() {
+        const template = document.getElementById('attributeTemplate').innerHTML;
+        const html = template.replace(/__INDEX__/g, attributeIndex);
+        document.getElementById('attributesContainer')
+            .insertAdjacentHTML('beforeend', html);
+        attributeIndex++;
+    }
+
+    function removeAttribute(btn) {
+        if (confirm('حذف این ویژگی؟')) {
+            btn.closest('.attribute-item').remove();
+        }
+    }
+
+    // ============ Images ============
+    document.getElementById('imageUpload')?.addEventListener('change', function(e) {
+        const files = e.target.files;
+        if (!files || !files.length) return;
+
+        for (const file of files) {
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                const html = `
+                        <div class="col-md-3 image-item">
+                            <div class="card">
+                                <img src="${ev.target.result}" class="card-img-top" style="height: 150px; object-fit: cover;" />
+                                <div class="card-body p-2">
+                                    <div class="text-muted small">${file.name}</div>
+                                    <div class="text-muted small">آماده آپلود در ذخیره</div>
+                                </div>
+                            </div>
+                        </div>`;
+                // این پیش‌نمایش است، در POST واقعی آپلود می‌شود
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    function removeImage(btn) {
+        if (confirm('حذف این تصویر؟')) {
+            btn.closest('.image-item').remove();
+        }
+    }
+
+    function updatePrimary(radio) {
+        document.querySelectorAll('.image-item').forEach(item => {
+            const hidden = item.querySelector('.img-primary');
+            if (hidden) hidden.value = 'false';
+        });
+        const currentItem = radio.closest('.image-item');
+        currentItem.querySelector('.img-primary').value = 'true';
+    }
+
+    // ============ HasVariants Toggle ============
+    document.getElementById('hasVariantsToggle')?.addEventListener('change', function() {
+        const baseSection = document.getElementById('pricingBaseSection');
+        if (baseSection) {
+            baseSection.style.opacity = this.checked ? '0.5' : '1';
+            baseSection.style.pointerEvents = this.checked ? 'none' : 'auto';
+        }
+    });
+
+    // اگر از قبل چک‌باکس فعال بوده، اعمال کن
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggle = document.getElementById('hasVariantsToggle');
+        if (toggle?.checked) {
+            toggle.dispatchEvent(new Event('change'));
+        }
+    });
+</script>

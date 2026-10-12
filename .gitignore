@@ -1,0 +1,56 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+.vscode/
+.idea/
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+bld/
+[Oo]ut/
+msbuild.log
+msbuild.err
+msbuild.wrn
+
+## NuGet
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+
+## App settings (secrets)
+appsettings.Production.json
+appsettings.Local.json
+secrets.json
+*.pfx
+
+## IDE
+*.swp
+
+
+## OS
+.DS_Store
+Thumbs.db
+
+GhahveAlizade.Web/wwwroot/uploads/**
+GhahveAlizade.Web/logs/**
+
+## Docker
+docker-compose.override.yml

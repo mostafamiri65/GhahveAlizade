@@ -1,0 +1,136 @@
+﻿@model WholesaleRequestDto
+@using GhahveAlizade.Application.Features.Wholesale.Dtos
+@using GhahveAlizade.Domain.Enums
+@using GhahveAlizade.Infrastructure.Persistence.Seed
+@{
+    ViewData["Title"] = $"درخواست {Model.CompanyName}";
+    ViewData["PageIcon"] = "bi-briefcase";
+}
+
+<div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-right"></i> بازگشت
+    </a>
+
+    @if (User.HasPermission(Permissions.Wholesale.Approve))
+    {
+        <div class="d-flex gap-2">
+            @if (Model.Status != WholesaleRequestStatus.Approved)
+            {
+                <button class="btn btn-success" onclick="approve()">
+                    <i class="bi bi-check-circle"></i> تایید
+                </button>
+            }
+            @if (Model.Status != WholesaleRequestStatus.Rejected)
+            {
+                <button class="btn btn-danger" onclick="reject()">
+                    <i class="bi bi-x-circle"></i> رد
+                </button>
+            }
+        </div>
+    }
+</div>
+
+<div class="admin-card mb-3">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <h5 class="fw-bold">@Model.CompanyName</h5>
+        <span class="badge bg-info fs-6">@Model.StatusName</span>
+    </div>
+
+    <div class="row g-3 small">
+        <div class="col-md-6"><strong>نوع کسب‌وکار:</strong> @(Model.BusinessType ?? "—")</div>
+        <div class="col-md-6"><strong>کد اقتصادی:</strong> @(Model.EconomicCode ?? "—")</div>
+        <div class="col-md-6"><strong>شماره ثبت:</strong> @(Model.RegistrationNumber ?? "—")</div>
+        <div class="col-md-6"><strong>شخص تماس:</strong> @Model.ContactPerson</div>
+        <div class="col-md-6"><strong>تلفن تماس:</strong> <span dir="ltr">@Model.ContactPhone</span></div>
+        <div class="col-md-6"><strong>ایمیل:</strong> @(Model.ContactEmail ?? "—")</div>
+        <div class="col-md-6"><strong>استان/شهر:</strong> @(Model.Province ?? "—") / @(Model.City ?? "—")</div>
+        <div class="col-md-6"><strong>حجم ماهانه:</strong> @(Model.EstimatedMonthlyVolume ?? "—")</div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.Address))
+    {
+        <div class="mt-3 small">
+            <strong>آدرس:</strong> @Model.Address
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.ProductInterests))
+    {
+        <div class="mt-3 small">
+            <strong>محصولات مورد علاقه:</strong> @Model.ProductInterests
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.Message))
+    {
+        <div class="mt-3 p-3 bg-light rounded">
+            <strong>پیام مشتری:</strong>
+            <p class="mb-0 mt-2">@Model.Message</p>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.ReviewNotes))
+    {
+        <div class="mt-3 p-3 bg-info bg-opacity-10 rounded">
+            <strong>یادداشت بررسی:</strong>
+            <p class="mb-0 mt-2">@Model.ReviewNotes</p>
+            @if (Model.ReviewedAtUtc.HasValue)
+            {
+                <small class="text-muted">
+                    بررسی توسط @Model.ReviewedBy در @Model.ReviewedAtUtc.Value.ToLocalTime().ToString("yyyy/MM/dd HH:mm")
+                </small>
+            }
+        </div>
+    }
+</div>
+
+@if (User.HasPermission(Permissions.Wholesale.Approve))
+{
+    <div class="admin-card">
+        <h6 class="fw-bold mb-3">یادداشت بررسی</h6>
+        <textarea id="reviewNotes" rows="3" class="form-control"></textarea>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+        async function approve() {
+            if (!confirm('تایید این درخواست؟')) return;
+            const notes = document.getElementById('reviewNotes')?.value || '';
+            const body = new URLSearchParams();
+            body.append('id', '@Model.Id');
+            body.append('reviewNotes', notes);
+            body.append('__RequestVerificationToken', token);
+
+            const r = await fetch('@Url.Action("Approve")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'RequestVerificationToken': token },
+                body
+            });
+            const d = await r.json();
+            alert(d.message);
+            if (d.success) location.reload();
+        }
+
+        async function reject() {
+            if (!confirm('رد این درخواست؟')) return;
+            const notes = document.getElementById('reviewNotes')?.value || '';
+            const body = new URLSearchParams();
+            body.append('id', '@Model.Id');
+            body.append('reviewNotes', notes);
+            body.append('__RequestVerificationToken', token);
+
+            const r = await fetch('@Url.Action("Reject")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'RequestVerificationToken': token },
+                body
+            });
+            const d = await r.json();
+            alert(d.message);
+            if (d.success) location.reload();
+        }
+    </script>
+}

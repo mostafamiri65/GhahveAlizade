@@ -1,0 +1,160 @@
+﻿@using GhahveAlizade.Web.Areas.Admin.Models.Marketing
+@model BannerFormViewModel
+@{
+    var groupedPlacements = Model.FormData.PlacementTypes
+        .GroupBy(p => p.Group)
+        .ToList();
+    var selectedPlacements = Model.Placements.Select(p => p.Placement).ToHashSet();
+}
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+<div class="row g-3">
+    <div class="col-md-8">
+        <label asp-for="Title" class="form-label"></label>
+        <input asp-for="Title" class="form-control" autofocus />
+        <span asp-validation-for="Title" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="DisplayOrder" class="form-label"></label>
+        <input asp-for="DisplayOrder" type="number" class="form-control" />
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="Subtitle" class="form-label"></label>
+        <input asp-for="Subtitle" class="form-control" />
+    </div>
+    <div class="col-md-6">
+        <label asp-for="ButtonText" class="form-label"></label>
+        <input asp-for="ButtonText" class="form-control" placeholder="مثلاً: مشاهده" />
+    </div>
+
+    <div class="col-md-8">
+        <label asp-for="LinkUrl" class="form-label"></label>
+        <input asp-for="LinkUrl" class="form-control" dir="ltr" placeholder="/category/coffee" />
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Target" class="form-label"></label>
+        <select asp-for="Target" class="form-select">
+            <option value="_self">همین پنجره (_self)</option>
+            <option value="_blank">پنجره جدید (_blank)</option>
+        </select>
+    </div>
+
+    <div class="col-12">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description" rows="2" class="form-control"></textarea>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="ImageUrl" class="form-label"></label>
+        <input asp-for="ImageUrl" class="form-control" dir="ltr" />
+        <input type="file" name="imageFile" accept="image/*" class="form-control form-control-sm mt-1" />
+        <span asp-validation-for="ImageUrl" class="text-danger small"></span>
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <img src="@Model.ImageUrl" style="max-height: 100px; margin-top: 0.5rem; border-radius: 6px;" />
+        }
+    </div>
+    <div class="col-md-6">
+        <label asp-for="MobileImageUrl" class="form-label"></label>
+        <input asp-for="MobileImageUrl" class="form-control" dir="ltr" />
+        <input type="file" name="mobileImageFile" accept="image/*" class="form-control form-control-sm mt-1" />
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="AltText" class="form-label"></label>
+        <input asp-for="AltText" class="form-control" />
+    </div>
+
+    <div class="col-md-6">
+        <div class="form-check form-switch mt-4">
+            <input asp-for="IsActive" class="form-check-input" />
+            <label asp-for="IsActive" class="form-check-label"></label>
+        </div>
+    </div>
+
+    <!-- تاریخ‌ها با Date Picker شمسی -->
+    <div class="col-md-6">
+        <label asp-for="StartsAtUtc" class="form-label"></label>
+        <input type="text" id="startsAtPicker" class="form-control" dir="ltr" readonly autocomplete="off" />
+        <input type="hidden" id="startsAtHidden" name="StartsAtUtc"
+               value="@(Model.StartsAtUtc?.ToString("yyyy-MM-ddTHH:mm:ss"))" />
+    </div>
+    <div class="col-md-6">
+        <label asp-for="ExpiresAtUtc" class="form-label"></label>
+        <input type="text" id="expiresAtPicker" class="form-control" dir="ltr" readonly autocomplete="off" />
+        <input type="hidden" id="expiresAtHidden" name="ExpiresAtUtc"
+               value="@(Model.ExpiresAtUtc?.ToString("yyyy-MM-ddTHH:mm:ss"))" />
+    </div>
+
+    <!-- موقعیت‌ها -->
+    <div class="col-12 mt-4">
+        <h6 class="text-muted border-bottom pb-2 mb-3">
+            <i class="bi bi-geo"></i> موقعیت‌های نمایش
+        </h6>
+        <div class="row g-3">
+            @foreach (var group in groupedPlacements)
+            {
+                <div class="col-md-4">
+                    <div class="border rounded p-2">
+                        <div class="fw-bold small mb-2 text-primary">@group.Key</div>
+                        @foreach (var p in group)
+                        {
+                            <div class="form-check">
+                                <input type="checkbox" name="Placements[@p.Value].Placement"
+                                       value="@p.Value" class="form-check-input"
+                                       id="pl_@p.Value"
+                                @(selectedPlacements.Contains(p.Value) ? "checked" : "") />
+                                <label class="form-check-label small" for="pl_@p.Value">@p.Name</label>
+                                <input type="hidden" name="Placements[@p.Value].DisplayOrder" value="@p.Value" />
+                                <input type="hidden" name="Placements[@p.Value].IsActive" value="true" />
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        function initJalaliPicker(pickerId, hiddenId) {
+            const picker = document.getElementById(pickerId);
+            const hidden = document.getElementById(hiddenId);
+            if (!picker || !hidden || typeof persianDate === 'undefined') return;
+
+            if (hidden.value) {
+                try {
+                    const d = new Date(hidden.value);
+                    if (!isNaN(d.getTime())) {
+                        picker.value = new persianDate(d).format('YYYY/MM/DD');
+                    }
+                } catch (e) { console.error(e); }
+            }
+
+            $(picker).persianDatepicker({
+                format: 'YYYY/MM/DD',
+                initialValue: false,
+                autoClose: true,
+                observer: true,
+                onSelect: function(unix) {
+                    const g = new persianDate(unix).toCalendar('gregorian').toDate();
+                    hidden.value = g.getFullYear() + '-' +
+                        String(g.getMonth() + 1).padStart(2, '0') + '-' +
+                        String(g.getDate()).padStart(2, '0') + 'T' +
+                        String(g.getHours()).padStart(2, '0') + ':' +
+                        String(g.getMinutes()).padStart(2, '0') + ':' +
+                        String(g.getSeconds()).padStart(2, '0');
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof persianDate === 'undefined' || typeof $ === 'undefined') return;
+            initJalaliPicker('startsAtPicker', 'startsAtHidden');
+            initJalaliPicker('expiresAtPicker', 'expiresAtHidden');
+        });
+    })();
+</script>

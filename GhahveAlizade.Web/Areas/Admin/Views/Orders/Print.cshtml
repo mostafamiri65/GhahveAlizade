@@ -1,0 +1,140 @@
+﻿@using GhahveAlizade.Application.Features.Commerce.Dtos
+@model OrderDetailDto
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <title>فاکتور @Model.OrderNumber</title>
+    <style>
+            body {
+                font-family: 'Vazirmatn', Tahoma, sans-serif;
+                padding: 2rem;
+            }
+
+            h1 {
+                color: #78350f;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 1rem 0;
+            }
+
+            th, td {
+                padding: 0.5rem;
+                border: 1px solid #ddd;
+                text-align: right;
+            }
+
+            th {
+                background: #f3f4f6;
+            }
+
+            .text-center {
+                text-align: center;
+            }
+
+            .text-end {
+                text-align: left;
+            }
+
+            .totals {
+                margin-top: 1rem;
+            }
+
+                .totals tr td {
+                    border: none;
+                }
+
+            @@media print {
+                .no-print {
+                    display: none;
+                }
+            }
+    </style>
+</head>
+<body>
+    <div class="no-print" style="text-align: left; margin-bottom: 1rem;">
+        <button onclick="window.print()">چاپ</button>
+    </div>
+
+    <h1>فاکتور فروش - قهوه علیزاده</h1>
+    <p>
+        شماره سفارش: <strong>@Model.OrderNumber</strong><br />
+        تاریخ: @Model.CreatedAtUtc.ToLocalTime().ToString("yyyy/MM/dd HH:mm")<br />
+        مشتری: @(Model.CustomerName ?? "مهمان")<br />
+        موبایل: @Model.CustomerPhone
+    </p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>محصول</th>
+                <th class="text-center">تعداد</th>
+                <th class="text-center">قیمت واحد</th>
+                <th class="text-center">جمع</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                var idx = 1;
+            }
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@idx</td>
+                    <td>
+                        @item.ProductName
+                        @if (!string.IsNullOrEmpty(item.VariantName))
+                        {
+                            <small>(@item.VariantName)</small>
+                        }
+                    </td>
+                    <td class="text-center">@item.Quantity</td>
+                    <td class="text-center">@item.UnitPrice.ToString("N0")</td>
+                    <td class="text-center">@item.TotalPrice.ToString("N0")</td>
+                </tr>
+                idx++;
+            }
+        </tbody>
+    </table>
+
+    <table class="totals" style="width: 300px; margin-right: auto;">
+        <tr>
+            <td>جمع اقلام:</td>
+            <td class="text-end">@Model.SubTotal.ToString("N0") تومان</td>
+        </tr>
+        @if (Model.DiscountAmount > 0)
+        {
+            <tr>
+                <td>تخفیف:</td>
+                <td class="text-end">-@Model.DiscountAmount.ToString("N0") تومان</td>
+            </tr>
+        }
+        <tr>
+            <td>ارسال:</td>
+            <td class="text-end">@Model.ShippingAmount.ToString("N0") تومان</td>
+        </tr>
+        @if (Model.TaxAmount > 0)
+        {
+            <tr>
+                <td>مالیات:</td>
+                <td class="text-end">@Model.TaxAmount.ToString("N0") تومان</td>
+            </tr>
+        }
+        <tr style="font-weight: bold; font-size: 1.1rem;">
+            <td>مجموع:</td>
+            <td class="text-end">@Model.Total.ToString("N0") تومان</td>
+        </tr>
+    </table>
+
+    <p style="margin-top: 3rem; text-align: center; color: #666;">
+        با تشکر از خرید شما - قهوه علیزاده
+    </p>
+</body>
+</html>

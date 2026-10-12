@@ -1,0 +1,337 @@
+﻿@using GhahveAlizade.Infrastructure.Persistence.Seed
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+
+    bool IsActive(string controller) =>
+        currentController.Equals(controller, StringComparison.OrdinalIgnoreCase);
+
+    bool HasPerm(string permission) => User.HasPermission(permission);
+}
+
+<aside class="admin-sidebar">
+    <!-- Brand -->
+    <div class="brand">
+        <h4>
+            <i class="bi bi-cup-hot-fill"></i>
+            قهوه علیزاده
+        </h4>
+        <small class="text-muted">پنل مدیریت</small>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav flex-column py-3">
+
+        <!-- داشبورد -->
+        <a class="nav-link @(IsActive("Dashboard") ? "active" : "")"
+           asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+            <i class="bi bi-speedometer2"></i>
+            <span>داشبورد</span>
+        </a>
+
+        <!-- ==================== فروشگاه ==================== -->
+        @if (HasPerm(Permissions.Products.View) || HasPerm(Permissions.Categories.View) || HasPerm(Permissions.Brands.View))
+        {
+            <div class="nav-section-title">فروشگاه</div>
+
+            @if (HasPerm(Permissions.Categories.View))
+            {
+                <a class="nav-link @(IsActive("Categories") ? "active" : "")"
+                   asp-area="Admin" asp-controller="Categories" asp-action="Index">
+                    <i class="bi bi-diagram-3"></i>
+                    <span>دسته‌بندی‌ها</span>
+                </a>
+            }
+
+            @if (HasPerm(Permissions.Brands.View))
+            {
+                <a class="nav-link @(IsActive("Brands") ? "active" : "")"
+                   asp-area="Admin" asp-controller="Brands" asp-action="Index">
+                    <i class="bi bi-award"></i>
+                    <span>برندها</span>
+                </a>
+            }
+
+            @if (HasPerm(Permissions.Products.View))
+            {
+                <a class="nav-link @(IsActive("Products") ? "active" : "")"
+                   asp-area="Admin" asp-controller="Products" asp-action="Index">
+                    <i class="bi bi-box-seam"></i>
+                    <span>محصولات</span>
+                </a>
+            }
+
+            @if (HasPerm(Permissions.Attributes.View))
+            {
+                <a class="nav-link @(IsActive("Attributes") ? "active" : "")"
+                   asp-area="Admin" asp-controller="Attributes" asp-action="Index">
+                    <i class="bi bi-tags"></i>
+                    <span>ویژگی‌ها</span>
+                </a>
+            }
+
+            @if (HasPerm(Permissions.Bundles.View))
+            {
+                <a class="nav-link @(IsActive("Bundles") ? "active" : "")"
+                   asp-area="Admin" asp-controller="Bundles" asp-action="Index">
+                    <i class="bi bi-boxes"></i>
+                    <span>بسته‌ها</span>
+                </a>
+            }
+        }
+
+        <!-- ==================== قهوه ==================== -->
+        @if (HasPerm(Permissions.Coffee.ViewOrigins) || HasPerm(Permissions.Coffee.ViewProcesses) || HasPerm(Permissions.Coffee.ViewRoastProfiles))
+        {
+            <div class="nav-section-title">اطلاعات قهوه</div>
+
+            @if (HasPerm(Permissions.Coffee.ViewOrigins))
+            {
+                <a class="nav-link @(IsActive("CoffeeOrigins") ? "active" : "")"
+                   asp-area="Admin" asp-controller="CoffeeOrigins" asp-action="Index">
+                    <i class="bi bi-geo-alt"></i>
+                    <span>خاستگاه‌ها</span>
+                </a>
+            }
+
+            @if (HasPerm(Permissions.Coffee.ViewProcesses))
+            {
+                <a class="nav-link @(IsActive("CoffeeProcesses") ? "active" : "")"
+                   asp-area="Admin" asp-controller="CoffeeProcesses" asp-action="Index">
+                    <i class="bi bi-droplet"></i>
+                    <span>فرآیندها</span>
+                </a>
+            }
+
+            @if (HasPerm(Permissions.Coffee.ViewRoastProfiles))
+            {
+                <a class="nav-link @(IsActive("RoastProfiles") ? "active" : "")"
+                   asp-area="Admin" asp-controller="RoastProfiles" asp-action="Index">
+                    <i class="bi bi-fire"></i>
+                    <span>پروفایل‌های رست</span>
+                </a>
+            }
+
+            @if (HasPerm(Permissions.Coffee.ViewFlavorNotes))
+            {
+                <a class="nav-link @(IsActive("FlavorNotes") ? "active" : "")"
+                   asp-area="Admin" asp-controller="FlavorNotes" asp-action="Index">
+                    <i class="bi bi-flower1"></i>
+                    <span>نُت‌های طعمی</span>
+                </a>
+            }
+        }
+
+        <!-- ==================== انبار ==================== -->
+        @if (HasPerm(Permissions.Inventory.View))
+        {
+            <div class="nav-section-title">انبار</div>
+
+            <a class="nav-link @(IsActive("Inventory") ? "active" : "")"
+               asp-area="Admin" asp-controller="Inventory" asp-action="Index">
+                <i class="bi bi-boxes"></i>
+                <span>موجودی</span>
+            </a>
+
+            @if (HasPerm(Permissions.Inventory.ManageWarehouses))
+            {
+                <a class="nav-link @(IsActive("Warehouses") ? "active" : "")"
+                   asp-area="Admin" asp-controller="Warehouses" asp-action="Index">
+                    <i class="bi bi-building"></i>
+                    <span>انبارها</span>
+                </a>
+            }
+
+            @if (HasPerm(Permissions.Inventory.ManageBranches))
+            {
+                <a class="nav-link @(IsActive("Branches") ? "active" : "")"
+                   asp-area="Admin" asp-controller="Branches" asp-action="Index">
+                    <i class="bi bi-shop"></i>
+                    <span>شعبه‌ها</span>
+                </a>
+            }
+        }
+
+        <!-- ==================== فروش ==================== -->
+        @if (HasPerm(Permissions.Orders.View) || HasPerm(Permissions.Customers.View))
+        {
+            <div class="nav-section-title">فروش</div>
+
+            @if (HasPerm(Permissions.Orders.View))
+            {
+                <a class="nav-link @(IsActive("Orders") ? "active" : "")"
+                   asp-area="Admin" asp-controller="Orders" asp-action="Index">
+                    <i class="bi bi-receipt"></i>
+                    <span>سفارشات</span>
+                </a>
+            }
+
+            @if (HasPerm(Permissions.Customers.View))
+            {
+                <a class="nav-link @(IsActive("Customers") ? "active" : "")"
+                   asp-area="Admin" asp-controller="Customers" asp-action="Index">
+                    <i class="bi bi-people"></i>
+                    <span>مشتریان</span>
+                </a>
+            }
+
+            @if (HasPerm(Permissions.Wholesale.View))
+            {
+                <a class="nav-link @(IsActive("Wholesale") ? "active" : "")"
+                   asp-area="Admin" asp-controller="Wholesale" asp-action="Index">
+                    <i class="bi bi-briefcase"></i>
+                    <span>عمده‌فروشی</span>
+                </a>
+            }
+        }
+
+        <!-- ==================== محتوا و سئو ==================== -->
+        @if (HasPerm(Permissions.Blog.ViewPosts) || HasPerm(Permissions.Seo.ViewMetadata))
+        {
+            <div class="nav-section-title">محتوا و سئو</div>
+
+            @if (HasPerm(Permissions.Blog.ViewPosts))
+            {
+                <a class="nav-link @(IsActive("BlogPosts") ? "active" : "")"
+                   asp-area="Admin" asp-controller="BlogPosts" asp-action="Index">
+                    <i class="bi bi-file-text"></i>
+                    <span>مقالات</span>
+                </a>
+
+                <a class="nav-link @(IsActive("BlogCategories") ? "active" : "")"
+                   asp-area="Admin" asp-controller="BlogCategories" asp-action="Index">
+                    <i class="bi bi-folder"></i>
+                    <span>دسته‌های وبلاگ</span>
+                </a>
+            }
+
+            @if (HasPerm(Permissions.Seo.ViewMetadata))
+            {
+                <a class="nav-link @(IsActive("Seo") ? "active" : "")"
+                   asp-area="Admin" asp-controller="Seo" asp-action="Index">
+                    <i class="bi bi-search"></i>
+                    <span>سئو</span>
+                </a>
+            }
+
+            @if (HasPerm(Permissions.Seo.ManageRedirects))
+            {
+                <a class="nav-link @(IsActive("Redirects") ? "active" : "")"
+                   asp-area="Admin" asp-controller="Redirects" asp-action="Index">
+                    <i class="bi bi-arrow-left-right"></i>
+                    <span>ریدایرکت‌ها</span>
+                </a>
+            }
+        }
+
+        <!-- ==================== بازاریابی ==================== -->
+        @if (HasPerm(Permissions.Coupons.View) || HasPerm(Permissions.Marketing.ViewCampaigns))
+        {
+            <div class="nav-section-title">بازاریابی</div>
+
+            @if (HasPerm(Permissions.Coupons.View))
+            {
+                <a class="nav-link @(IsActive("Coupons") ? "active" : "")"
+                   asp-area="Admin" asp-controller="Coupons" asp-action="Index">
+                    <i class="bi bi-ticket-perforated"></i>
+                    <span>کدهای تخفیف</span>
+                </a>
+            }
+
+            @if (HasPerm(Permissions.Marketing.ViewBanners))
+            {
+                <a class="nav-link @(IsActive("Banners") ? "active" : "")"
+                   asp-area="Admin" asp-controller="Banners" asp-action="Index">
+                    <i class="bi bi-image"></i>
+                    <span>بنرها</span>
+                </a>
+            }
+
+            @if (HasPerm(Permissions.Newsletter.View))
+            {
+                <a class="nav-link @(IsActive("Newsletter") ? "active" : "")"
+                   asp-area="Admin" asp-controller="Newsletter" asp-action="Index">
+                    <i class="bi bi-envelope"></i>
+                    <span>خبرنامه</span>
+                </a>
+            }
+        }
+
+        <!-- ==================== نظرات ==================== -->
+        @if (HasPerm(Permissions.Reviews.View))
+        {
+            <div class="nav-section-title">نظرات</div>
+
+            <a class="nav-link @(IsActive("Reviews") ? "active" : "")"
+               asp-area="Admin" asp-controller="Reviews" asp-action="Index">
+                <i class="bi bi-star"></i>
+                <span>نظرات محصولات</span>
+            </a>
+        }
+
+        <!-- ==================== گزارشات ==================== -->
+        @if (HasPerm(Permissions.Reports.ViewSales) || HasPerm(Permissions.Reports.ViewInventory))
+        {
+            <div class="nav-section-title">گزارشات</div>
+
+            @if (HasPerm(Permissions.Reports.ViewSales))
+            {
+                <a class="nav-link @(IsActive("Reports") && currentAction == "Sales" ? "active" : "")"
+                   asp-area="Admin" asp-controller="Reports" asp-action="Sales">
+                    <i class="bi bi-graph-up"></i>
+                    <span>گزارش فروش</span>
+                </a>
+            }
+
+            @if (HasPerm(Permissions.Reports.ViewInventory))
+            {
+                <a class="nav-link @(IsActive("Reports") && currentAction == "Inventory" ? "active" : "")"
+                   asp-area="Admin" asp-controller="Reports" asp-action="Inventory">
+                    <i class="bi bi-clipboard-data"></i>
+                    <span>گزارش انبار</span>
+                </a>
+            }
+        }
+
+        <!-- ==================== سیستم ==================== -->
+        @if (HasPerm(Permissions.Users.View) || HasPerm(Permissions.Settings.View))
+        {
+            <div class="nav-section-title">سیستم</div>
+
+            @if (HasPerm(Permissions.Users.View))
+            {
+                <a class="nav-link @(IsActive("Users") ? "active" : "")"
+                   asp-area="Admin" asp-controller="Users" asp-action="Index">
+                    <i class="bi bi-person-badge"></i>
+                    <span>کاربران</span>
+                </a>
+            }
+
+            @if (HasPerm(Permissions.Roles.View))
+            {
+                <a class="nav-link @(IsActive("Roles") ? "active" : "")"
+                   asp-area="Admin" asp-controller="Roles" asp-action="Index">
+                    <i class="bi bi-shield-lock"></i>
+                    <span>نقش‌ها و دسترسی‌ها</span>
+                </a>
+            }
+
+            @if (HasPerm(Permissions.Settings.View))
+            {
+                <a class="nav-link @(IsActive("Settings") ? "active" : "")"
+                   asp-area="Admin" asp-controller="Settings" asp-action="Index">
+                    <i class="bi bi-gear"></i>
+                    <span>تنظیمات</span>
+                </a>
+            }
+
+            @if (HasPerm(Permissions.Settings.ViewLogs))
+            {
+                <a class="nav-link" href="/hangfire" target="_blank">
+                    <i class="bi bi-clock-history"></i>
+                    <span>کارهای پس‌زمینه</span>
+                </a>
+            }
+        }
+    </nav>
+</aside>

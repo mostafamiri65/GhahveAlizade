@@ -1,0 +1,221 @@
+﻿@model ProductDetailDto
+@using GhahveAlizade.Infrastructure.Persistence.Seed
+@{
+    ViewData["Title"] = $"جزئیات: {Model.Name}";
+    ViewData["PageIcon"] = "bi-eye";
+    ViewData["Breadcrumb"] = "محصولات / جزئیات";
+}
+
+<div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-right"></i> بازگشت به لیست
+    </a>
+    <div class="d-flex gap-2">
+        @if (User.HasPermission(Permissions.Products.Edit))
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-admin-primary">
+                <i class="bi bi-pencil"></i> ویرایش
+            </a>
+        }
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- ستون راست: تصاویر و اطلاعات -->
+    <div class="col-lg-8">
+        <div class="admin-card mb-3">
+            <h5 class="fw-bold mb-3">@Model.Name</h5>
+            <div class="row g-2 small text-muted mb-3">
+                @if (!string.IsNullOrEmpty(Model.Sku))
+                {
+                    <div class="col-auto"><i class="bi bi-hash"></i> SKU: @Model.Sku</div>
+                }
+                @if (!string.IsNullOrEmpty(Model.CategoryName))
+                {
+                    <div class="col-auto"><i class="bi bi-diagram-3"></i> @Model.CategoryName</div>
+                }
+                @if (!string.IsNullOrEmpty(Model.BrandName))
+                {
+                    <div class="col-auto"><i class="bi bi-award"></i> @Model.BrandName</div>
+                }
+            </div>
+
+            @if (Model.Images.Any())
+            {
+                <div class="row g-2 mb-3">
+                    @foreach (var img in Model.Images.OrderByDescending(i => i.IsPrimary))
+                    {
+                        <div class="col-3">
+                            <img src="@img.ImageUrl" alt="@img.AltText" class="img-fluid rounded" />
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.ShortDescription))
+            {
+                <p class="fw-bold">@Model.ShortDescription</p>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <div>@Html.Raw(Model.Description)</div>
+            }
+        </div>
+
+        @if (Model.Variants.Any())
+        {
+            <div class="admin-card mb-3">
+                <h6 class="fw-bold mb-3">واریانت‌ها (@Model.Variants.Count)</h6>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>نام</th>
+                            <th>SKU</th>
+                            <th class="text-end">قیمت</th>
+                            <th class="text-center">وضعیت</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var v in Model.Variants)
+                        {
+                            <tr>
+                                <td>@v.Name</td>
+                                <td class="small text-muted">@v.Sku</td>
+                                <td class="text-end fw-bold">@v.Price.ToString("N0")</td>
+                                <td class="text-center">
+                                    <span class="badge bg-@(v.IsActive ? "success" : "secondary")">
+                                        @(v.IsActive ? "فعال" : "غیرفعال")
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        @if (Model.FlavorNoteNames.Any())
+        {
+            <div class="admin-card mb-3">
+                <h6 class="fw-bold mb-3">نُت‌های طعمی</h6>
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (var note in Model.FlavorNoteNames)
+                    {
+                        <span class="badge bg-warning text-dark">@note</span>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- ستون چپ: اطلاعات فنی -->
+    <div class="col-lg-4">
+        <div class="admin-card mb-3">
+            <h6 class="fw-bold mb-3">قیمت‌گذاری</h6>
+            <ul class="list-unstyled small mb-0">
+                @if (Model.BasePrice.HasValue)
+                {
+                    <li class="d-flex justify-content-between py-1 border-bottom">
+                        <span class="text-muted">قیمت پایه:</span>
+                        <strong>@Model.BasePrice.Value.ToString("N0") تومان</strong>
+                    </li>
+                }
+                @if (Model.CompareAtPrice.HasValue)
+                {
+                    <li class="d-flex justify-content-between py-1 border-bottom">
+                        <span class="text-muted">قیمت قبل تخفیف:</span>
+                        <span>@Model.CompareAtPrice.Value.ToString("N0") تومان</span>
+                    </li>
+                }
+                @if (Model.CostPrice.HasValue)
+                {
+                    <li class="d-flex justify-content-between py-1 border-bottom">
+                        <span class="text-muted">قیمت خرید:</span>
+                        <span>@Model.CostPrice.Value.ToString("N0") تومان</span>
+                    </li>
+                }
+                <li class="d-flex justify-content-between py-1">
+                    <span class="text-muted">مالیات:</span>
+                    <span>@(Model.IsTaxable ? $"{Model.TaxRate ?? 0}%" : "معاف")</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="admin-card mb-3">
+            <h6 class="fw-bold mb-3">آمار</h6>
+            <ul class="list-unstyled small mb-0">
+                <li class="d-flex justify-content-between py-1 border-bottom">
+                    <span class="text-muted">بازدید:</span>
+                    <strong>@Model.ViewCount</strong>
+                </li>
+                <li class="d-flex justify-content-between py-1 border-bottom">
+                    <span class="text-muted">فروش:</span>
+                    <strong>@Model.SoldCount</strong>
+                </li>
+                <li class="d-flex justify-content-between py-1 border-bottom">
+                    <span class="text-muted">امتیاز:</span>
+                    <strong>@Model.AverageRating.ToString("0.0") از 5</strong>
+                </li>
+                <li class="d-flex justify-content-between py-1">
+                    <span class="text-muted">تعداد نظرات:</span>
+                    <strong>@Model.ReviewCount</strong>
+                </li>
+            </ul>
+        </div>
+
+        <div class="admin-card mb-3">
+            <h6 class="fw-bold mb-3">وضعیت</h6>
+            <div class="d-flex flex-wrap gap-2">
+                <span class="badge bg-@(Model.IsActive ? "success" : "secondary")">
+                    @(Model.IsActive ? "فعال" : "غیرفعال")
+                </span>
+                <span class="badge bg-@(Model.IsPublished ? "success" : "secondary")">
+                    @(Model.IsPublished ? "منتشر شده" : "پیش‌نویس")
+                </span>
+                @if (Model.IsFeatured)
+                {
+                    <span class="badge bg-warning text-dark">ویژه</span>
+                }
+                @if (Model.IsNew)
+                {
+                    <span class="badge bg-info text-dark">جدید</span>
+                }
+                @if (Model.IsBestSeller)
+                {
+                    <span class="badge bg-danger">پرفروش</span>
+                }
+            </div>
+        </div>
+
+        @if (Model.CoffeeOriginName != null || Model.RoastProfileName != null || Model.CoffeeProcessName != null)
+        {
+            <div class="admin-card mb-3">
+                <h6 class="fw-bold mb-3">اطلاعات قهوه</h6>
+                <ul class="list-unstyled small mb-0">
+                    @if (Model.CoffeeOriginName != null)
+                    {
+                        <li class="d-flex justify-content-between py-1 border-bottom">
+                            <span class="text-muted">خاستگاه:</span>
+                            <strong>@Model.CoffeeOriginName</strong>
+                        </li>
+                    }
+                    @if (Model.CoffeeProcessName != null)
+                    {
+                        <li class="d-flex justify-content-between py-1 border-bottom">
+                            <span class="text-muted">فرآیند:</span>
+                            <span>@Model.CoffeeProcessName</span>
+                        </li>
+                    }
+                    @if (Model.RoastProfileName != null)
+                    {
+                        <li class="d-flex justify-content-between py-1">
+                            <span class="text-muted">رست:</span>
+                            <span>@Model.RoastProfileName</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+</div>

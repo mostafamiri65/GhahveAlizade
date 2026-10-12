@@ -1,0 +1,24 @@
+﻿@using GhahveAlizade.Web.ViewComponents
+@model GhahveAlizade.Application.Features.Seo.Queries.GetSeoLandingPageBySlug.SeoLandingPageDto
+@{
+    ViewData["Title"] = Model.MetaTitle ?? Model.Title;
+}
+
+<component type="typeof(BreadcrumbViewComponent)" render-mode="Static" />
+
+<article class="container py-5" dir="rtl">
+    @if (!string.IsNullOrEmpty(Model.FeaturedImageUrl))
+    {
+        <img src="@Model.FeaturedImageUrl" alt="@Model.Title"
+             class="img-fluid rounded mb-4" loading="lazy" />
+    }
+
+    <h1 class="mb-4">@(Model.H1 ?? Model.Title)</h1>
+
+    @if (!string.IsNullOrEmpty(Model.Content))
+    {
+        <div class="content">
+            @Html.Raw(Model.Content)
+        </div>
+    }
+</article>

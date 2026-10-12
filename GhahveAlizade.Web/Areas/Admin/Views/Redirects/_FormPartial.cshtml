@@ -1,0 +1,40 @@
+﻿@model RedirectFormViewModel
+@using GhahveAlizade.Web.Areas.Admin.Models.Seo
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="FromPath" class="form-label"></label>
+        <input asp-for="FromPath" class="form-control" dir="ltr" placeholder="/old-page" />
+        <span asp-validation-for="FromPath" class="text-danger small"></span>
+        <small class="text-muted">مسیر قدیمی که باید ریدایرکت شود</small>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="ToPath" class="form-label"></label>
+        <input asp-for="ToPath" class="form-control" dir="ltr" placeholder="/new-page" />
+        <span asp-validation-for="ToPath" class="text-danger small"></span>
+        <small class="text-muted">مسیر جدید (یا آدرس کامل مثل https://...)</small>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="Type" class="form-label"></label>
+        <select asp-for="Type" class="form-select">
+            <option value="301">301 - دائمی (بهترین برای سئو)</option>
+            <option value="302">302 - موقت</option>
+            <option value="308">308 - دائمی با حفظ متد</option>
+        </select>
+    </div>
+
+    <div class="col-md-6">
+        <div class="form-check form-switch mt-4">
+            <input asp-for="IsActive" class="form-check-input" />
+            <label asp-for="IsActive" class="form-check-label"></label>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <label asp-for="Notes" class="form-label"></label>
+        <textarea asp-for="Notes" rows="2" class="form-control"></textarea>
+    </div>
+</div>

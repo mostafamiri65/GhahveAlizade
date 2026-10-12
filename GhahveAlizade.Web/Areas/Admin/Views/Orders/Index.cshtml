@@ -1,0 +1,186 @@
+﻿@model PaginatedList<OrderListItemDto>
+@using GhahveAlizade.Application.Common.Models
+@using GhahveAlizade.Application.Features.Commerce.Dtos
+@using GhahveAlizade.Domain.Enums
+@using GhahveAlizade.Infrastructure.Persistence.Seed
+@{
+    ViewData["Title"] = "سفارشات";
+    ViewData["PageIcon"] = "bi-receipt";
+    var search = ViewBag.Search as string;
+    var status = ViewBag.Status as OrderStatus?;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="text-muted">مجموع: <strong>@Model.TotalCount</strong> سفارش</span>
+</div>
+
+<div class="admin-card mb-3">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label small">جستجو</label>
+            <input type="text" name="search" class="form-control"
+                   placeholder="شماره سفارش، نام، موبایل..." value="@search" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small">وضعیت</label>
+            <select name="status" class="form-select">
+                <option value="">همه</option>
+                @foreach (OrderStatus s in Enum.GetValues<OrderStatus>())
+                {
+                    <option value="@((int)s)" selected="@(status == s)">@GetStatusName(s)</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-5 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1">
+                <i class="bi bi-search"></i> فیلتر
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-x-lg"></i>
+            </a>
+        </div>
+    </form>
+</div>
+
+<div class="admin-card p-0 overflow-hidden">
+    @if (Model.Items.Count == 0)
+    {
+        <div class="text-center py-5">
+            <div class="fs-1 text-muted mb-3"><i class="bi bi-receipt"></i></div>
+            <h5 class="text-muted">سفارشی یافت نشد</h5>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>شماره سفارش</th>
+                        <th>مشتری</th>
+                        <th class="text-center">اقلام</th>
+                        <th class="text-center">مبلغ کل</th>
+                        <th class="text-center">وضعیت</th>
+                        <th class="text-center">تاریخ</th>
+                        <th class="text-center" style="width: 130px;">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var o in Model.Items)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-action="Detail" asp-route-id="@o.Id" class="fw-bold" dir="ltr">
+                                    @o.OrderNumber
+                                </a>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(o.CustomerName))
+                                {
+                                    <div class="fw-bold small">@o.CustomerName</div>
+                                }
+                                @if (!string.IsNullOrEmpty(o.CustomerPhone))
+                                {
+                                    <div class="text-muted small" dir="ltr">@o.CustomerPhone</div>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-secondary">@o.ItemCount</span>
+                            </td>
+                            <td class="text-center fw-bold">
+                                @o.Total.ToString("N0")
+                                <small class="text-muted">تومان</small>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge @GetStatusClass(o.Status)">
+                                    @o.StatusName
+                                </span>
+                            </td>
+                            <td class="text-center small text-muted">
+                                @o.CreatedAtUtc.ToLocalTime().ToString("yyyy/MM/dd HH:mm")
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    <a asp-action="Detail" asp-route-id="@o.Id"
+                                       class="btn btn-outline-info" title="جزئیات">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    @if (User.HasPermission(Permissions.Orders.Print))
+                                    {
+                                        <a asp-action="Print" asp-route-id="@o.Id" target="_blank"
+                                           class="btn btn-outline-secondary" title="چاپ">
+                                            <i class="bi bi-printer"></i>
+                                        </a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <div class="p-3 border-top">
+                <nav>
+                    <ul class="pagination justify-content-center mb-0">
+                        @if (Model.HasPrevious)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber - 1)" asp-route-search="@search">قبلی</a>
+                            </li>
+                        }
+                        @for (var i = 1; i <= Model.TotalPages; i++)
+                        {
+                            if (i == 1 || i == Model.TotalPages || Math.Abs(i - Model.PageNumber) <= 2)
+                            {
+                                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                    <a class="page-link" asp-action="Index" asp-route-pageNumber="@i" asp-route-search="@search">@i</a>
+                                </li>
+                            }
+                        }
+                        @if (Model.HasNext)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber + 1)" asp-route-search="@search">بعدی</a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        }
+    }
+</div>
+
+@functions {
+    static string GetStatusName(OrderStatus s) => s switch
+    {
+        OrderStatus.Pending => "در انتظار",
+        OrderStatus.AwaitingPayment => "منتظر پرداخت",
+        OrderStatus.Paid => "پرداخت شده",
+        OrderStatus.Processing => "در حال پردازش",
+        OrderStatus.ReadyToShip => "آماده ارسال",
+        OrderStatus.Shipped => "ارسال شده",
+        OrderStatus.Delivered => "تحویل شده",
+        OrderStatus.Cancelled => "لغو شده",
+        OrderStatus.Refunded => "مرجوع شده",
+        OrderStatus.Returned => "بازگشت داده شده",
+        _ => s.ToString()
+    };
+
+    static string GetStatusClass(OrderStatus s) => s switch
+    {
+        OrderStatus.Pending => "bg-secondary",
+        OrderStatus.AwaitingPayment => "bg-warning text-dark",
+        OrderStatus.Paid => "bg-success",
+        OrderStatus.Processing => "bg-info text-dark",
+        OrderStatus.ReadyToShip => "bg-primary",
+        OrderStatus.Shipped => "bg-info",
+        OrderStatus.Delivered => "bg-success",
+        OrderStatus.Cancelled => "bg-danger",
+        OrderStatus.Refunded => "bg-dark",
+        OrderStatus.Returned => "bg-dark",
+        _ => "bg-secondary"
+    };
+}

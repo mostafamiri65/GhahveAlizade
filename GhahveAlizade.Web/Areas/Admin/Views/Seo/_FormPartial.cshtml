@@ -1,0 +1,128 @@
+﻿@model SeoMetadataFormViewModel
+@using GhahveAlizade.Domain.Enums
+@using GhahveAlizade.Web.Areas.Admin.Models.Seo
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#seo-basic">اطلاعات اصلی</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#seo-og">Open Graph</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#seo-twitter">Twitter</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#seo-advanced">پیشرفته</button></li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="seo-basic">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="EntityType" class="form-label"></label>
+                <select asp-for="EntityType" class="form-select">
+                    @foreach (SeoEntityType t in Enum.GetValues<SeoEntityType>())
+                    {
+                        <option value="@((int)t)" selected="@(Model.EntityType == t)">@t</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="EntityId" class="form-label"></label>
+                <input asp-for="EntityId" type="number" class="form-control" dir="ltr" />
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Culture" class="form-label"></label>
+                <input asp-for="Culture" class="form-control" dir="ltr" />
+            </div>
+
+            <div class="col-12">
+                <label asp-for="MetaTitle" class="form-label"></label>
+                <input asp-for="MetaTitle" class="form-control" maxlength="200" />
+                <small class="text-muted">توصیه: 50-60 کاراکتر</small>
+            </div>
+            <div class="col-12">
+                <label asp-for="MetaDescription" class="form-label"></label>
+                <textarea asp-for="MetaDescription" rows="3" class="form-control" maxlength="500"></textarea>
+                <small class="text-muted">توصیه: 150-160 کاراکتر</small>
+            </div>
+            <div class="col-12">
+                <label asp-for="MetaKeywords" class="form-label"></label>
+                <input asp-for="MetaKeywords" class="form-control" maxlength="500" />
+            </div>
+            <div class="col-md-8">
+                <label asp-for="CanonicalUrl" class="form-label"></label>
+                <input asp-for="CanonicalUrl" class="form-control" dir="ltr" />
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Robots" class="form-label"></label>
+                <select asp-for="Robots" class="form-select">
+                    @foreach (RobotsDirective r in Enum.GetValues<RobotsDirective>())
+                    {
+                        <option value="@((int)r)" selected="@(Model.Robots == r)">@r</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="seo-og">
+        <div class="row g-3">
+            <div class="col-md-8">
+                <label asp-for="OgTitle" class="form-label"></label>
+                <input asp-for="OgTitle" class="form-control" maxlength="200" />
+            </div>
+            <div class="col-md-4">
+                <label asp-for="OgType" class="form-label"></label>
+                <input asp-for="OgType" class="form-control" dir="ltr" placeholder="website" />
+            </div>
+            <div class="col-12">
+                <label asp-for="OgDescription" class="form-label"></label>
+                <textarea asp-for="OgDescription" rows="2" class="form-control" maxlength="500"></textarea>
+            </div>
+            <div class="col-12">
+                <label asp-for="OgImage" class="form-label"></label>
+                <input asp-for="OgImage" class="form-control" dir="ltr" />
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="seo-twitter">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="TwitterCard" class="form-label"></label>
+                <select asp-for="TwitterCard" class="form-select">
+                    <option value="">— انتخاب —</option>
+                    <option value="summary">summary</option>
+                    <option value="summary_large_image">summary_large_image</option>
+                </select>
+            </div>
+            <div class="col-md-8">
+                <label asp-for="TwitterTitle" class="form-label"></label>
+                <input asp-for="TwitterTitle" class="form-control" maxlength="200" />
+            </div>
+            <div class="col-12">
+                <label asp-for="TwitterDescription" class="form-label"></label>
+                <textarea asp-for="TwitterDescription" rows="2" class="form-control" maxlength="500"></textarea>
+            </div>
+            <div class="col-12">
+                <label asp-for="TwitterImage" class="form-label"></label>
+                <input asp-for="TwitterImage" class="form-control" dir="ltr" />
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="seo-advanced">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="FocusKeyword" class="form-label"></label>
+                <input asp-for="FocusKeyword" class="form-control" maxlength="200" />
+            </div>
+            <div class="col-md-6">
+                <label asp-for="SeoScore" class="form-label"></label>
+                <input asp-for="SeoScore" type="number" min="0" max="100" class="form-control" dir="ltr" />
+            </div>
+            <div class="col-12">
+                <label asp-for="JsonLdSchema" class="form-label"></label>
+                <textarea asp-for="JsonLdSchema" rows="8" class="form-control" dir="ltr"
+                          placeholder='{"@@context":"https://schema.org","@@type":"Product",...}'></textarea>
+            </div>
+        </div>
+    </div>
+</div>

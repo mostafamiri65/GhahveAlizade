@@ -1,0 +1,94 @@
+﻿@model List<SettingGroupDto>
+@using GhahveAlizade.Application.Features.Settings.Dtos
+@using GhahveAlizade.Infrastructure.Persistence.Seed
+@{
+    ViewData["Title"] = "تنظیمات";
+    ViewData["PageIcon"] = "bi-gear";
+}
+
+<ul class="nav nav-tabs mb-3">
+    @{
+        var first = true;
+    }
+    @foreach (var g in Model)
+    {
+        <li class="nav-item">
+            <button class="nav-link @(first ? "active" : "")" data-bs-toggle="tab"
+                    data-bs-target="#group_@g.Group">
+                @g.GroupDisplayName
+            </button>
+        </li>
+        first = false;
+    }
+</ul>
+
+<form id="settingsForm" method="post" asp-action="Save">
+    @Html.AntiForgeryToken()
+
+    <div class="tab-content">
+        @{
+            first = true;
+        }
+        @foreach (var g in Model)
+        {
+            <div class="tab-pane fade @(first ? "show active" : "")" id="group_@g.Group">
+                <div class="admin-card">
+                    @foreach (var s in g.Settings)
+                    {
+                        <div class="row mb-3 align-items-start">
+                            <label class="col-md-4 col-form-label">
+                                <strong>@(s.Description ?? s.Key)</strong>
+                                <br />
+                                <code class="small text-muted">@s.Key</code>
+                            </label>
+                            <div class="col-md-8">
+                                @if (s.ValueType == "Bool")
+                                {
+                                    <div class="form-check form-switch mt-2">
+                                        <input type="checkbox" name="setting_@s.Key" value="true"
+                                               class="form-check-input" @(s.Value == "true" ? "checked" : "") />
+                                    </div>
+                                }
+                                else if (s.ValueType == "Json")
+                                {
+                                    <textarea name="setting_@s.Key" rows="4" class="form-control" dir="ltr">@s.Value</textarea>
+                                }
+                                else
+                                {
+                                    <input type="text" name="setting_@s.Key" value="@s.Value"
+                                           class="form-control" dir="ltr" />
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            first = false;
+        }
+    </div>
+
+    @if (User.HasPermission(Permissions.Settings.Edit))
+    {
+        <div class="d-flex justify-content-end mt-3">
+            <button type="submit" class="btn btn-admin-primary">
+                <i class="bi bi-check-lg"></i> ذخیره تنظیمات
+            </button>
+        </div>
+    }
+</form>
+
+@section Scripts {
+    <script>
+        document.getElementById('settingsForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+
+            const r = await fetch('@Url.Action("Save")', {
+                method: 'POST',
+                body: formData
+            });
+            const d = await r.json();
+            alert(d.message);
+        });
+    </script>
+}

@@ -1,0 +1,167 @@
+﻿@model InventoryItemDto
+@using GhahveAlizade.Application.Common.Models
+@using GhahveAlizade.Application.Features.Inventory.Dtos
+@using GhahveAlizade.Infrastructure.Persistence.Seed
+@{
+    ViewData["Title"] = "جزئیات موجودی";
+    ViewData["PageIcon"] = "bi-boxes";
+    var transactions = ViewBag.Transactions as PaginatedList<InventoryTransactionDto>;
+}
+
+<div class="d-flex justify-content-between mb-3">
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-right"></i> بازگشت
+    </a>
+    @if (User.HasPermission(Permissions.Inventory.Adjust))
+    {
+        <button class="btn btn-admin-primary" data-bs-toggle="modal" data-bs-target="#adjustModal">
+            <i class="bi bi-sliders"></i> تعدیل موجودی
+        </button>
+    }
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="admin-card mb-3">
+            <h5 class="mb-3">@Model.ProductName</h5>
+            @if (!string.IsNullOrEmpty(Model.VariantName))
+            {
+                <p class="text-muted mb-1">@Model.VariantName</p>
+            }
+            <div class="row g-3 mt-3">
+                <div class="col-md-4 text-center">
+                    <div class="text-muted small">موجودی کل</div>
+                    <div class="h3 fw-bold">@Model.Quantity.ToString("N0")</div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="text-muted small">رزرو شده</div>
+                    <div class="h3 fw-bold text-warning">@Model.ReservedQuantity.ToString("N0")</div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="text-muted small">قابل فروش</div>
+                    <div class="h3 fw-bold text-success">@Model.AvailableQuantity.ToString("N0")</div>
+                </div>
+            </div>
+        </div>
+
+        @if (transactions is not null && transactions.Items.Any())
+        {
+            <div class="admin-card">
+                <h6 class="fw-bold mb-3">تاریخچه تراکنش‌ها</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>نوع</th>
+                                <th class="text-center">تغییر</th>
+                                <th class="text-center">موجودی بعد</th>
+                                <th>مرجع</th>
+                                <th class="text-center">تاریخ</th>
+                                <th>کاربر</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var t in transactions.Items)
+                            {
+                                <tr>
+                                    <td><span class="badge bg-secondary">@t.TransactionType</span></td>
+                                    <td class="text-center @(t.Quantity > 0 ? "text-success" : "text-danger")">
+                                        @(t.Quantity > 0 ? "+" : "")@t.Quantity.ToString("N0")
+                                    </td>
+                                    <td class="text-center fw-bold">@t.BalanceAfter.ToString("N0")</td>
+                                    <td class="small text-muted">@(t.ReferenceType ?? "—")</td>
+                                    <td class="text-center small text-muted">
+                                        @t.CreatedAtUtc.ToLocalTime().ToString("yyyy/MM/dd HH:mm")
+                                    </td>
+                                    <td class="small">@(t.CreatedBy ?? "—")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="col-lg-4">
+        <div class="admin-card">
+            <h6 class="fw-bold mb-3">اطلاعات</h6>
+            <ul class="list-unstyled small mb-0">
+                <li class="d-flex justify-content-between py-2 border-bottom">
+                    <span>انبار:</span><strong>@Model.WarehouseName</strong>
+                </li>
+                <li class="d-flex justify-content-between py-2 border-bottom">
+                    <span>SKU:</span><code>@(Model.ProductSku ?? "—")</code>
+                </li>
+                <li class="d-flex justify-content-between py-2 border-bottom">
+                    <span>سطح هشدار:</span>
+                    <strong>@(Model.ReorderLevel?.ToString("N0") ?? "—")</strong>
+                </li>
+                <li class="d-flex justify-content-between py-2">
+                    <span>آخرین به‌روزرسانی:</span>
+                    <span>@(Model.UpdatedAtUtc?.ToLocalTime().ToString("yyyy/MM/dd") ?? "—")</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Adjust Modal -->
+@if (User.HasPermission(Permissions.Inventory.Adjust))
+{
+    <div class="modal fade" id="adjustModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">تعدیل موجودی</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">موجودی فعلی</label>
+                        <input class="form-control" value="@Model.Quantity.ToString("N0")" disabled />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">موجودی جدید *</label>
+                        <input type="number" id="newQuantity" class="form-control" dir="ltr"
+                               value="@Model.Quantity" step="1" min="0" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">یادداشت</label>
+                        <textarea id="adjustNotes" rows="2" class="form-control"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                    <button type="button" class="btn btn-admin-primary" onclick="saveAdjust()">ذخیره</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+        async function saveAdjust() {
+            const q = document.getElementById('newQuantity').value;
+            const notes = document.getElementById('adjustNotes').value;
+
+            const body = new URLSearchParams();
+            body.append('id', '@Model.Id');
+            body.append('newQuantity', q);
+            body.append('notes', notes);
+            body.append('__RequestVerificationToken', token);
+
+            const r = await fetch('@Url.Action("Adjust")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'RequestVerificationToken': token },
+                body
+            });
+            const d = await r.json();
+            alert(d.message);
+            if (d.success) location.reload();
+        }
+    </script>
+}

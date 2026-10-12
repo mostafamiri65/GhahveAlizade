@@ -1,0 +1,35 @@
+﻿@model string
+@{
+    var items = ViewData["Items"] as (string Name, string? Url)[];
+}
+
+@if (!string.IsNullOrEmpty(Model))
+{
+    <script type="application/ld+json">
+        @Html.Raw(Model)
+    </script>
+}
+
+@if (items?.Any() == true)
+{
+    <nav aria-label="breadcrumb" class="my-3">
+        <ol class="breadcrumb">
+            @for (var i = 0; i < items.Length; i++)
+            {
+                var item = items[i];
+                var isLast = i == items.Length - 1;
+
+                if (isLast || string.IsNullOrEmpty(item.Url))
+                {
+                    <li class="breadcrumb-item active" aria-current="page">@item.Name</li>
+                }
+                else
+                {
+                    <li class="breadcrumb-item">
+                        <a href="@item.Url">@item.Name</a>
+                    </li>
+                }
+            }
+        </ol>
+    </nav>
+}

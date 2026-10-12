@@ -1,0 +1,98 @@
+﻿@model CategoryFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger d-none"></div>
+
+<div class="row g-3">
+    <!-- اطلاعات اصلی -->
+    <div class="col-12">
+        <h6 class="text-muted border-bottom pb-2 mb-3">اطلاعات اصلی</h6>
+    </div>
+
+    <div class="col-md-8">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" autofocus />
+        <span asp-validation-for="Name" class="text-danger small"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="DisplayOrder" class="form-label"></label>
+        <input asp-for="DisplayOrder" type="number" class="form-control" />
+        <span asp-validation-for="DisplayOrder" class="text-danger small"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="Slug" class="form-label"></label>
+        <input asp-for="Slug" class="form-control" dir="ltr" placeholder="در صورت خالی بودن خودکار ساخته می‌شود" />
+        <span asp-validation-for="Slug" class="text-danger small"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="ParentId" class="form-label"></label>
+        <select asp-for="ParentId" class="form-select">
+            <option value="">— بدون والد (دسته اصلی) —</option>
+            @foreach (var cat in Model.Categories)
+            {
+                <option value="@cat.Id" selected="@(Model.ParentId == cat.Id)">
+                    @cat.DisplayName
+                </option>
+            }
+        </select>
+        <span asp-validation-for="ParentId" class="text-danger small"></span>
+    </div>
+
+    <div class="col-12">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description" rows="3" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger small"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="ImageUrl" class="form-label"></label>
+        <input asp-for="ImageUrl" class="form-control" dir="ltr" placeholder="/images/categories/..." />
+        <span asp-validation-for="ImageUrl" class="text-danger small"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="IconUrl" class="form-label"></label>
+        <input asp-for="IconUrl" class="form-control" dir="ltr" placeholder="bi bi-cup" />
+        <span asp-validation-for="IconUrl" class="text-danger small"></span>
+    </div>
+
+    <div class="col-12">
+        <div class="form-check form-switch">
+            <input asp-for="IsActive" class="form-check-input" />
+            <label asp-for="IsActive" class="form-check-label"></label>
+        </div>
+        <div class="form-check form-switch">
+            <input asp-for="IsFeatured" class="form-check-input" />
+            <label asp-for="IsFeatured" class="form-check-label"></label>
+        </div>
+    </div>
+
+    <!-- SEO -->
+    <div class="col-12 mt-4">
+        <h6 class="text-muted border-bottom pb-2 mb-3">
+            <i class="bi bi-search"></i> تنظیمات سئو
+        </h6>
+    </div>
+
+    <div class="col-12">
+        <label asp-for="MetaTitle" class="form-label"></label>
+        <input asp-for="MetaTitle" class="form-control" maxlength="200" />
+        <span asp-validation-for="MetaTitle" class="text-danger small"></span>
+        <small class="text-muted">توصیه: 50-60 کاراکتر</small>
+    </div>
+
+    <div class="col-12">
+        <label asp-for="MetaDescription" class="form-label"></label>
+        <textarea asp-for="MetaDescription" rows="2" class="form-control" maxlength="500"></textarea>
+        <span asp-validation-for="MetaDescription" class="text-danger small"></span>
+        <small class="text-muted">توصیه: 150-160 کاراکتر</small>
+    </div>
+
+    <div class="col-12">
+        <label asp-for="MetaKeywords" class="form-label"></label>
+        <input asp-for="MetaKeywords" class="form-control" maxlength="500" />
+        <small class="text-muted">کلمات را با کاما (,) جدا کنید</small>
+    </div>
+</div>

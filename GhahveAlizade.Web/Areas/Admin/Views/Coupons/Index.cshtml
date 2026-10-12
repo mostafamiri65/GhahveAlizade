@@ -1,0 +1,167 @@
+﻿@model PaginatedList<CouponListItemDto>
+@using GhahveAlizade.Application.Common.Models
+@using GhahveAlizade.Application.Features.Promotion.Dtos
+@using GhahveAlizade.Infrastructure.Persistence.Seed
+@{
+    ViewData["Title"] = "کدهای تخفیف";
+    ViewData["PageIcon"] = "bi-ticket-perforated";
+    var search = ViewBag.Search as string;
+    var isActive = ViewBag.IsActive as bool?;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="text-muted">مجموع: <strong>@Model.TotalCount</strong> کد</span>
+    @if (User.HasPermission(Permissions.Coupons.Create))
+    {
+        <a asp-action="Create" class="btn btn-admin-primary">
+            <i class="bi bi-plus-lg"></i> افزودن کد تخفیف
+        </a>
+    }
+</div>
+
+<div class="admin-card mb-3">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-5">
+            <label class="form-label small">جستجو</label>
+            <input type="text" name="search" class="form-control" value="@search" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small">وضعیت</label>
+            <select name="isActive" class="form-select">
+                <option value="">همه</option>
+                <option value="true" selected="@(isActive == true)">فعال</option>
+                <option value="false" selected="@(isActive == false)">غیرفعال</option>
+            </select>
+        </div>
+        <div class="col-md-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1">
+                <i class="bi bi-search"></i> فیلتر
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
+        </div>
+    </form>
+</div>
+
+<div class="admin-card p-0 overflow-hidden">
+    @if (Model.Items.Count == 0)
+    {
+        <div class="text-center py-5">
+            <div class="fs-1 text-muted mb-3"><i class="bi bi-ticket-perforated"></i></div>
+            <h5 class="text-muted">کد تخفیفی یافت نشد</h5>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>کد</th>
+                        <th>نوع</th>
+                        <th class="text-center">مقدار</th>
+                        <th class="text-center">استفاده</th>
+                        <th class="text-center">اعتبار</th>
+                        <th class="text-center">وضعیت</th>
+                        <th class="text-center" style="width: 150px;">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in Model.Items)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-bold" dir="ltr">@c.Code</div>
+                                @if (!c.IsPublic)
+                                {
+                                    <span class="badge bg-secondary small">خصوصی</span>
+                                }
+                            </td>
+                            <td><span class="badge bg-info text-dark">@c.DiscountTypeName</span></td>
+                            <td class="text-center fw-bold">
+                                @if (c.DiscountType == GhahveAlizade.Domain.Enums.DiscountType.Percentage)
+                                {
+                                    <span>@c.DiscountValue%</span>
+                                }
+                                else if (c.DiscountType == GhahveAlizade.Domain.Enums.DiscountType.FixedAmount)
+                                {
+                                    <span>@c.DiscountValue.ToString("N0")</span>
+                                }
+                                else
+                                {
+                                    <span>—</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                @c.UsedCount @if (c.MaxUsageCount.HasValue)
+                                {
+                                    <span>/ @c.MaxUsageCount</span>
+                                }
+                            </td>
+                            <td class="text-center small">
+                                @if (c.ExpiresAtUtc.HasValue)
+                                {
+                                    <div>تا @c.ExpiresAtUtc.Value.ToString("yyyy/MM/dd")</div>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">نامحدود</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <span class="badge @(c.Status == "فعال" ? "bg-success" :
+                                                                                         c.Status == "منقضی" ? "bg-danger" :
+                                                                                         c.Status == "اتمام" ? "bg-warning text-dark" : "bg-secondary")">
+                                    @c.Status
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    @if (User.HasPermission(Permissions.Coupons.Edit))
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@c.Id"
+                                           class="btn btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                                    }
+                                    @if (User.HasPermission(Permissions.Coupons.Delete))
+                                    {
+                                        <button type="button" class="btn btn-outline-danger"
+                                                data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                data-id="@c.Id" data-name="@c.Code">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Delete" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="deleteId" />
+                <div class="modal-header"><h5 class="modal-title">تایید حذف</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">حذف کد تخفیف <strong id="deleteName" class="text-danger"></strong>؟</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('deleteModal')?.addEventListener('show.bs.modal', function(e) {
+            const b = e.relatedTarget;
+            document.getElementById('deleteId').value = b.dataset.id;
+            document.getElementById('deleteName').textContent = b.dataset.name;
+        });
+    </script>
+}

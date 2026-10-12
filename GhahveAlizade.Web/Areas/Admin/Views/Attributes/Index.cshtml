@@ -1,0 +1,207 @@
+@model PaginatedList<AttributeListItemDto>
+@using GhahveAlizade.Application.Common.Models
+@using GhahveAlizade.Application.Features.Catalog.Attributes.Dtos
+@using GhahveAlizade.Domain.Enums
+@using GhahveAlizade.Infrastructure.Persistence.Seed
+@{
+    ViewData["Title"] = "مدیریت ویژگی‌ها";
+    ViewData["PageIcon"] = "bi-tags";
+    var search = ViewBag.Search as string;
+    var type = ViewBag.Type as AttributeType?;
+    var isFilterable = ViewBag.IsFilterable as bool?;
+    var isVariant = ViewBag.IsVariant as bool?;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <span class="text-muted">مجموع: <strong>@Model.TotalCount</strong> ویژگی</span>
+
+    @if (User.HasPermission(Permissions.Attributes.Create))
+    {
+        <a asp-action="Create" class="btn btn-admin-primary">
+            <i class="bi bi-plus-lg"></i> افزودن ویژگی
+        </a>
+    }
+</div>
+
+<div class="admin-card mb-3">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label small">جستجو</label>
+            <input type="text" name="search" class="form-control" value="@search" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small">نوع</label>
+            <select name="type" class="form-select">
+                <option value="">همه</option>
+                @foreach (AttributeType t in Enum.GetValues<AttributeType>())
+                {
+                    <option value="@((int)t)" selected="@(type == t)">@t</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small">فیلترپذیر</label>
+            <select name="isFilterable" class="form-select">
+                <option value="">همه</option>
+                <option value="true" selected="@(isFilterable == true)">بله</option>
+                <option value="false" selected="@(isFilterable == false)">خیر</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small">واریانتی</label>
+            <select name="isVariant" class="form-select">
+                <option value="">همه</option>
+                <option value="true" selected="@(isVariant == true)">بله</option>
+                <option value="false" selected="@(isVariant == false)">خیر</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1">
+                <i class="bi bi-search"></i> فیلتر
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
+        </div>
+    </form>
+</div>
+
+<div class="admin-card p-0 overflow-hidden">
+    @if (Model.Items.Count == 0)
+    {
+        <div class="text-center py-5">
+            <div class="fs-1 text-muted mb-3"><i class="bi bi-tags"></i></div>
+            <h5 class="text-muted">ویژگی‌ای یافت نشد</h5>
+            @if (User.HasPermission(Permissions.Attributes.Create))
+            {
+                <a asp-action="Create" class="btn btn-admin-primary mt-2">
+                    <i class="bi bi-plus-lg"></i> افزودن اولین ویژگی
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>نام</th>
+                        <th>نامک</th>
+                        <th class="text-center">نوع</th>
+                        <th class="text-center">واحد</th>
+                        <th class="text-center">تعداد مقادیر</th>
+                        <th class="text-center">ویژگی‌ها</th>
+                        <th class="text-center">ترتیب</th>
+                        <th class="text-center" style="width: 150px;">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var a in Model.Items)
+                    {
+                        <tr>
+                            <td class="fw-bold">@a.Name</td>
+                            <td><code class="small">@a.Slug</code></td>
+                            <td class="text-center">
+                                <span class="badge bg-info text-dark">@a.TypeName</span>
+                            </td>
+                            <td class="text-center text-muted small">@(a.Unit ?? "—")</td>
+                            <td class="text-center">
+                                <span class="badge bg-secondary">@a.ValueCount</span>
+                            </td>
+                            <td class="text-center">
+                                @if (a.IsFilterable)
+                                {
+                                    <span class="badge bg-success" title="فیلترپذیر">F</span>
+                                }
+                                @if (a.IsRequired)
+                                {
+                                    <span class="badge bg-warning text-dark" title="اجباری">R</span>
+                                }
+                                @if (a.IsVariant)
+                                {
+                                    <span class="badge bg-primary" title="واریانتی">V</span>
+                                }
+                            </td>
+                            <td class="text-center text-muted small">@a.DisplayOrder</td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    @if (User.HasPermission(Permissions.Attributes.Edit))
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@a.Id"
+                                           class="btn btn-outline-primary" title="ویرایش">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    }
+                                    @if (User.HasPermission(Permissions.Attributes.Delete))
+                                    {
+                                        <button type="button" class="btn btn-outline-danger"
+                                                data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                data-id="@a.Id" data-name="@a.Name">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <div class="p-3 border-top">
+                <nav>
+                    <ul class="pagination justify-content-center mb-0">
+                        @if (Model.HasPrevious)
+                        {
+                            <li class="page-item"><a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber - 1)">قبلی</a></li>
+                        }
+                        @for (var i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                <a class="page-link" asp-action="Index" asp-route-pageNumber="@i">@i</a>
+                            </li>
+                        }
+                        @if (Model.HasNext)
+                        {
+                            <li class="page-item"><a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber + 1)">بعدی</a></li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        }
+    }
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Delete" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="deleteId" />
+                <div class="modal-header">
+                    <h5 class="modal-title">تایید حذف</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    آیا از حذف ویژگی <strong id="deleteName" class="text-danger"></strong> مطمئن هستید؟
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const deleteModal = document.getElementById('deleteModal');
+        deleteModal?.addEventListener('show.bs.modal', function (e) {
+            const btn = e.relatedTarget;
+            document.getElementById('deleteId').value = btn.dataset.id;
+            document.getElementById('deleteName').textContent = btn.dataset.name;
+        });
+    </script>
+}

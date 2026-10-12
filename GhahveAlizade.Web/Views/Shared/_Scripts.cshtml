@@ -1,0 +1,57 @@
+﻿<!-- Bootstrap Bundle (شامل Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"
+        defer></script>
+
+<!-- Alpine.js - تعامل سبک -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+
+<!-- HTMX - تعامل داینامیک بدون SPA -->
+<script src="https://cdn.jsdelivr.net/npm/htmx.org@1.9.12/dist/htmx.min.js"
+        integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2"
+        crossorigin="anonymous"></script>
+
+<!-- SweetAlert2 - برای Modalهای زیباتر -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.0/dist/sweetalert2.all.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.0/dist/sweetalert2.min.css" rel="stylesheet" />
+
+<!-- فایل اسکریپت‌های اختصاصی پروژه -->
+<script src="~/js/site.js" asp-append-version="true" defer></script>
+
+<script>
+    // ============ HTMX Defaults ============
+    document.body?.addEventListener('htmx:configRequest', function (e) {
+        // اضافه کردن Anti-Forgery Token
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+        if (token) {
+            e.detail.headers['RequestVerificationToken'] = token;
+        }
+    });
+
+    // ============ HTMX Error Handler ============
+    document.body?.addEventListener('htmx:responseError', function (e) {
+        const status = e.detail.xhr.status;
+        let msg = 'خطایی رخ داد. لطفاً دوباره تلاش کنید.';
+
+        if (status === 401) msg = 'ابتدا وارد حساب کاربری خود شوید.';
+        else if (status === 403) msg = 'شما به این بخش دسترسی ندارید.';
+        else if (status === 404) msg = 'موردی یافت نشد.';
+        else if (status === 429) msg = 'تعداد درخواست‌ها بیش از حد مجاز. لطفاً کمی صبر کنید.';
+        else if (status >= 500) msg = 'خطای سرور. لطفاً بعداً تلاش کنید.';
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({ icon: 'error', title: 'خطا', text: msg, confirmButtonText: 'باشه' });
+        } else {
+            alert(msg);
+        }
+    });
+
+    // ============ HTMX Before Swap ============
+    document.body?.addEventListener('htmx:beforeSwap', function (e) {
+        // اگر پاسخ خطا بود، swap نکن
+        if (e.detail.xhr.status >= 400) {
+            e.detail.shouldSwap = false;
+        }
+    });
+</script>

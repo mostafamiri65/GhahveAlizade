@@ -1,0 +1,177 @@
+@model AttributeFormViewModel
+@using GhahveAlizade.Domain.Enums
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+<div class="row g-3">
+    <div class="col-md-8">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" autofocus />
+        <span asp-validation-for="Name" class="text-danger small"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="DisplayOrder" class="form-label"></label>
+        <input asp-for="DisplayOrder" type="number" class="form-control" />
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="Slug" class="form-label"></label>
+        <input asp-for="Slug" class="form-control" dir="ltr" placeholder="خودکار از نام" />
+    </div>
+
+    <div class="col-md-3">
+        <label asp-for="Type" class="form-label"></label>
+        <select asp-for="Type" class="form-select" id="attrType">
+            @foreach (AttributeType t in Enum.GetValues<AttributeType>())
+            {
+                <option value="@((int)t)" selected="@(Model.Type == t)">@GetTypeName(t)</option>
+            }
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <label asp-for="Unit" class="form-label"></label>
+        <input asp-for="Unit" class="form-control" placeholder="مثلاً گرم، سانتی‌متر" />
+    </div>
+
+    <div class="col-12">
+        <div class="d-flex flex-wrap gap-4">
+            <div class="form-check form-switch">
+                <input asp-for="IsFilterable" class="form-check-input" />
+                <label asp-for="IsFilterable" class="form-check-label"></label>
+            </div>
+            <div class="form-check form-switch">
+                <input asp-for="IsRequired" class="form-check-input" />
+                <label asp-for="IsRequired" class="form-check-label"></label>
+            </div>
+            <div class="form-check form-switch">
+                <input asp-for="IsVariant" class="form-check-input" />
+                <label asp-for="IsVariant" class="form-check-label"></label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Values Section - فقط برای Select/MultiSelect/Color -->
+    <div class="col-12 mt-4" id="valuesSection">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="text-muted border-bottom pb-2 mb-0 flex-grow-1">مقادیر</h6>
+            <button type="button" class="btn btn-sm btn-admin-primary ms-2" onclick="addValue()">
+                <i class="bi bi-plus-lg"></i> افزودن مقدار
+            </button>
+        </div>
+
+        <div id="valuesContainer">
+            @for (var i = 0; i < Model.Values.Count; i++)
+            {
+                var v = Model.Values[i];
+                <div class="card mb-2 value-item">
+                    <div class="card-body">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label small">مقدار *</label>
+                                <input name="Values[@i].Value" value="@v.Value"
+                                       class="form-control form-control-sm" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small">نمایش</label>
+                                <input name="Values[@i].DisplayValue" value="@v.DisplayValue"
+                                       class="form-control form-control-sm" />
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small">کد رنگ</label>
+                                <input name="Values[@i].ColorCode" value="@v.ColorCode"
+                                       class="form-control form-control-sm" dir="ltr" placeholder="#FFFFFF" />
+                            </div>
+                            <div class="col-md-1">
+                                <label class="form-label small">ترتیب</label>
+                                <input name="Values[@i].DisplayOrder" value="@v.DisplayOrder" type="number"
+                                       class="form-control form-control-sm" />
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeValue(this)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <input type="hidden" name="Values[@i].Id" value="@v.Id" />
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<template id="valueTemplate">
+    <div class="card mb-2 value-item">
+        <div class="card-body">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label small">مقدار *</label>
+                    <input name="Values[__INDEX__].Value" class="form-control form-control-sm" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small">نمایش</label>
+                    <input name="Values[__INDEX__].DisplayValue" class="form-control form-control-sm" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">کد رنگ</label>
+                    <input name="Values[__INDEX__].ColorCode" class="form-control form-control-sm" dir="ltr" />
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label small">ترتیب</label>
+                    <input name="Values[__INDEX__].DisplayOrder" type="number" class="form-control form-control-sm" value="0" />
+                </div>
+                <div class="col-md-2 text-end">
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeValue(this)">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <input type="hidden" name="Values[__INDEX__].Id" value="0" />
+        </div>
+    </div>
+</template>
+
+@functions {
+    static string GetTypeName(AttributeType type) => type switch
+    {
+        AttributeType.Text => "متن",
+        AttributeType.Number => "عدد",
+        AttributeType.Bool => "بله/خیر",
+        AttributeType.Select => "انتخابی (تک)",
+        AttributeType.MultiSelect => "انتخابی (چند)",
+        AttributeType.Color => "رنگ",
+        AttributeType.Date => "تاریخ",
+        _ => type.ToString()
+    };
+}
+
+<script>
+    let valueIndex = @Model.Values.Count;
+
+    function addValue() {
+        const template = document.getElementById('valueTemplate').innerHTML;
+        const html = template.replace(/__INDEX__/g, valueIndex);
+        document.getElementById('valuesContainer').insertAdjacentHTML('beforeend', html);
+        valueIndex++;
+    }
+
+    function removeValue(btn) {
+        if (confirm('حذف این مقدار؟')) {
+            btn.closest('.value-item').remove();
+        }
+    }
+
+    // نمایش/مخفی کردن بخش Values بر اساس نوع
+    function toggleValuesSection() {
+        const type = parseInt(document.getElementById('attrType')?.value || '0');
+        const section = document.getElementById('valuesSection');
+        // Select=4, MultiSelect=5, Color=6
+        const needsValues = [4, 5, 6].includes(type);
+        if (section) section.style.display = needsValues ? 'block' : 'none';
+    }
+
+    document.getElementById('attrType')?.addEventListener('change', toggleValuesSection);
+    document.addEventListener('DOMContentLoaded', toggleValuesSection);
+</script>

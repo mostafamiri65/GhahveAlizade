@@ -1,0 +1,118 @@
+﻿@model PaginatedList<InventoryItemListItemDto>
+@using GhahveAlizade.Application.Common.Models
+@using GhahveAlizade.Application.Features.Content.Dtos
+@using GhahveAlizade.Application.Features.Inventory.Dtos
+
+@{
+    ViewData["Title"] = "مدیریت موجودی";
+    ViewData["PageIcon"] = "bi-boxes";
+    var search = ViewBag.Search as string;
+    var warehouseId = ViewBag.WarehouseId as long?;
+    var lowStockOnly = (bool)(ViewBag.LowStockOnly ?? false);
+    var warehouses = ViewBag.Warehouses as List<LookupItemDto> ?? new();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="text-muted">مجموع: <strong>@Model.TotalCount</strong> آیتم</span>
+    @if (lowStockOnly)
+    {
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-x-lg"></i> حذف فیلتر کم‌موجود
+        </a>
+    }
+    else
+    {
+        <a asp-action="Index" asp-route-lowStockOnly="true" class="btn btn-outline-warning">
+            <i class="bi bi-exclamation-triangle"></i> نمایش کم‌موجودها
+        </a>
+    }
+</div>
+
+<div class="admin-card mb-3">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label small">جستجو</label>
+            <input type="text" name="search" class="form-control" value="@search" placeholder="نام محصول یا SKU..." />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small">انبار</label>
+            <select name="warehouseId" class="form-select">
+                <option value="">همه انبارها</option>
+                @foreach (var w in warehouses)
+                {
+                    <option value="@w.Id" selected="@(warehouseId == (long)w.Id)">@w.Name</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <div class="form-check form-switch mt-4">
+                <input type="checkbox" name="lowStockOnly" value="true" class="form-check-input"
+                       id="lowStock" @(lowStockOnly ? "checked" : "") />
+                <label for="lowStock" class="form-check-label small">فقط کم‌موجود</label>
+            </div>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1"><i class="bi bi-search"></i> فیلتر</button>
+            <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
+        </div>
+    </form>
+</div>
+
+<div class="admin-card p-0 overflow-hidden">
+    @if (Model.Items.Count == 0)
+    {
+        <div class="text-center py-5">
+            <div class="fs-1 text-muted mb-3"><i class="bi bi-boxes"></i></div>
+            <h5 class="text-muted">آیتمی یافت نشد</h5>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>محصول</th>
+                        <th>SKU</th>
+                        <th>انبار</th>
+                        <th class="text-center">موجودی</th>
+                        <th class="text-center">رزرو</th>
+                        <th class="text-center">قابل فروش</th>
+                        <th class="text-center">هشدار</th>
+                        <th class="text-center" style="width: 100px;">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var i in Model.Items)
+                    {
+                        <tr class="@(i.IsLowStock ? "table-warning" : "")">
+                            <td>
+                                <div class="fw-bold">@i.ProductName</div>
+                                @if (!string.IsNullOrEmpty(i.VariantName))
+                                {
+                                    <small class="text-muted">@i.VariantName</small>
+                                }
+                            </td>
+                            <td><code class="small">@(i.ProductSku ?? "—")</code></td>
+                            <td class="small">@i.WarehouseName</td>
+                            <td class="text-center fw-bold">@i.Quantity.ToString("N0")</td>
+                            <td class="text-center text-muted">@i.ReservedQuantity.ToString("N0")</td>
+                            <td class="text-center fw-bold @(i.AvailableQuantity > 0 ? "text-success" : "text-danger")">
+                                @i.AvailableQuantity.ToString("N0")
+                            </td>
+                            <td class="text-center small text-muted">
+                                @(i.ReorderLevel?.ToString("N0") ?? "—")
+                            </td>
+                            <td class="text-center">
+                                <a asp-action="Detail" asp-route-id="@i.Id"
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

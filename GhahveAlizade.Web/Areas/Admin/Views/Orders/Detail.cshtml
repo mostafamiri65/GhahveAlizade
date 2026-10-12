@@ -1,0 +1,359 @@
+﻿@model OrderDetailDto
+@using GhahveAlizade.Application.Features.Commerce.Dtos
+@using GhahveAlizade.Domain.Enums
+@using GhahveAlizade.Infrastructure.Persistence.Seed
+@{
+    ViewData["Title"] = $"سفارش {Model.OrderNumber}";
+    ViewData["PageIcon"] = "bi-receipt";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-right"></i> بازگشت
+    </a>
+
+    <div class="d-flex gap-2">
+        @if (User.HasPermission(Permissions.Orders.Print))
+        {
+            <a asp-action="Print" asp-route-id="@Model.Id" target="_blank" class="btn btn-outline-secondary">
+                <i class="bi bi-printer"></i> چاپ
+            </a>
+        }
+        @if (User.HasPermission(Permissions.Orders.ChangeStatus))
+        {
+            <button class="btn btn-admin-primary" data-bs-toggle="modal" data-bs-target="#statusModal">
+                <i class="bi bi-arrow-repeat"></i> تغییر وضعیت
+            </button>
+        }
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- ستون چپ: جزئیات -->
+    <div class="col-lg-8">
+        <!-- محصولات -->
+        <div class="admin-card mb-3">
+            <h6 class="fw-bold mb-3">اقلام سفارش (@Model.Items.Count)</h6>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 70px;">تصویر</th>
+                            <th>محصول</th>
+                            <th class="text-center">تعداد</th>
+                            <th class="text-center">قیمت واحد</th>
+                            <th class="text-center">جمع</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.ProductImageUrl))
+                                    {
+                                        <img src="@item.ProductImageUrl" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;" />
+                                    }
+                                </td>
+                                <td>
+                                    <div class="fw-bold small">@item.ProductName</div>
+                                    @if (!string.IsNullOrEmpty(item.VariantName))
+                                    {
+                                        <small class="text-muted">@item.VariantName</small>
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.ProductSku))
+                                    {
+                                        <small class="text-muted d-block">SKU: @item.ProductSku</small>
+                                    }
+                                </td>
+                                <td class="text-center">@item.Quantity</td>
+                                <td class="text-center">@item.UnitPrice.ToString("N0")</td>
+                                <td class="text-center fw-bold">@item.TotalPrice.ToString("N0")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- آدرس‌ها -->
+        @if (Model.Addresses.Any())
+        {
+            <div class="admin-card mb-3">
+                <h6 class="fw-bold mb-3">آدرس‌ها</h6>
+                <div class="row g-3">
+                    @foreach (var addr in Model.Addresses)
+                    {
+                        <div class="col-md-6">
+                            <div class="border rounded p-3">
+                                <span class="badge bg-info text-dark mb-2">@addr.AddressType</span>
+                                <div class="small">
+                                    <strong>@addr.FirstName @addr.LastName</strong><br />
+                                    @addr.Province، @addr.City<br />
+                                    @addr.AddressLine1<br />
+                                    کد پستی: @addr.PostalCode<br />
+                                    تلفن: <span dir="ltr">@addr.PhoneNumber</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <!-- یادداشت ادمین -->
+        @if (User.HasPermission(Permissions.Orders.Edit))
+        {
+            <div class="admin-card mb-3">
+                <h6 class="fw-bold mb-3">یادداشت داخلی</h6>
+                <textarea id="adminNotes" rows="3" class="form-control">@Model.AdminNotes</textarea>
+                <button type="button" class="btn btn-admin-primary mt-2" onclick="saveNotes()">
+                    <i class="bi bi-check-lg"></i> ذخیره یادداشت
+                </button>
+            </div>
+        }
+    </div>
+
+    <!-- ستون راست: خلاصه -->
+    <div class="col-lg-4">
+        <!-- وضعیت -->
+        <div class="admin-card mb-3">
+            <h6 class="fw-bold mb-3">وضعیت</h6>
+            <div class="text-center py-2">
+                <span class="badge bg-primary fs-6">@Model.StatusName</span>
+            </div>
+            <ul class="list-unstyled small mb-0 mt-3">
+                <li class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted">شماره:</span>
+                    <strong dir="ltr">@Model.OrderNumber</strong>
+                </li>
+                <li class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted">تاریخ ثبت:</span>
+                    <span>@Model.CreatedAtUtc.ToLocalTime().ToString("yyyy/MM/dd HH:mm")</span>
+                </li>
+                @if (Model.PaidAtUtc.HasValue)
+                {
+                    <li class="d-flex justify-content-between py-2 border-bottom">
+                        <span class="text-muted">پرداخت:</span>
+                        <span>@Model.PaidAtUtc.Value.ToLocalTime().ToString("yyyy/MM/dd HH:mm")</span>
+                    </li>
+                }
+                @if (Model.ShippedAtUtc.HasValue)
+                {
+                    <li class="d-flex justify-content-between py-2 border-bottom">
+                        <span class="text-muted">ارسال:</span>
+                        <span>@Model.ShippedAtUtc.Value.ToLocalTime().ToString("yyyy/MM/dd")</span>
+                    </li>
+                }
+                @if (Model.DeliveredAtUtc.HasValue)
+                {
+                    <li class="d-flex justify-content-between py-2">
+                        <span class="text-muted">تحویل:</span>
+                        <span>@Model.DeliveredAtUtc.Value.ToLocalTime().ToString("yyyy/MM/dd")</span>
+                    </li>
+                }
+            </ul>
+        </div>
+
+        <!-- مشتری -->
+        <div class="admin-card mb-3">
+            <h6 class="fw-bold mb-3">مشتری</h6>
+            <div class="small">
+                <div class="fw-bold">@(Model.CustomerName ?? "مهمان")</div>
+                @if (!string.IsNullOrEmpty(Model.CustomerPhone))
+                {
+                    <div dir="ltr"><i class="bi bi-telephone"></i> @Model.CustomerPhone</div>
+                }
+                @if (!string.IsNullOrEmpty(Model.CustomerEmail))
+                {
+                    <div><i class="bi bi-envelope"></i> @Model.CustomerEmail</div>
+                }
+                @if (Model.CustomerId.HasValue)
+                {
+                    <a href="/admin/customers/detail/@Model.CustomerId" class="btn btn-sm btn-outline-primary mt-2">
+                        <i class="bi bi-person"></i> مشاهده پروفایل
+                    </a>
+                }
+            </div>
+        </div>
+
+        <!-- مالی -->
+        <div class="admin-card mb-3">
+            <h6 class="fw-bold mb-3">خلاصه مالی</h6>
+            <ul class="list-unstyled small mb-0">
+                <li class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted">جمع اقلام:</span>
+                    <span>@Model.SubTotal.ToString("N0")</span>
+                </li>
+                @if (Model.DiscountAmount > 0)
+                {
+                    <li class="d-flex justify-content-between py-2 border-bottom text-success">
+                        <span>تخفیف @(Model.CouponCode != null ? $"({Model.CouponCode})" : ""):</span>
+                        <span>-@Model.DiscountAmount.ToString("N0")</span>
+                    </li>
+                }
+                @if (Model.ShippingAmount > 0)
+                {
+                    <li class="d-flex justify-content-between py-2 border-bottom">
+                        <span class="text-muted">ارسال:</span>
+                        <span>@Model.ShippingAmount.ToString("N0")</span>
+                    </li>
+                }
+                @if (Model.TaxAmount > 0)
+                {
+                    <li class="d-flex justify-content-between py-2 border-bottom">
+                        <span class="text-muted">مالیات:</span>
+                        <span>@Model.TaxAmount.ToString("N0")</span>
+                    </li>
+                }
+                <li class="d-flex justify-content-between py-2 fw-bold fs-5 border-top">
+                    <span>مجموع:</span>
+                    <span class="text-primary">@Model.Total.ToString("N0")</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- پرداخت‌ها -->
+        @if (Model.Payments.Any())
+        {
+            <div class="admin-card mb-3">
+                <h6 class="fw-bold mb-3">پرداخت‌ها</h6>
+                @foreach (var p in Model.Payments)
+                {
+                    <div class="border rounded p-2 mb-2 small">
+                        <div class="d-flex justify-content-between">
+                            <span>@p.MethodName</span>
+                            <span class="badge @(p.Status == PaymentStatus.Paid ? "bg-success" : "bg-warning text-dark")">
+                                @p.StatusName
+                            </span>
+                        </div>
+                        <div class="text-muted mt-1">
+                            مبلغ: @p.Amount.ToString("N0") تومان
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+        <!-- مرسولات -->
+        @if (Model.Shipments.Any())
+        {
+            <div class="admin-card">
+                <h6 class="fw-bold mb-3">مرسولات</h6>
+                @foreach (var s in Model.Shipments)
+                {
+                    <div class="border rounded p-2 mb-2 small">
+                        <div class="d-flex justify-content-between">
+                            <span>@s.CarrierName</span>
+                            <span class="badge bg-info text-dark">@s.StatusName</span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(s.TrackingNumber))
+                        {
+                            <div class="mt-1">
+                                کد رهگیری: <code dir="ltr">@s.TrackingNumber</code>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Change Status Modal -->
+@if (User.HasPermission(Permissions.Orders.ChangeStatus))
+{
+    <div class="modal fade" id="statusModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">تغییر وضعیت سفارش</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">وضعیت فعلی</label>
+                        <input class="form-control" value="@Model.StatusName" disabled />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">وضعیت جدید *</label>
+                        <select id="newStatus" class="form-select">
+                            @foreach (OrderStatus s in Enum.GetValues<OrderStatus>())
+                            {
+                                <option value="@((int)s)">@GetStatusName(s)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">یادداشت (اختیاری)</label>
+                        <textarea id="statusNote" rows="2" class="form-control"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                    <button type="button" class="btn btn-admin-primary" onclick="changeStatus()">ذخیره</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@functions {
+    static string GetStatusName(OrderStatus s) => s switch
+    {
+        OrderStatus.Pending => "در انتظار",
+        OrderStatus.AwaitingPayment => "منتظر پرداخت",
+        OrderStatus.Paid => "پرداخت شده",
+        OrderStatus.Processing => "در حال پردازش",
+        OrderStatus.ReadyToShip => "آماده ارسال",
+        OrderStatus.Shipped => "ارسال شده",
+        OrderStatus.Delivered => "تحویل شده",
+        OrderStatus.Cancelled => "لغو شده",
+        OrderStatus.Refunded => "مرجوع شده",
+        OrderStatus.Returned => "بازگشت داده شده",
+        _ => s.ToString()
+    };
+}
+
+@section Scripts {
+    <script>
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+        async function changeStatus() {
+            const status = document.getElementById('newStatus').value;
+            const note = document.getElementById('statusNote').value;
+
+            const body = new URLSearchParams();
+            body.append('id', '@Model.Id');
+            body.append('newStatus', status);
+            body.append('note', note);
+            body.append('__RequestVerificationToken', token);
+
+            const r = await fetch('@Url.Action("ChangeStatus")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'RequestVerificationToken': token },
+                body
+            });
+            const d = await r.json();
+            alert(d.message);
+            if (d.success) location.reload();
+        }
+
+        async function saveNotes() {
+            const notes = document.getElementById('adminNotes').value;
+
+            const body = new URLSearchParams();
+            body.append('id', '@Model.Id');
+            body.append('adminNotes', notes);
+            body.append('__RequestVerificationToken', token);
+
+            const r = await fetch('@Url.Action("UpdateNotes")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'RequestVerificationToken': token },
+                body
+            });
+            const d = await r.json();
+            alert(d.message);
+        }
+    </script>
+}

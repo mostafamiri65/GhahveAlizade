@@ -1,0 +1,79 @@
+﻿@model VerifyOtpViewModel
+@{
+    ViewData["Title"] = "تایید شماره موبایل";
+}
+
+<h2 class="text-xl font-bold text-gray-900 mb-2">کد تایید را وارد کنید</h2>
+<p class="text-sm text-gray-600 mb-6">
+    کد 6 رقمی به شماره
+    <span class="font-medium text-gray-900" dir="ltr">@Model.PhoneNumber</span>
+    ارسال شد.
+</p>
+
+<form asp-action="VerifyOtp" method="post" class="space-y-4">
+    <input type="hidden" asp-for="PhoneNumber" />
+    <input type="hidden" asp-for="ReturnUrl" />
+
+    <div asp-validation-summary="ModelOnly" class="text-sm text-red-600"></div>
+
+    <div>
+        <label asp-for="Code" class="block text-sm font-medium text-gray-700 mb-1"></label>
+        <input asp-for="Code"
+               type="text"
+               inputmode="numeric"
+               autocomplete="one-time-code"
+               maxlength="6"
+               autofocus
+               dir="ltr"
+               class="w-full rounded-lg border border-gray-300 px-4 py-4 text-center text-2xl tracking-[0.5em] focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+               placeholder="------" />
+        <span asp-validation-for="Code" class="text-xs text-red-600 mt-1 block"></span>
+    </div>
+
+    <button type="submit"
+            class="w-full rounded-lg bg-amber-600 px-4 py-3 font-medium text-white hover:bg-amber-700">
+        تایید و ورود
+    </button>
+
+    <div class="text-center text-sm text-gray-600 space-y-2 pt-2">
+        <div id="countdown">
+            ارسال مجدد تا <span id="timer" class="font-medium text-amber-700">@Model.RemainingSeconds</span> ثانیه دیگر
+        </div>
+
+        <form asp-action="Login" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="inline">
+            <input type="hidden" name="PhoneNumber" value="@Model.PhoneNumber" />
+            <button type="submit" id="resendBtn" disabled
+                    class="text-amber-700 font-medium hover:underline disabled:text-gray-400 disabled:no-underline">
+                ارسال مجدد کد
+            </button>
+        </form>
+
+        <p>
+            <a asp-action="Login" class="text-gray-500 hover:underline">تغییر شماره موبایل</a>
+        </p>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function() {
+            const timerEl = document.getElementById('timer');
+            const resendBtn = document.getElementById('resendBtn');
+            const countdownEl = document.getElementById('countdown');
+
+            let remaining = @Model.RemainingSeconds;
+
+            const interval = setInterval(() => {
+                remaining--;
+                if (remaining <= 0) {
+                    clearInterval(interval);
+                    countdownEl.textContent = '';
+                    resendBtn.disabled = false;
+                    return;
+                }
+                timerEl.textContent = remaining;
+            }, 1000);
+        })();
+    </script>
+}

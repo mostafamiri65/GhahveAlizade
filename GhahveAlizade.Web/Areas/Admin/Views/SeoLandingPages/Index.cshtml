@@ -1,0 +1,146 @@
+﻿@model PaginatedList<SeoLandingPageListItemDto>
+@using GhahveAlizade.Application.Common.Models
+@using GhahveAlizade.Application.Features.Seo.Dtos
+@using GhahveAlizade.Infrastructure.Persistence.Seed
+@{
+    ViewData["Title"] = "صفحات فرود سئو";
+    ViewData["PageIcon"] = "bi-window-stack";
+    var search = ViewBag.Search as string;
+    var isPublished = ViewBag.IsPublished as bool?;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="text-muted">مجموع: <strong>@Model.TotalCount</strong> صفحه</span>
+    @if (User.HasPermission(Permissions.Seo.ManageLandingPages))
+    {
+        <a asp-action="Create" class="btn btn-admin-primary"><i class="bi bi-plus-lg"></i> افزودن صفحه</a>
+    }
+</div>
+
+<div class="admin-card mb-3">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-6">
+            <label class="form-label small">جستجو</label>
+            <input type="text" name="search" class="form-control" value="@search" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small">وضعیت</label>
+            <select name="isPublished" class="form-select">
+                <option value="">همه</option>
+                <option value="true" selected="@(isPublished == true)">منتشر شده</option>
+                <option value="false" selected="@(isPublished == false)">پیش‌نویس</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1"><i class="bi bi-search"></i> فیلتر</button>
+            <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
+        </div>
+    </form>
+</div>
+
+<div class="admin-card p-0 overflow-hidden">
+    @if (Model.Items.Count == 0)
+    {
+        <div class="text-center py-5">
+            <div class="fs-1 text-muted mb-3"><i class="bi bi-window-stack"></i></div>
+            <h5 class="text-muted">صفحه‌ای یافت نشد</h5>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>عنوان</th>
+                        <th>آدرس</th>
+                        <th class="text-center">بازدید</th>
+                        <th class="text-center">وضعیت</th>
+                        <th class="text-center" style="width: 170px;">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model.Items)
+                    {
+                        <tr>
+                            <td class="fw-bold">@p.Title</td>
+                            <td><code class="small">/@p.Slug</code></td>
+                            <td class="text-center">@p.ViewCount</td>
+                            <td class="text-center">
+                                @if (User.HasPermission(Permissions.Seo.ManageLandingPages))
+                                {
+                                    <button class="btn btn-sm @(p.IsPublished ? "btn-success" : "btn-outline-secondary") toggle-publish"
+                                            data-id="@p.Id">
+                                        <i class="bi @(p.IsPublished ? "bi-check-circle" : "bi-circle")"></i>
+                                        @(p.IsPublished ? "منتشر" : "پیش‌نویس")
+                                    </button>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    @if (User.HasPermission(Permissions.Seo.ManageLandingPages))
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@p.Id" class="btn btn-outline-primary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    }
+                                    <a href="/@p.Slug" target="_blank" class="btn btn-outline-info">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    @if (User.HasPermission(Permissions.Seo.ManageLandingPages))
+                                    {
+                                        <button type="button" class="btn btn-outline-danger"
+                                                data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                data-id="@p.Id" data-name="@p.Title">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Delete" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="deleteId" />
+                <div class="modal-header"><h5 class="modal-title">تایید حذف</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">حذف صفحه <strong id="deleteName" class="text-danger"></strong>؟</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+        document.querySelectorAll('.toggle-publish').forEach(el => {
+            el.addEventListener('click', async function() {
+                const id = this.dataset.id;
+                const r = await fetch('@Url.Action("Publish")', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'RequestVerificationToken': token },
+                    body: `id=${id}&__RequestVerificationToken=${token}`
+                });
+                const d = await r.json();
+                if (d.success) location.reload();
+            });
+        });
+        document.getElementById('deleteModal')?.addEventListener('show.bs.modal', function(e) {
+            const b = e.relatedTarget;
+            document.getElementById('deleteId').value = b.dataset.id;
+            document.getElementById('deleteName').textContent = b.dataset.name;
+        });
+    </script>
+}

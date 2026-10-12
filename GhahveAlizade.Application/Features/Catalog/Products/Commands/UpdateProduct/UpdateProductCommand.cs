@@ -1,0 +1,44 @@
+﻿using ErrorOr;
+using GhahveAlizade.Application.Features.Catalog.Products.Commands.CreateProduct;
+using MediatR;
+
+namespace GhahveAlizade.Application.Features.Catalog.Products.Commands.UpdateProduct;
+
+public record UpdateProductCommand(
+	long Id,
+	string Name,
+	string? Slug,
+	string? ShortDescription,
+	string? Description,
+	string? Sku,
+	string? Barcode,
+	bool HasVariants,
+	decimal? BasePrice,
+	decimal? CompareAtPrice,
+	decimal? CostPrice,
+	bool IsTaxable,
+	decimal? TaxRate,
+	decimal? Weight,
+	decimal? Length,
+	decimal? Width,
+	decimal? Height,
+	long? CategoryId,
+	long? BrandId,
+	long? CoffeeOriginId,
+	long? CoffeeProcessId,
+	long? RoastProfileId,
+	List<long> FlavorNoteIds,
+	bool IsActive,
+	bool IsPublished,
+	bool IsFeatured,
+	bool IsNew,
+	bool IsBestSeller,
+	string? MetaTitle,
+	string? MetaDescription,
+	string? MetaKeywords,
+	string? CanonicalUrl,
+	string? OgImage,
+	List<ProductVariantInput> Variants,
+	List<ProductImageInput> Images,
+	List<ProductAttributeInput> Attributes)
+	: IRequest<ErrorOr<Success>>;

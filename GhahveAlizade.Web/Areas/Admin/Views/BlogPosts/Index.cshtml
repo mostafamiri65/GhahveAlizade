@@ -1,0 +1,247 @@
+﻿@model PaginatedList<BlogPostListItemDto>
+@using GhahveAlizade.Application.Common.Models
+@using GhahveAlizade.Application.Features.Content.Dtos
+@using GhahveAlizade.Infrastructure.Persistence.Seed
+@{
+    ViewData["Title"] = "مقالات";
+    ViewData["PageIcon"] = "bi-file-text";
+    var search = ViewBag.Search as string;
+    var categoryId = ViewBag.CategoryId as long?;
+    var isPublished = ViewBag.IsPublished as bool?;
+    var isFeatured = ViewBag.IsFeatured as bool?;
+    var categories = ViewBag.Categories as List<LookupItemDto> ?? new();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="text-muted">مجموع: <strong>@Model.TotalCount</strong> مقاله</span>
+    @if (User.HasPermission(Permissions.Blog.CreatePost))
+    {
+        <a asp-action="Create" class="btn btn-admin-primary">
+            <i class="bi bi-plus-lg"></i> افزودن مقاله
+        </a>
+    }
+</div>
+
+<div class="admin-card mb-3">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label small">جستجو</label>
+            <input type="text" name="search" class="form-control" value="@search" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small">دسته‌بندی</label>
+            <select name="categoryId" class="form-select">
+                <option value="">همه</option>
+                @foreach (var c in categories)
+                {
+                    <option value="@c.Id" selected="@(categoryId == c.Id)">@c.Name</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small">وضعیت</label>
+            <select name="isPublished" class="form-select">
+                <option value="">همه</option>
+                <option value="true" selected="@(isPublished == true)">منتشر شده</option>
+                <option value="false" selected="@(isPublished == false)">پیش‌نویس</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small">ویژه</label>
+            <select name="isFeatured" class="form-select">
+                <option value="">همه</option>
+                <option value="true" selected="@(isFeatured == true)">بله</option>
+                <option value="false" selected="@(isFeatured == false)">خیر</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1"><i class="bi bi-search"></i> فیلتر</button>
+            <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
+        </div>
+    </form>
+</div>
+
+<div class="admin-card p-0 overflow-hidden">
+    @if (Model.Items.Count == 0)
+    {
+        <div class="text-center py-5">
+            <div class="fs-1 text-muted mb-3"><i class="bi bi-file-text"></i></div>
+            <h5 class="text-muted">مقاله‌ای یافت نشد</h5>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 100px;">تصویر</th>
+                        <th>عنوان</th>
+                        <th>دسته</th>
+                        <th class="text-center">آمار</th>
+                        <th class="text-center">تاریخ انتشار</th>
+                        <th class="text-center">وضعیت</th>
+                        <th class="text-center" style="width: 170px;">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model.Items)
+                    {
+                        <tr>
+                            <td>
+                                @if (!string.IsNullOrEmpty(p.FeaturedImageUrl))
+                                {
+                                    <img src="@p.FeaturedImageUrl" alt="@p.Title"
+                                         style="width: 80px; height: 50px; object-fit: cover; border-radius: 4px;" />
+                                }
+                                else
+                                {
+                                    <div class="bg-light" style="width: 80px; height: 50px; border-radius: 4px;"></div>
+                                }
+                            </td>
+                            <td>
+                                <div class="fw-bold">@p.Title</div>
+                                <small class="text-muted">@p.Slug</small>
+                                @if (p.IsFeatured)
+                                {
+                                    <span class="badge bg-warning text-dark ms-1">ویژه</span>
+                                }
+                            </td>
+                            <td class="small">@(p.CategoryName ?? "—")</td>
+                            <td class="text-center small">
+                                <div><i class="bi bi-eye"></i> @p.ViewCount</div>
+                                <div><i class="bi bi-clock"></i> @p.ReadingTimeMinutes دقیقه</div>
+                            </td>
+                            <td class="text-center small text-muted">
+                                @if (p.PublishedAtUtc.HasValue)
+                                {
+                                    @p.PublishedAtUtc.Value.ToLocalTime().ToString("yyyy/MM/dd")
+                                }
+                                else
+                                {
+                                    <span>—</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                @if (User.HasPermission(Permissions.Blog.PublishPost))
+                                {
+                                    <button class="btn btn-sm @(p.IsPublished ? "btn-success" : "btn-outline-secondary") toggle-publish"
+                                            data-id="@p.Id" title="@(p.IsPublished ? "منتشر شده" : "پیش‌نویس")">
+                                        <i class="bi @(p.IsPublished ? "bi-check-circle" : "bi-circle")"></i>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <span class="badge @(p.IsPublished ? "bg-success" : "bg-secondary")">
+                                        @(p.IsPublished ? "منتشر شده" : "پیش‌نویس")
+                                    </span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    @if (User.HasPermission(Permissions.Blog.EditPost))
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@p.Id"
+                                           class="btn btn-outline-primary" title="ویرایش">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    }
+                                    <a href="/blog/@p.Slug" target="_blank"
+                                       class="btn btn-outline-info" title="مشاهده">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    @if (User.HasPermission(Permissions.Blog.DeletePost))
+                                    {
+                                        <button type="button" class="btn btn-outline-danger"
+                                                data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                data-id="@p.Id" data-name="@p.Title">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <div class="p-3 border-top">
+                <nav>
+                    <ul class="pagination justify-content-center mb-0">
+                        @if (Model.HasPrevious)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber - 1)">قبلی</a>
+                            </li>
+                        }
+                        @for (var i = 1; i <= Model.TotalPages; i++)
+                        {
+                            if (i == 1 || i == Model.TotalPages || Math.Abs(i - Model.PageNumber) <= 2)
+                            {
+                                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                    <a class="page-link" asp-action="Index" asp-route-pageNumber="@i">@i</a>
+                                </li>
+                            }
+                        }
+                        @if (Model.HasNext)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber + 1)">بعدی</a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        }
+    }
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Delete" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="deleteId" />
+                <div class="modal-header"><h5 class="modal-title">تایید حذف</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">حذف مقاله <strong id="deleteName" class="text-danger"></strong>؟</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+        document.querySelectorAll('.toggle-publish').forEach(el => {
+            el.addEventListener('click', async function () {
+                const id = this.dataset.id;
+                const r = await fetch('@Url.Action("Publish")', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'RequestVerificationToken': token },
+                    body: `id=${id}&__RequestVerificationToken=${token}`
+                });
+                const d = await r.json();
+                if (d.success) {
+                    this.classList.toggle('btn-success');
+                    this.classList.toggle('btn-outline-secondary');
+                    const i = this.querySelector('i');
+                    i.className = d.isPublished ? 'bi bi-check-circle' : 'bi bi-circle';
+                }
+            });
+        });
+
+        document.getElementById('deleteModal')?.addEventListener('show.bs.modal', function (e) {
+            const b = e.relatedTarget;
+            document.getElementById('deleteId').value = b.dataset.id;
+            document.getElementById('deleteName').textContent = b.dataset.name;
+        });
+    </script>
+}

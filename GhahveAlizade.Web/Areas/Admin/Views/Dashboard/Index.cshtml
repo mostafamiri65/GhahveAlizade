@@ -1,0 +1,361 @@
+﻿@using GhahveAlizade.Application.Features.Reports.Dtos
+@{
+    ViewData["Title"] = "داشبورد";
+    ViewData["PageIcon"] = "bi-speedometer2";
+    var stats = ViewBag.Stats as DashboardStatsDto;
+    var chart = ViewBag.Chart as List<SalesChartPointDto>;
+    var topProducts = ViewBag.TopProducts as List<TopProductDto>;
+    var recentOrders = ViewBag.RecentOrders as List<RecentOrderDto>;
+    var lowStock = ViewBag.LowStock as List<LowStockAlertDto>;
+}
+
+<!-- Welcome -->
+<div class="admin-card mb-3">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <h4 class="fw-bold mb-1">👋 خوش آمدید، @User.GetUserFullName()</h4>
+            <p class="text-muted mb-0 small">امروز @DateTime.Now.ToString("yyyy/MM/dd")</p>
+        </div>
+        <div class="text-end">
+            <small class="text-muted">آخرین ورود</small>
+            <div class="fw-bold">@DateTime.Now.ToString("HH:mm")</div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Grid -->
+@if (stats is not null)
+{
+    <div class="row g-3 mb-3">
+        <!-- سفارشات امروز -->
+        <div class="col-md-6 col-lg-3">
+            <div class="admin-card h-100">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="text-muted small mb-1">سفارشات امروز</div>
+                        <div class="h3 fw-bold mb-0">@stats.TodayOrders</div>
+                        <small class="text-muted">
+                            دیروز: @stats.YesterdayOrders
+                        </small>
+                    </div>
+                    <div class="fs-1 text-primary opacity-25">
+                        <i class="bi bi-receipt"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- فروش امروز -->
+        <div class="col-md-6 col-lg-3">
+            <div class="admin-card h-100">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="text-muted small mb-1">فروش امروز</div>
+                        <div class="h3 fw-bold mb-0">@stats.TodayRevenue.ToString("N0")</div>
+                        <small class="text-muted">تومان</small>
+                    </div>
+                    <div class="fs-1 text-success opacity-25">
+                        <i class="bi bi-cash-coin"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- مشتریان -->
+        <div class="col-md-6 col-lg-3">
+            <div class="admin-card h-100">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="text-muted small mb-1">مشتریان</div>
+                        <div class="h3 fw-bold mb-0">@stats.TotalCustomers</div>
+                        <small class="text-muted">مجموع</small>
+                    </div>
+                    <div class="fs-1 text-info opacity-25">
+                        <i class="bi bi-people"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- محصولات -->
+        <div class="col-md-6 col-lg-3">
+            <div class="admin-card h-100">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="text-muted small mb-1">محصولات فعال</div>
+                        <div class="h3 fw-bold mb-0">@stats.ActiveProducts</div>
+                        <small class="text-muted">از @stats.TotalProducts</small>
+                    </div>
+                    <div class="fs-1 text-warning opacity-25">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Month Stats -->
+    <div class="row g-3 mb-3">
+        <div class="col-md-6">
+            <div class="admin-card">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="text-muted small mb-1">فروش این ماه</div>
+                        <div class="h3 fw-bold mb-1">@stats.MonthRevenue.ToString("N0")</div>
+                        <small class="text-muted">تومان - @stats.MonthOrders سفارش</small>
+                    </div>
+                    @if (stats.RevenueGrowthPercent != 0)
+                    {
+                        <div class="text-end">
+                            <span class="badge @(stats.RevenueGrowthPercent > 0 ? "bg-success" : "bg-danger")">
+                                @(stats.RevenueGrowthPercent > 0 ? "▲" : "▼") @Math.Abs(stats.RevenueGrowthPercent)%
+                            </span>
+                            <div class="text-muted small mt-1">نسبت به ماه قبل</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="admin-card">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="text-muted small mb-1">مجموع فروش</div>
+                        <div class="h3 fw-bold mb-1">@stats.TotalRevenue.ToString("N0")</div>
+                        <small class="text-muted">تومان - @stats.TotalOrders سفارش</small>
+                    </div>
+                    <div class="fs-1 text-success opacity-25">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Chart -->
+@if (chart is not null && chart.Any())
+{
+    <div class="admin-card mb-3">
+        <h6 class="fw-bold mb-3">
+            <i class="bi bi-graph-up"></i> نمودار فروش 30 روز اخیر
+        </h6>
+        <div style="position: relative; height: 300px;">
+            <canvas id="salesChart"></canvas>
+        </div>
+    </div>
+}
+
+<!-- Two Columns: Top Products + Recent Orders -->
+<div class="row g-3 mb-3">
+    <!-- Top Products -->
+    @if (topProducts is not null && topProducts.Any())
+    {
+        <div class="col-lg-6">
+            <div class="admin-card h-100">
+                <h6 class="fw-bold mb-3">
+                    <i class="bi bi-trophy text-warning"></i> پرفروش‌ترین محصولات
+                </h6>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <tbody>
+                            @foreach (var p in topProducts)
+                            {
+                                <tr>
+                                    <td style="width: 50px;">
+                                        @if (!string.IsNullOrEmpty(p.ImageUrl))
+                                        {
+                                            <img src="@p.ImageUrl" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;" />
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="small fw-bold">@p.ProductName</div>
+                                        <small class="text-muted">
+                                            @p.SoldCount فروش
+                                        </small>
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="fw-bold small">@p.Revenue.ToString("N0")</div>
+                                        <small class="text-muted">تومان</small>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Recent Orders -->
+    @if (recentOrders is not null && recentOrders.Any())
+    {
+        <div class="col-lg-6">
+            <div class="admin-card h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0">
+                        <i class="bi bi-clock-history"></i> سفارشات اخیر
+                    </h6>
+                    <a href="/admin/orders" class="btn btn-sm btn-outline-primary">مشاهده همه</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <tbody>
+                            @foreach (var o in recentOrders)
+                            {
+                                <tr>
+                                    <td>
+                                        <a href="/admin/orders/detail/@o.Id" class="small fw-bold" dir="ltr">
+                                            @o.OrderNumber
+                                        </a>
+                                        <div class="text-muted small">@o.CustomerName</div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge @o.StatusClass small">@o.StatusName</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="fw-bold small">@o.Total.ToString("N0")</div>
+                                        <small class="text-muted">@o.CreatedAtUtc.ToLocalTime().ToString("HH:mm")</small>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Low Stock -->
+@if (lowStock is not null && lowStock.Any())
+{
+    <div class="admin-card mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0 text-warning">
+                <i class="bi bi-exclamation-triangle"></i> هشدار موجودی کم
+            </h6>
+            <a href="/admin/inventory?lowStockOnly=true" class="btn btn-sm btn-warning">مدیریت موجودی</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>محصول</th>
+                        <th>انبار</th>
+                        <th class="text-center">موجودی</th>
+                        <th class="text-center">سطح هشدار</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var i in lowStock)
+                    {
+                        <tr class="table-warning">
+                            <td class="small">
+                                <strong>@i.ProductName</strong>
+                                @if (!string.IsNullOrEmpty(i.VariantName))
+                                {
+                                    <span class="text-muted"> - @i.VariantName</span>
+                                }
+                            </td>
+                            <td class="small">@i.WarehouseName</td>
+                            <td class="text-center fw-bold text-danger">@i.AvailableQuantity.ToString("N0")</td>
+                            <td class="text-center text-muted small">@i.ReorderLevel.ToString("N0")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+<!-- Quick Actions -->
+<div class="admin-card">
+    <h6 class="fw-bold mb-3">⚡ دسترسی سریع</h6>
+    <div class="row g-2">
+        <div class="col-md-3 col-6">
+            <a href="/admin/products/create" class="btn btn-outline-primary w-100 py-3">
+                <i class="bi bi-plus-circle fs-4 d-block mb-1"></i>
+                محصول جدید
+            </a>
+        </div>
+        <div class="col-md-3 col-6">
+            <a href="/admin/orders" class="btn btn-outline-primary w-100 py-3">
+                <i class="bi bi-receipt fs-4 d-block mb-1"></i>
+                سفارشات
+            </a>
+        </div>
+        <div class="col-md-3 col-6">
+            <a href="/admin/customers" class="btn btn-outline-primary w-100 py-3">
+                <i class="bi bi-people fs-4 d-block mb-1"></i>
+                مشتریان
+            </a>
+        </div>
+        <div class="col-md-3 col-6">
+            <a href="/admin/reports/sales" class="btn btn-outline-primary w-100 py-3">
+                <i class="bi bi-graph-up fs-4 d-block mb-1"></i>
+                گزارش فروش
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @if (chart is not null && chart.Any())
+    {
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+        <script>
+            (function() {
+                const ctx = document.getElementById('salesChart');
+                if (!ctx) return;
+
+                const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(chart.Select(c => c.Date)));
+                const revenues = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(chart.Select(c => c.Revenue)));
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'فروش (تومان)',
+                            data: revenues,
+                            borderColor: '#d97706',
+                            backgroundColor: 'rgba(217, 119, 6, 0.1)',
+                            fill: true,
+                            tension: 0.3,
+                            borderWidth: 2,
+                            pointRadius: 3,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                rtl: true,
+                                callbacks: {
+                                    label: function(context) {
+                                        return 'فروش: ' + context.parsed.y.toLocaleString('fa-IR') + ' تومان';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value.toLocaleString('fa-IR');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            })();
+        </script>
+    }
+}

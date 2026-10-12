@@ -1,0 +1,211 @@
+﻿@model PaginatedList<UserListItemDto>
+@using GhahveAlizade.Application.Common.Models
+@using GhahveAlizade.Application.Features.Identity.Users.Dtos
+@using GhahveAlizade.Infrastructure.Persistence.Seed
+@{
+    ViewData["Title"] = "مدیریت کاربران";
+    ViewData["PageIcon"] = "bi-people";
+    var search = ViewBag.Search as string;
+    var role = ViewBag.Role as string;
+    var isActive = ViewBag.IsActive as bool?;
+    var roles = ViewBag.Roles as List<string> ?? new();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <span class="text-muted">مجموع: <strong>@Model.TotalCount</strong> کاربر</span>
+</div>
+
+<div class="admin-card mb-3">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label small">جستجو</label>
+            <input type="text" name="search" class="form-control"
+                   placeholder="نام، ایمیل، موبایل..." value="@search" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small">نقش</label>
+            <select name="role" class="form-select">
+                <option value="">همه نقش‌ها</option>
+                @foreach (var r in roles)
+                {
+                    <option value="@r" selected="@(role == r)">@r</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small">وضعیت</label>
+            <select name="isActive" class="form-select">
+                <option value="">همه</option>
+                <option value="true" selected="@(isActive == true)">فعال</option>
+                <option value="false" selected="@(isActive == false)">غیرفعال</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1">
+                <i class="bi bi-search"></i> فیلتر
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
+        </div>
+    </form>
+</div>
+
+<div class="admin-card p-0 overflow-hidden">
+    @if (Model.Items.Count == 0)
+    {
+        <div class="text-center py-5">
+            <div class="fs-1 text-muted mb-3"><i class="bi bi-people"></i></div>
+            <h5 class="text-muted">کاربری یافت نشد</h5>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 60px;"></th>
+                        <th>کاربر</th>
+                        <th>تماس</th>
+                        <th class="text-center">نقش‌ها</th>
+                        <th class="text-center">آخرین ورود</th>
+                        <th class="text-center">وضعیت</th>
+                        <th class="text-center" style="width: 130px;">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var u in Model.Items)
+                    {
+                        <tr>
+                            <td>
+                                <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center"
+                                     style="width: 44px; height: 44px; color: white; font-weight: bold;">
+                                    @(!string.IsNullOrEmpty(u.FullName) ? u.FullName[0].ToString() : u.UserName[0].ToString())
+                                </div>
+                            </td>
+                            <td>
+                                <div class="fw-bold">@(u.FullName ?? u.UserName)</div>
+                                <small class="text-muted">@u.UserName</small>
+                                @if (u.IsPhoneVerified)
+                                {
+                                    <i class="bi bi-patch-check-fill text-info ms-1" title="موبایل تایید شده"></i>
+                                }
+                            </td>
+                            <td class="small">
+                                @if (!string.IsNullOrEmpty(u.PhoneNumber))
+                                {
+                                    <div dir="ltr" class="text-end">@u.PhoneNumber</div>
+                                }
+                                @if (!string.IsNullOrEmpty(u.Email))
+                                {
+                                    <div class="text-muted">@u.Email</div>
+                                }
+                            </td>
+                            <td class="text-center">
+                                @foreach (var r in u.Roles)
+                                {
+                                    <span class="badge bg-secondary me-1">@r</span>
+                                }
+                                @if (!u.Roles.Any())
+                                {
+                                    <span class="text-muted small">—</span>
+                                }
+                            </td>
+                            <td class="text-center small text-muted">
+                                @if (u.LastLoginAtUtc.HasValue)
+                                {
+                                    <div>@u.LastLoginAtUtc.Value.ToString("yyyy/MM/dd")</div>
+                                    <div class="text-muted">@u.LastLoginAtUtc.Value.ToString("HH:mm")</div>
+                                }
+                                else
+                                {
+                                    <span>هرگز</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                @if (User.HasPermission(Permissions.Users.Edit))
+                                {
+                                    <div class="form-check form-switch d-inline-block">
+                                        <input class="form-check-input toggle-active" type="checkbox"
+                                               data-id="@u.Id" @(u.IsActive ? "checked" : "") />
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="badge @(u.IsActive ? "bg-success" : "bg-secondary")">
+                                        @(u.IsActive ? "فعال" : "غیرفعال")
+                                    </span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    <a asp-action="Detail" asp-route-id="@u.Id"
+                                       class="btn btn-outline-info" title="جزئیات">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    @if (User.HasPermission(Permissions.Users.Edit))
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@u.Id"
+                                           class="btn btn-outline-primary" title="ویرایش">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <div class="p-3 border-top">
+                <nav>
+                    <ul class="pagination justify-content-center mb-0">
+                        @if (Model.HasPrevious)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" asp-action="Index"
+                                   asp-route-pageNumber="@(Model.PageNumber - 1)"
+                                   asp-route-search="@search">قبلی</a>
+                            </li>
+                        }
+                        @for (var i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                <a class="page-link" asp-action="Index" asp-route-pageNumber="@i"
+                                   asp-route-search="@search">@i</a>
+                            </li>
+                        }
+                        @if (Model.HasNext)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" asp-action="Index"
+                                   asp-route-pageNumber="@(Model.PageNumber + 1)"
+                                   asp-route-search="@search">بعدی</a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        }
+    }
+</div>
+
+@section Scripts {
+    <script>
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+        document.querySelectorAll('.toggle-active').forEach(el => {
+            el.addEventListener('change', async function() {
+                const id = this.dataset.id;
+                const r = await fetch('@Url.Action("ToggleActive")', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'RequestVerificationToken': token },
+                    body: `id=${id}&__RequestVerificationToken=${token}`
+                });
+                const d = await r.json();
+                if (!d.success) { alert(d.message); this.checked = !this.checked; }
+            });
+        });
+    </script>
+}

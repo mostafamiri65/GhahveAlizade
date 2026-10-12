@@ -1,0 +1,117 @@
+﻿@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+}
+
+<header class="site-header">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <!-- Logo -->
+            <a class="navbar-brand d-flex align-items-center gap-2" asp-controller="Home" asp-action="Index">
+                <i class="bi bi-cup-hot-fill text-warning fs-3"></i>
+                <span class="fw-bold text-primary">قهوه علیزاده</span>
+            </a>
+
+            <!-- Mobile Toggle -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Nav -->
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link @(currentController == "Home" ? "active" : "")"
+                           asp-controller="Home" asp-action="Index">صفحه اصلی</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(currentController == "Products" ? "active" : "")"
+                           asp-controller="Products" asp-action="Index">فروشگاه</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(currentController == "Blog" ? "active" : "")"
+                           asp-controller="Blog" asp-action="Index">وبلاگ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="About">درباره ما</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="Contact">تماس با ما</a>
+                    </li>
+                </ul>
+
+                <!-- Actions -->
+                <div class="d-flex align-items-center gap-2">
+                    <a href="#" class="btn btn-ghost btn-sm" title="جستجو">
+                        <i class="bi bi-search fs-5"></i>
+                    </a>
+                    <a href="#" class="btn btn-ghost btn-sm position-relative" title="سبد خرید">
+                        <i class="bi bi-cart fs-5"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">
+                            0
+                        </span>
+                    </a>
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle"></i>
+                                @User.Identity.Name
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                @if (User.IsInRole("SuperAdmin") || User.IsInRole("Admin"))
+                                {
+                                    <li>
+                                        <a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                                            <i class="bi bi-speedometer2"></i> پنل مدیریت
+                                        </a>
+                                    </li>
+                                }
+                                <li>
+                                    <a class="dropdown-item" asp-area="User" asp-controller="Dashboard" asp-action="Index">
+                                        <i class="bi bi-person"></i> پنل کاربری
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li>
+                                    <form asp-area="Identity" asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="dropdown-item text-danger">
+                                            <i class="bi bi-box-arrow-left"></i> خروج
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <a asp-area="Identity" asp-controller="Account" asp-action="Login"
+                           class="btn btn-primary btn-sm">
+                            <i class="bi bi-box-arrow-in-left"></i> ورود / ثبت‌نام
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<style>
+    .site-header .navbar-brand:hover span {
+        color: var(--color-accent) !important;
+    }
+
+    .site-header .nav-link {
+        color: #4b5563;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        transition: color 0.2s;
+    }
+
+        .site-header .nav-link:hover,
+        .site-header .nav-link.active {
+            color: var(--color-primary);
+        }
+</style>

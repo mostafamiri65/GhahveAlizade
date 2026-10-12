@@ -1,0 +1,229 @@
+﻿@using GhahveAlizade.Web.Areas.Admin.Models.Bundles
+@model BundleFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+<div class="row g-3">
+    <div class="col-md-8">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" autofocus />
+        <span asp-validation-for="Name" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Slug" class="form-label"></label>
+        <input asp-for="Slug" class="form-control" dir="ltr" />
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="BundlePrice" class="form-label"></label>
+        <input asp-for="BundlePrice" type="number" step="1000" class="form-control" dir="ltr" />
+    </div>
+    <div class="col-md-6">
+        <label asp-for="CompareAtPrice" class="form-label"></label>
+        <input asp-for="CompareAtPrice" type="number" step="1000" class="form-control" dir="ltr" />
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="TotalItemsPrice" class="form-label"></label>
+        <input asp-for="TotalItemsPrice" type="number" step="1000" class="form-control" dir="ltr" />
+    </div>
+    <div class="col-md-6">
+        <label asp-for="ImageUrl" class="form-label"></label>
+        <input asp-for="ImageUrl" class="form-control" dir="ltr" />
+        <input type="file" name="imageFile" accept="image/*" class="form-control form-control-sm mt-1" />
+    </div>
+
+    <div class="col-12">
+        <label asp-for="ShortDescription" class="form-label"></label>
+        <textarea asp-for="ShortDescription" rows="2" class="form-control"></textarea>
+    </div>
+
+    <div class="col-12">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description" rows="5" class="form-control"></textarea>
+    </div>
+
+    <!-- اقلام -->
+    <div class="col-12 mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="text-muted border-bottom pb-2 mb-0 flex-grow-1">اقلام بسته</h6>
+            <button type="button" class="btn btn-sm btn-admin-primary ms-2" onclick="addItem()">
+                <i class="bi bi-plus-lg"></i> افزودن محصول
+            </button>
+        </div>
+
+        <div id="itemsContainer">
+            @for (var i = 0; i < Model.Items.Count; i++)
+            {
+                var it = Model.Items[i];
+                <div class="card mb-2 bundle-item">
+                    <div class="card-body">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-6">
+                                <label class="form-label small">محصول *</label>
+                                <select name="Items[@i].ProductId" class="form-select form-select-sm">
+                                    <option value="">انتخاب کنید</option>
+                                    @foreach (var p in Model.FormData.Products)
+                                    {
+                                        <option value="@p.Id" selected="@(it.ProductId == p.Id)">@p.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small">تعداد *</label>
+                                <input name="Items[@i].Quantity" value="@it.Quantity" type="number" min="1"
+                                       class="form-control form-control-sm" />
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small">ترتیب</label>
+                                <input name="Items[@i].DisplayOrder" value="@it.DisplayOrder" type="number"
+                                       class="form-control form-control-sm" />
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                        onclick="this.closest('.bundle-item').remove()">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <input type="hidden" name="Items[@i].Id" value="@it.Id" />
+                        <input type="hidden" name="Items[@i].ProductVariantId" value="@it.ProductVariantId" />
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- تاریخ‌ها -->
+    <div class="col-md-6 mt-4">
+        <label asp-for="StartsAtUtc" class="form-label"></label>
+        <input type="text" id="startsAtPicker" class="form-control" dir="ltr" readonly />
+        <input type="hidden" id="startsAtHidden" name="StartsAtUtc"
+               value="@(Model.StartsAtUtc?.ToString("yyyy-MM-ddTHH:mm:ss"))" />
+    </div>
+    <div class="col-md-6 mt-4">
+        <label asp-for="ExpiresAtUtc" class="form-label"></label>
+        <input type="text" id="expiresAtPicker" class="form-control" dir="ltr" readonly />
+        <input type="hidden" id="expiresAtHidden" name="ExpiresAtUtc"
+               value="@(Model.ExpiresAtUtc?.ToString("yyyy-MM-ddTHH:mm:ss"))" />
+    </div>
+
+    <!-- وضعیت -->
+    <div class="col-12 mt-4">
+        <div class="d-flex flex-wrap gap-4">
+            <div class="form-check form-switch">
+                <input asp-for="IsActive" class="form-check-input" />
+                <label asp-for="IsActive" class="form-check-label"></label>
+            </div>
+            <div class="form-check form-switch">
+                <input asp-for="IsFeatured" class="form-check-input" />
+                <label asp-for="IsFeatured" class="form-check-label"></label>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEO -->
+    <div class="col-12 mt-4">
+        <h6 class="text-muted border-bottom pb-2 mb-3">سئو</h6>
+        <div class="row g-3">
+            <div class="col-12">
+                <label asp-for="MetaTitle" class="form-label"></label>
+                <input asp-for="MetaTitle" class="form-control" maxlength="200" />
+            </div>
+            <div class="col-12">
+                <label asp-for="MetaDescription" class="form-label"></label>
+                <textarea asp-for="MetaDescription" rows="2" class="form-control" maxlength="500"></textarea>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="CanonicalUrl" class="form-label"></label>
+                <input asp-for="CanonicalUrl" class="form-control" dir="ltr" />
+            </div>
+            <div class="col-md-6">
+                <label asp-for="OgImage" class="form-label"></label>
+                <input asp-for="OgImage" class="form-control" dir="ltr" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<template id="itemTemplate">
+    <div class="card mb-2 bundle-item">
+        <div class="card-body">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-6">
+                    <label class="form-label small">محصول *</label>
+                    <select name="Items[__INDEX__].ProductId" class="form-select form-select-sm">
+                        <option value="">انتخاب کنید</option>
+                        @foreach (var p in Model.FormData.Products)
+                        {
+                            <option value="@p.Id">@p.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">تعداد *</label>
+                    <input name="Items[__INDEX__].Quantity" type="number" min="1" value="1"
+                           class="form-control form-control-sm" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">ترتیب</label>
+                    <input name="Items[__INDEX__].DisplayOrder" type="number" value="0"
+                           class="form-control form-control-sm" />
+                </div>
+                <div class="col-md-2 text-end">
+                    <button type="button" class="btn btn-sm btn-outline-danger"
+                            onclick="this.closest('.bundle-item').remove()">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <input type="hidden" name="Items[__INDEX__].Id" value="0" />
+        </div>
+    </div>
+</template>
+
+<script>
+    let itemIndex = @Model.Items.Count;
+
+    function addItem() {
+        const tpl = document.getElementById('itemTemplate').innerHTML;
+        document.getElementById('itemsContainer').insertAdjacentHTML('beforeend',
+            tpl.replace(/__INDEX__/g, itemIndex++));
+    }
+
+    // Date picker
+    (function() {
+        function initJalaliPicker(pickerId, hiddenId) {
+            const picker = document.getElementById(pickerId);
+            const hidden = document.getElementById(hiddenId);
+            if (!picker || !hidden || typeof persianDate === 'undefined') return;
+
+            if (hidden.value) {
+                try {
+                    const d = new Date(hidden.value);
+                    if (!isNaN(d.getTime()))
+                        picker.value = new persianDate(d).format('YYYY/MM/DD');
+                } catch { }
+            }
+
+            $(picker).persianDatepicker({
+                format: 'YYYY/MM/DD',
+                initialValue: false,
+                autoClose: true,
+                observer: true,
+                onSelect: function(unix) {
+                    const g = new persianDate(unix).toCalendar('gregorian').toDate();
+                    hidden.value = g.getFullYear() + '-' +
+                        String(g.getMonth() + 1).padStart(2, '0') + '-' +
+                        String(g.getDate()).padStart(2, '0') + 'T00:00:00';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof persianDate === 'undefined' || typeof $ === 'undefined') return;
+            initJalaliPicker('startsAtPicker', 'startsAtHidden');
+            initJalaliPicker('expiresAtPicker', 'expiresAtHidden');
+        });
+    })();
+</script>

@@ -1,0 +1,107 @@
+﻿@model InventoryReportDto
+@using GhahveAlizade.Application.Features.Reports.Dtos
+@{
+    ViewData["Title"] = "گزارش انبار";
+    ViewData["PageIcon"] = "bi-clipboard-data";
+}
+
+<div class="row g-3 mb-3">
+    <div class="col-md-3">
+        <div class="admin-card">
+            <div class="text-muted small">کل آیتم‌ها</div>
+            <div class="h4 fw-bold mb-0">@Model.TotalItems</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-card">
+            <div class="text-muted small">ارزش موجودی</div>
+            <div class="h4 fw-bold mb-0 text-success">@Model.TotalValue.ToString("N0")</div>
+            <small class="text-muted">تومان</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-card">
+            <div class="text-muted small">موجودی کم</div>
+            <div class="h4 fw-bold mb-0 text-warning">@Model.LowStockCount</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-card">
+            <div class="text-muted small">اتمام موجودی</div>
+            <div class="h4 fw-bold mb-0 text-danger">@Model.OutOfStockCount</div>
+        </div>
+    </div>
+</div>
+
+<!-- Stock by Warehouse -->
+@if (Model.StockByWarehouse.Any())
+{
+    <div class="admin-card mb-3">
+        <h6 class="fw-bold mb-3">موجودی به تفکیک انبار</h6>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>انبار</th>
+                        <th class="text-end">مجموع موجودی</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var w in Model.StockByWarehouse.OrderByDescending(x => x.Value))
+                    {
+                        <tr>
+                            <td>@w.Key</td>
+                            <td class="text-end fw-bold">@w.Value.ToString("N0")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+<!-- Low Stock Items -->
+@if (Model.LowStockItems.Any())
+{
+    <div class="admin-card">
+        <h6 class="fw-bold mb-3 text-warning">
+            <i class="bi bi-exclamation-triangle"></i> آیتم‌های کم‌موجود
+        </h6>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>محصول</th>
+                        <th>انبار</th>
+                        <th class="text-center">موجودی</th>
+                        <th class="text-center">سطح هشدار</th>
+                        <th class="text-center">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var i in Model.LowStockItems)
+                    {
+                        <tr class="table-warning">
+                            <td>
+                                <strong>@i.ProductName</strong>
+                                @if (!string.IsNullOrEmpty(i.VariantName))
+                                {
+                                    <span class="text-muted small"> - @i.VariantName</span>
+                                }
+                            </td>
+                            <td class="small">@i.WarehouseName</td>
+                            <td class="text-center fw-bold text-danger">@i.AvailableQuantity.ToString("N0")</td>
+                            <td class="text-center">@i.ReorderLevel.ToString("N0")</td>
+                            <td class="text-center">
+                                <a href="/admin/inventory/detail/@i.InventoryItemId"
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-boxes"></i> مدیریت
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

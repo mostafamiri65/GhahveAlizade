@@ -1,0 +1,111 @@
+﻿@model PaginatedList<WholesaleRequestListItemDto>
+@using GhahveAlizade.Application.Common.Models
+@using GhahveAlizade.Application.Features.Wholesale.Dtos
+@using GhahveAlizade.Domain.Enums
+
+@{
+    ViewData["Title"] = "درخواست‌های عمده‌فروشی";
+    ViewData["PageIcon"] = "bi-briefcase";
+    var search = ViewBag.Search as string;
+    var status = ViewBag.Status as WholesaleRequestStatus?;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="text-muted">مجموع: <strong>@Model.TotalCount</strong> درخواست</span>
+</div>
+
+<div class="admin-card mb-3">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-5">
+            <label class="form-label small">جستجو</label>
+            <input type="text" name="search" class="form-control" value="@search" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small">وضعیت</label>
+            <select name="status" class="form-select">
+                <option value="">همه</option>
+                @foreach (WholesaleRequestStatus s in Enum.GetValues<WholesaleRequestStatus>())
+                {
+                    <option value="@((int)s)" selected="@(status == s)">@GetStatusName(s)</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1"><i class="bi bi-search"></i> فیلتر</button>
+            <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
+        </div>
+    </form>
+</div>
+
+<div class="admin-card p-0 overflow-hidden">
+    @if (Model.Items.Count == 0)
+    {
+        <div class="text-center py-5">
+            <div class="fs-1 text-muted mb-3"><i class="bi bi-briefcase"></i></div>
+            <h5 class="text-muted">درخواستی یافت نشد</h5>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>شرکت</th>
+                        <th>تماس</th>
+                        <th>شهر</th>
+                        <th class="text-center">وضعیت</th>
+                        <th class="text-center">تاریخ</th>
+                        <th class="text-center" style="width: 100px;">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in Model.Items)
+                    {
+                        <tr>
+                            <td class="fw-bold">@r.CompanyName</td>
+                            <td class="small">
+                                <div>@r.ContactPerson</div>
+                                <div class="text-muted" dir="ltr">@r.ContactPhone</div>
+                            </td>
+                            <td class="small text-muted">@(r.City ?? "—")</td>
+                            <td class="text-center">
+                                <span class="badge @GetStatusClass(r.Status)">@r.StatusName</span>
+                            </td>
+                            <td class="text-center small text-muted">
+                                @r.CreatedAtUtc.ToLocalTime().ToString("yyyy/MM/dd")
+                            </td>
+                            <td class="text-center">
+                                <a asp-action="Detail" asp-route-id="@r.Id" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@functions {
+    static string GetStatusName(WholesaleRequestStatus s) => s switch
+    {
+        WholesaleRequestStatus.Pending => "در انتظار",
+        WholesaleRequestStatus.UnderReview => "در حال بررسی",
+        WholesaleRequestStatus.Approved => "تایید شده",
+        WholesaleRequestStatus.Rejected => "رد شده",
+        WholesaleRequestStatus.Suspended => "معلق",
+        _ => s.ToString()
+    };
+
+    static string GetStatusClass(WholesaleRequestStatus s) => s switch
+    {
+        WholesaleRequestStatus.Pending => "bg-secondary",
+        WholesaleRequestStatus.UnderReview => "bg-info text-dark",
+        WholesaleRequestStatus.Approved => "bg-success",
+        WholesaleRequestStatus.Rejected => "bg-danger",
+        WholesaleRequestStatus.Suspended => "bg-warning text-dark",
+        _ => "bg-secondary"
+    };
+}

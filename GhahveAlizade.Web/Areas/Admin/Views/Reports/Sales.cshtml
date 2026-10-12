@@ -1,0 +1,216 @@
+﻿@model SalesReportDto
+@using GhahveAlizade.Application.Features.Reports.Dtos
+@{
+    ViewData["Title"] = "گزارش فروش";
+    ViewData["PageIcon"] = "bi-graph-up";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <form method="get" class="d-flex gap-2 align-items-end">
+        <div>
+            <label class="form-label small mb-1">از تاریخ</label>
+            <input type="date" name="fromDate" class="form-control form-control-sm"
+                   value="@(ViewBag.FromDate as string ?? DateTime.UtcNow.AddDays(-30).ToString("yyyy-MM-dd"))" />
+        </div>
+        <div>
+            <label class="form-label small mb-1">تا تاریخ</label>
+            <input type="date" name="toDate" class="form-control form-control-sm"
+                   value="@(ViewBag.ToDate as string ?? DateTime.UtcNow.ToString("yyyy-MM-dd"))" />
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm">
+            <i class="bi bi-search"></i> اعمال
+        </button>
+    </form>
+
+    @if (User.HasPermission(Permissions.Reports.Export))
+    {
+        <a asp-action="ExportSales" class="btn btn-outline-success btn-sm">
+            <i class="bi bi-download"></i> خروجی CSV
+        </a>
+    }
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-3 mb-3">
+    <div class="col-md-3">
+        <div class="admin-card">
+            <div class="text-muted small">تعداد سفارش</div>
+            <div class="h4 fw-bold mb-0">@Model.TotalOrders</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-card">
+            <div class="text-muted small">درآمد کل</div>
+            <div class="h4 fw-bold mb-0 text-success">@Model.TotalRevenue.ToString("N0")</div>
+            <small class="text-muted">تومان</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-card">
+            <div class="text-muted small">میانگین سفارش</div>
+            <div class="h4 fw-bold mb-0">@Model.AverageOrderValue.ToString("N0")</div>
+            <small class="text-muted">تومان</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-card">
+            <div class="text-muted small">تعداد اقلام</div>
+            <div class="h4 fw-bold mb-0">@Model.TotalItems</div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart -->
+@if (Model.Chart.Any())
+{
+    <div class="admin-card mb-3">
+        <h6 class="fw-bold mb-3">نمودار فروش</h6>
+        <div style="position: relative; height: 300px;">
+            <canvas id="salesChart"></canvas>
+        </div>
+    </div>
+}
+
+<!-- Two Columns -->
+<div class="row g-3 mb-3">
+    <!-- Top Products -->
+    @if (Model.TopProducts.Any())
+    {
+        <div class="col-lg-6">
+            <div class="admin-card h-100">
+                <h6 class="fw-bold mb-3">
+                    <i class="bi bi-trophy text-warning"></i> پرفروش‌ترین محصولات
+                </h6>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>محصول</th>
+                                <th class="text-center">فروش</th>
+                                <th class="text-end">درآمد</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var p in Model.TopProducts)
+                            {
+                                <tr>
+                                    <td class="small">@p.ProductName</td>
+                                    <td class="text-center">@p.SoldCount</td>
+                                    <td class="text-end fw-bold small">@p.Revenue.ToString("N0")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Top Customers -->
+    @if (Model.TopCustomers.Any())
+    {
+        <div class="col-lg-6">
+            <div class="admin-card h-100">
+                <h6 class="fw-bold mb-3">
+                    <i class="bi bi-star-fill text-warning"></i> مشتریان برتر
+                </h6>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>مشتری</th>
+                                <th class="text-center">سفارشات</th>
+                                <th class="text-end">مجموع</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var c in Model.TopCustomers)
+                            {
+                                <tr>
+                                    <td class="small">
+                                        <div>@(c.FullName ?? "بدون نام")</div>
+                                        <small class="text-muted" dir="ltr">@c.PhoneNumber</small>
+                                    </td>
+                                    <td class="text-center">@c.OrderCount</td>
+                                    <td class="text-end fw-bold small">@c.TotalSpent.ToString("N0")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Orders by Status + Revenue by Category -->
+<div class="row g-3">
+    @if (Model.OrdersByStatus.Any())
+    {
+        <div class="col-lg-6">
+            <div class="admin-card h-100">
+                <h6 class="fw-bold mb-3">سفارشات بر اساس وضعیت</h6>
+                <ul class="list-unstyled mb-0">
+                    @foreach (var s in Model.OrdersByStatus)
+                    {
+                        <li class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="small">@s.Key</span>
+                            <span class="badge bg-secondary">@s.Value</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    }
+
+    @if (Model.RevenueByCategory.Any())
+    {
+        <div class="col-lg-6">
+            <div class="admin-card h-100">
+                <h6 class="fw-bold mb-3">درآمد بر اساس دسته‌بندی</h6>
+                <ul class="list-unstyled mb-0">
+                    @foreach (var c in Model.RevenueByCategory.OrderByDescending(x => x.Value))
+                    {
+                        <li class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="small">@c.Key</span>
+                            <span class="fw-bold small">@c.Value.ToString("N0")</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @if (Model.Chart.Any())
+    {
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+        <script>
+            const ctx = document.getElementById('salesChart');
+            const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Chart.Select(c => c.Date)));
+            const revenues = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Chart.Select(c => c.Revenue)));
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'فروش',
+                        data: revenues,
+                        borderColor: '#d97706',
+                        backgroundColor: 'rgba(217, 119, 6, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        </script>
+    }
+}

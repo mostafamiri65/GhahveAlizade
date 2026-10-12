@@ -1,0 +1,78 @@
+﻿@model List<RolePermissionGroupDto>
+@using GhahveAlizade.Application.Features.Identity.Roles.Dtos
+@{
+    ViewData["Title"] = "مدیریت دسترسی‌ها";
+    ViewData["PageIcon"] = "bi-key";
+    var roleId = ViewData["RoleId"] as string;
+}
+
+<div class="d-flex justify-content-between mb-3">
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-right"></i> بازگشت
+    </a>
+    <button class="btn btn-admin-primary" onclick="savePermissions()">
+        <i class="bi bi-check-lg"></i> ذخیره
+    </button>
+</div>
+
+<div class="admin-card">
+    <div class="row g-4">
+        @foreach (var g in Model)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="border rounded p-3">
+                    <h6 class="fw-bold mb-3 d-flex align-items-center">
+                        <input type="checkbox" class="form-check-input me-2 group-toggle"
+                               data-group="@g.Group"
+                        @(g.Permissions.All(p => p.IsAssigned) ? "checked" : "") />
+                        @g.Group
+                    </h6>
+                    <div class="d-flex flex-column gap-1">
+                        @foreach (var p in g.Permissions)
+                        {
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input permission-checkbox"
+                                       value="@p.Id" id="p_@p.Id"
+                                       data-group="@g.Group"
+                                @(p.IsAssigned ? "checked" : "") />
+                                <label class="form-check-label small" for="p_@p.Id">
+                                    @p.DisplayName
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Toggle group
+        document.querySelectorAll('.group-toggle').forEach(el => {
+            el.addEventListener('change', function() {
+                const group = this.dataset.group;
+                document.querySelectorAll(`.permission-checkbox[data-group="${group}"]`)
+                    .forEach(c => c.checked = this.checked);
+            });
+        });
+
+        async function savePermissions() {
+            const ids = Array.from(document.querySelectorAll('.permission-checkbox:checked'))
+                .map(c => c.value);
+
+            const body = new URLSearchParams();
+            body.append('roleId', '@roleId');
+            ids.forEach(id => body.append('permissionIds', id));
+
+            const res = await fetch('@Url.Action("UpdatePermissions")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body
+            });
+            const d = await res.json();
+            alert(d.message);
+        }
+    </script>
+}

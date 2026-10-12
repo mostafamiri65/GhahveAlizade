@@ -1,0 +1,105 @@
+﻿@model PaginatedList<BlogTagListItemDto>
+@using GhahveAlizade.Application.Common.Models
+@using GhahveAlizade.Application.Features.Content.Dtos
+@using GhahveAlizade.Infrastructure.Persistence.Seed
+@{
+    ViewData["Title"] = "برچسب‌های وبلاگ";
+    ViewData["PageIcon"] = "bi-tag";
+    var search = ViewBag.Search as string;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="text-muted">مجموع: <strong>@Model.TotalCount</strong> برچسب</span>
+    @if (User.HasPermission(Permissions.Blog.ManageTags))
+    {
+        <a asp-action="Create" class="btn btn-admin-primary"><i class="bi bi-plus-lg"></i> افزودن برچسب</a>
+    }
+</div>
+
+<div class="admin-card mb-3">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-8">
+            <label class="form-label small">جستجو</label>
+            <input type="text" name="search" class="form-control" value="@search" />
+        </div>
+        <div class="col-md-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1"><i class="bi bi-search"></i> فیلتر</button>
+            <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
+        </div>
+    </form>
+</div>
+
+<div class="admin-card p-0 overflow-hidden">
+    @if (Model.Items.Count == 0)
+    {
+        <div class="text-center py-5">
+            <div class="fs-1 text-muted mb-3"><i class="bi bi-tag"></i></div>
+            <h5 class="text-muted">برچسبی یافت نشد</h5>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>نام</th>
+                        <th>نامک</th>
+                        <th class="text-center">تعداد مقالات</th>
+                        <th class="text-center" style="width: 130px;">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model.Items)
+                    {
+                        <tr>
+                            <td class="fw-bold">@t.Name</td>
+                            <td><code class="small">@t.Slug</code></td>
+                            <td class="text-center"><span class="badge bg-secondary">@t.PostCount</span></td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    @if (User.HasPermission(Permissions.Blog.ManageTags))
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@t.Id" class="btn btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                                        <button type="button" class="btn btn-outline-danger"
+                                                data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                data-id="@t.Id" data-name="@t.Name">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Delete" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="deleteId" />
+                <div class="modal-header"><h5 class="modal-title">تایید حذف</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">حذف برچسب <strong id="deleteName" class="text-danger"></strong>؟</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('deleteModal')?.addEventListener('show.bs.modal', function(e) {
+            const b = e.relatedTarget;
+            document.getElementById('deleteId').value = b.dataset.id;
+            document.getElementById('deleteName').textContent = b.dataset.name;
+        });
+    </script>
+}

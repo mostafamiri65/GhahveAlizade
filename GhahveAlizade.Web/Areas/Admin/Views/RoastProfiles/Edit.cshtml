@@ -1,0 +1,22 @@
+﻿@model RoastProfileFormViewModel
+@{
+    ViewData["Title"] = "ویرایش پروفایل رست";
+    ViewData["PageIcon"] = "bi-pencil";
+    ViewData["Breadcrumb"] = "پروفایل رست / افزودن";
+}
+
+<div class="admin-card">
+    <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+        <partial name="_FormPartial" model="Model" />
+        <div class="d-flex gap-2 justify-content-end mt-4 pt-3 border-top">
+            <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i> انصراف</a>
+            <button type="submit" class="btn btn-admin-primary"><i class="bi bi-check-lg"></i> ذخیره</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

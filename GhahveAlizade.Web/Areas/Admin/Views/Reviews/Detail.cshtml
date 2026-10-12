@@ -1,0 +1,138 @@
+﻿@model ReviewDetailDto
+@using GhahveAlizade.Application.Features.Reviews.Dtos
+@using GhahveAlizade.Infrastructure.Persistence.Seed
+@{
+    ViewData["Title"] = "جزئیات نظر";
+    ViewData["PageIcon"] = "bi-star";
+}
+
+<div class="d-flex justify-content-between mb-3">
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-right"></i> بازگشت
+    </a>
+    @if (User.HasPermission(Permissions.Reviews.Approve))
+    {
+        <form asp-action="Approve" method="post" class="d-inline">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button type="submit" class="btn @(Model.IsApproved ? "btn-warning" : "btn-success")">
+                <i class="bi bi-check-circle"></i>
+                @(Model.IsApproved ? "لغو تایید" : "تایید")
+            </button>
+        </form>
+    }
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="admin-card mb-3">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h5 class="mb-1">@Model.ProductName</h5>
+                    <div class="small text-muted">
+                        نویسنده: @(Model.CustomerName ?? Model.AuthorName ?? "ناشناس")
+                        @if (Model.IsVerifiedPurchase)
+                        {
+                            <span class="badge bg-success ms-2">خرید تایید شده</span>
+                        }
+                    </div>
+                </div>
+                <div class="text-end">
+                    @for (var i = 1; i <= 5; i++)
+                    {
+                        <i class="bi bi-star@(i <= Model.Rating ? "-fill" : "") text-warning"></i>
+                    }
+                    <div class="small text-muted mt-1">@Model.Rating از 5</div>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.Title))
+            {
+                <h6 class="fw-bold">@Model.Title</h6>
+            }
+            <p>@Model.Content</p>
+
+            @if (Model.Images.Any())
+            {
+                <div class="d-flex gap-2 flex-wrap mt-3">
+                    @foreach (var img in Model.Images)
+                    {
+                        <img src="@img.ImageUrl" alt="@img.AltText"
+                             style="width: 100px; height: 100px; object-fit: cover; border-radius: 6px;" />
+                    }
+                </div>
+            }
+
+            <hr />
+
+            <div class="small text-muted">
+                <span class="me-3"><i class="bi bi-hand-thumbs-up"></i> @Model.HelpfulCount</span>
+                <span class="me-3"><i class="bi bi-hand-thumbs-down"></i> @Model.NotHelpfulCount</span>
+                <span>@Model.CreatedAtUtc.ToString("yyyy/MM/dd HH:mm")</span>
+            </div>
+        </div>
+
+        @if (Model.Replies.Any())
+        {
+            <div class="admin-card mb-3">
+                <h6 class="fw-bold mb-3">پاسخ‌ها (@Model.Replies.Count)</h6>
+                @foreach (var reply in Model.Replies)
+                {
+                    <div class="border rounded p-3 mb-2 bg-light">
+                        <div class="d-flex justify-content-between mb-1">
+                            <strong class="small">@reply.RepliedByName</strong>
+                            <small class="text-muted">@reply.CreatedAtUtc.ToString("yyyy/MM/dd HH:mm")</small>
+                        </div>
+                        <p class="mb-0 small">@reply.Content</p>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    @if (User.HasPermission(Permissions.Reviews.Reply))
+    {
+        <div class="col-lg-4">
+            <div class="admin-card">
+                <h6 class="fw-bold mb-3">ارسال پاسخ</h6>
+                <div id="replyForm">
+                    <textarea id="replyContent" rows="4" class="form-control mb-2"
+                              placeholder="متن پاسخ..."></textarea>
+                    <div class="form-check mb-2">
+                        <input type="checkbox" id="isOfficial" class="form-check-input" checked />
+                        <label for="isOfficial" class="form-check-label small">پاسخ رسمی</label>
+                    </div>
+                    <button type="button" class="btn btn-admin-primary w-100" onclick="sendReply()">
+                        <i class="bi bi-send"></i> ارسال
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+        async function sendReply() {
+            const content = document.getElementById('replyContent').value.trim();
+            if (!content) { alert('متن پاسخ الزامی است'); return; }
+
+            const body = new URLSearchParams();
+            body.append('reviewId', '@Model.Id');
+            body.append('content', content);
+            body.append('isOfficial', document.getElementById('isOfficial').checked);
+            body.append('__RequestVerificationToken', token);
+
+            const r = await fetch('@Url.Action("Reply")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'RequestVerificationToken': token },
+                body
+            });
+            const d = await r.json();
+            alert(d.message);
+            if (d.success) location.reload();
+        }
+    </script>
+}

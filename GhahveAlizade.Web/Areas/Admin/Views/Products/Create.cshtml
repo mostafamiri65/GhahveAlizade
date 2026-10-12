@@ -1,0 +1,27 @@
+﻿@model ProductFormViewModel
+@{
+    ViewData["Title"] = "افزودن محصول";
+    ViewData["PageIcon"] = "bi-plus-circle";
+    ViewData["Breadcrumb"] = "محصولات / افزودن";
+}
+
+<div class="admin-card">
+    <form asp-action="Create" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+
+        <partial name="_FormPartial" model="Model" />
+
+        <div class="d-flex gap-2 justify-content-end mt-4 pt-3 border-top">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-x-lg"></i> انصراف
+            </a>
+            <button type="submit" class="btn btn-admin-primary">
+                <i class="bi bi-check-lg"></i> ذخیره محصول
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
