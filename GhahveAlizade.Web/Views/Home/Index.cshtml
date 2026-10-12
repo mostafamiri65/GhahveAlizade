@@ -1,9 +1,46 @@
-﻿@{
-    ViewData["Title"] = "صفحه اصلی";
+@{
+    ViewData["Title"] = "قهوه علیزاده | فروشگاه تخصصی قهوه";
 }
 
-<div class="container py-5 text-center" dir="rtl">
-    <h1 class="display-4 fw-bold mb-4">☕ قهوه علیزاده</h1>
-    <p class="lead text-muted mb-5">فروشگاه تخصصی قهوه - به‌زودی...</p>
-    <a href="/account/login" class="btn btn-warning btn-lg">ورود / ثبت‌نام</a>
+<div class="coffee-hero">
+    <h1 class="display-4 mb-3">☕ قهوه علیزاده</h1>
+    <p class="lead-text fs-5 mb-4">
+        دانه‌های تازه رست‌شده، تک‌خاستگاه و بلند خاص —
+        تجربه‌ی فنجانی که لیاقتش رو دارید.
+    </p>
+    <a asp-controller="Products" asp-action="Index" class="btn btn-caramel btn-lg px-5">
+        <i class="bi bi-bag-heart"></i> ورود به فروشگاه
+    </a>
+</div>
+
+<div class="container py-5" dir="rtl">
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="coffee-panel h-100 p-4 text-center">
+                <i class="bi bi-fire fs-1" style="color:var(--coffee-gold)"></i>
+                <h5 class="mt-3 fw-bold">رست تازه روزانه</h5>
+                <p class="text-muted small mb-0">دانه‌ها حداکثر ۴۸ ساعت پس از رست، بسته‌بندی و ارسال می‌شوند.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="coffee-panel h-100 p-4 text-center">
+                <i class="bi bi-globe-americas fs-1" style="color:var(--coffee-gold)"></i>
+                <h5 class="mt-3 fw-bold">دانه‌های تک‌خاستگاه</h5>
+                <p class="text-muted small mb-0">انتخاب مستقیم از مزارع اتیوپی، کلمبیا، برزیل و کنیا.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="coffee-panel h-100 p-4 text-center">
+                <i class="bi bi-truck fs-1" style="color:var(--coffee-gold)"></i>
+                <h5 class="mt-3 fw-bold">ارسال سریع</h5>
+                <p class="text-muted small mb-0">ارسال به سراسر ایران با بسته‌بندی حفظ عطر و طعم.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center">
+        <a asp-controller="Products" asp-action="Index" class="btn btn-coffee">
+            مشاهده همه محصولات <i class="bi bi-arrow-left"></i>
+        </a>
+    </div>
 </div>
