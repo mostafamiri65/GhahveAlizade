@@ -1,5 +1,6 @@
-﻿using ErrorOr;
+using ErrorOr;
 using GhahveAlizade.Application.Common.Interfaces;
+using GhahveAlizade.Application.Features.Auth.Commands.CompleteProfile;
 using GhahveAlizade.Application.Features.Auth.Commands.LoginWithPassword;
 using GhahveAlizade.Application.Features.Auth.Commands.RequestOtp;
 using GhahveAlizade.Application.Features.Auth.Commands.SetPassword;
@@ -113,8 +114,64 @@ public class AccountController : MvcBaseController
 		// ورود با Cookie
 		await _cookieAuth.SignInAsync(result.Value.UserId, isPersistent: true, cancellationToken);
 
-		// اگه کاربر جدید یا بدون پسورد، پیشنهاد تعیین پسورد
-		if (result.Value.IsNewUser || !result.Value.HasPassword)
+		// کاربر جدید → تکمیل مشخصات
+		if (result.Value.IsNewUser)
+		{
+			TempData["ReturnUrl"] = model.ReturnUrl;
+			return RedirectToAction(nameof(CompleteProfile));
+		}
+
+		// کاربر قدیمی بدون پسورد → پیشنهاد تعیین پسورد
+		if (!result.Value.HasPassword)
+		{
+			TempData["SetPasswordPrompt"] = true;
+			TempData["ReturnUrl"] = model.ReturnUrl;
+			return RedirectToAction(nameof(SetPassword));
+		}
+
+		return RedirectToLocal(model.ReturnUrl);
+	}
+
+	// ==================== تکمیل مشخصات (کاربر جدید) ====================
+
+	[HttpGet("complete-profile")]
+	[Authorize]
+	public IActionResult CompleteProfile()
+	{
+		return View(new CompleteProfileViewModel
+		{
+			ReturnUrl = TempData["ReturnUrl"]?.ToString()
+		});
+	}
+
+	[HttpPost("complete-profile")]
+	[Authorize]
+	[ValidateAntiForgeryToken]
+	public async Task<IActionResult> CompleteProfile(
+		CompleteProfileViewModel model, CancellationToken cancellationToken)
+	{
+		if (!ModelState.IsValid)
+			return View(model);
+
+		var userId = _currentUser.UserId;
+		if (userId is null)
+			return Challenge();
+
+		var result = await Mediator.Send(new CompleteProfileCommand(
+			userId.Value, model.FirstName, model.LastName, model.Email,
+			model.NationalCode, model.BirthDate, model.Gender), cancellationToken);
+
+		if (result.IsError)
+		{
+			ModelState.AddModelError(string.Empty, result.FirstError.Description);
+			return View(model);
+		}
+
+		TempData["SuccessMessage"] = "خوش آمدید! ثبت‌نام شما کامل شد.";
+
+		// اگر پسورد ندارد، پیشنهاد تعیین پسورد
+		var user = await _authService.GetCurrentUserAsync(cancellationToken);
+		if (user is not null && !user.HasPassword)
 		{
 			TempData["SetPasswordPrompt"] = true;
 			TempData["ReturnUrl"] = model.ReturnUrl;
