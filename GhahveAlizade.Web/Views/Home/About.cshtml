@@ -1,0 +1,57 @@
+@{
+    ViewData["Title"] = "درباره ما";
+}
+
+<div class="coffee-hero" style="padding:4rem 1rem;">
+    <h1 class="mb-2">درباره قهوه علیزاده</h1>
+    <p class="lead-text mb-0">داستان ما از یک فنجان شروع شد...</p>
+</div>
+
+<div class="container py-5" dir="rtl">
+    <div class="row g-5 align-items-center">
+        <div class="col-lg-6">
+            <h3 class="section-title mb-4">قصه ما</h3>
+            <p class="coffee-content">
+                «قهوه علیزاده» از عشق به یک فنجان قهوه‌ی خوب متولد شد. ما باور داریم هر دانه‌ی قهوه
+                یک سفر طولانی از مزرعه تا فنجان را پشت سر می‌گذارد و وظیفه‌ی ما حفظ اصالت همین سفر است.
+                دانه‌ها را مستقیم از مزارع اتیوپی، کلمبیا، برزیل و کنیا تهیه می‌کنیم و در رستری اختصاصی،
+                تازه و به‌موقع رُست می‌کنیم تا عطر و طعم واقعی قهوه تا فنجان شما زنده بماند.
+            </p>
+            <p class="coffee-content">
+                تیم ما ترکیبی از باریستاهای حرفه‌ای، رُسترهای باتجربه و علاقه‌مندان جدی قهوه است؛
+                همه با یک هدف مشترک: <strong>«هر فنجان، یک تجربه‌ی تکرارنشدنی»</strong>.
+            </p>
+        </div>
+        <div class="col-lg-6">
+            <img src="https://images.unsplash.com/photo-1445116572660-236099ec97a0?auto=format&fit=crop&w=900&q=70"
+                 alt="قهوه تازه رست‌شده" class="w-100 rounded-4 shadow" style="object-fit:cover;max-height:380px" />
+        </div>
+    </div>
+
+    <div class="row g-4 my-5">
+        <div class="col-md-4">
+            <div class="coffee-panel h-100 p-4 text-center">
+                <div class="fs-1 fw-bold" style="color:var(--coffee-gold)">+۱۲</div>
+                <div class="fw-semibold">سال تجربه</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="coffee-panel h-100 p-4 text-center">
+                <div class="fs-1 fw-bold" style="color:var(--coffee-gold)">+۴۰</div>
+                <div class="fw-semibold">نوع دانه و بلند</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="coffee-panel h-100 p-4 text-center">
+                <div class="fs-1 fw-bold" style="color:var(--coffee-gold)">+۱۰,۰۰۰</div>
+                <div class="fw-semibold">مشتری وفادار</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center">
+        <a asp-controller="Products" asp-action="Index" class="btn btn-coffee px-5">
+            با قهوه‌های ما آشنا شوید <i class="bi bi-arrow-left"></i>
+        </a>
+    </div>
+</div>
