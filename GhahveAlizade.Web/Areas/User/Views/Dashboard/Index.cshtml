@@ -1,0 +1,76 @@
+@model MyDashboardDto
+@{
+	var tierName = Model.Tier switch
+	{
+		"Gold" => "طلایی", "Silver" => "نقره‌ای",
+		"Platinum" => "پلاتینیوم", "Bronze" => "برنزی", _ => "عضو عادی"
+	};
+}
+
+<h4 class="mb-4"><i class="bi bi-speedometer2"></i> داشبورد من</h4>
+
+<div class="row g-3 mb-4">
+	<div class="col-md-3 col-6">
+		<div class="user-card text-center">
+			<div class="fs-2 fw-bold">@Model.TotalOrders</div>
+			<div class="text-muted small">کل سفارش‌ها</div>
+		</div>
+	</div>
+	<div class="col-md-3 col-6">
+		<div class="user-card text-center">
+			<div class="fs-2 fw-bold">@Model.PendingOrders</div>
+			<div class="text-muted small">در جریان</div>
+		</div>
+	</div>
+	<div class="col-md-3 col-6">
+		<div class="user-card text-center">
+			<div class="fs-2 fw-bold">@Model.TotalSpent.ToString("N0")</div>
+			<div class="text-muted small">مجموع خرید (تومان)</div>
+		</div>
+	</div>
+	<div class="col-md-3 col-6">
+		<div class="user-card text-center">
+			<div class="fs-2 fw-bold">@Model.CurrentPoints</div>
+			<div class="text-muted small">امتیاز — سطح @tierName</div>
+		</div>
+	</div>
+</div>
+
+<div class="user-card">
+	<h5 class="mb-3"><i class="bi bi-receipt"></i> آخرین سفارش‌ها</h5>
+	@if (Model.RecentOrders.Count == 0)
+	{
+		<p class="text-muted text-center py-4">
+			هنوز سفارشی ثبت نکرده‌اید. <a asp-controller="Products" asp-action="Index" asp-area="">شروع خرید</a>
+		</p>
+	}
+	else
+	{
+		<div class="table-responsive">
+			<table class="table table-hover align-middle">
+				<thead class="table-light">
+					<tr>
+						<th>شماره</th><th class="text-center">مبلغ</th>
+						<th class="text-center">وضعیت</th><th class="text-center">تاریخ</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var o in Model.RecentOrders)
+					{
+						<tr>
+							<td class="fw-bold" dir="ltr">@o.OrderNumber</td>
+							<td class="text-center">@o.Total.ToString("N0") تومان</td>
+							<td class="text-center"><span class="badge bg-secondary">@o.StatusName</span></td>
+							<td class="text-center small text-muted">@o.CreatedAtUtc.ToLocalTime().ToString("yyyy/MM/dd")</td>
+							<td class="text-center">
+								<a asp-controller="Orders" asp-action="Detail" asp-route-id="@o.Id"
+								   class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	}
+</div>

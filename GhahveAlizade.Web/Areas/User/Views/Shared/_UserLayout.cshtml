@@ -1,0 +1,120 @@
+@using GhahveAlizade.Web.Extensions
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>@ViewData["Title"] - قهوه علیزاده</title>
+	<meta name="robots" content="noindex, nofollow" />
+
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet" />
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+	<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
+
+	<style>
+		body { font-family: 'Vazirmatn', sans-serif; background-color: #faf7f2; }
+
+		.user-sidebar {
+			background: white; border-left: 1px solid #e5e7eb;
+			min-height: calc(100vh - 64px);
+		}
+		.user-sidebar .nav-link {
+			color: #374151; padding: .75rem 1rem; border-radius: .5rem;
+			display: flex; align-items: center; gap: .6rem; margin: .15rem .5rem;
+		}
+		.user-sidebar .nav-link:hover { background: #f3f4f6; }
+		.user-sidebar .nav-link.active { background: #78350f; color: white; }
+
+		.user-card {
+			background: white; border: 1px solid #e5e7eb;
+			border-radius: .75rem; padding: 1.25rem; margin-bottom: 1rem;
+		}
+		.user-avatar {
+			width: 44px; height: 44px; border-radius: 50%;
+			background: #d97706; color: white; font-weight: 600;
+			display: flex; align-items: center; justify-content: center;
+		}
+	</style>
+
+	@await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+	<nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top" style="min-height:64px">
+		<div class="container-fluid px-4">
+			<a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index" asp-area="">☕ قهوه علیزاده</a>
+			<div class="ms-auto d-flex align-items-center gap-3">
+				<a asp-controller="Dashboard" asp-action="Index" class="btn btn-sm btn-outline-secondary">
+					<i class="bi bi-person"></i> پنل کاربری
+				</a>
+				<form asp-area="Identity" asp-page="/Account/Logout" method="post">
+					<button type="submit" class="btn btn-sm btn-outline-danger">
+						<i class="bi bi-box-arrow-left"></i> خروج
+					</button>
+				</form>
+			</div>
+		</div>
+	</nav>
+
+	<div class="container-fluid">
+		<div class="row">
+			<aside class="col-lg-3 col-md-4 user-sidebar py-3">
+				@{
+					var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+					string Active(string c) => controller == c ? "active" : "";
+				}
+				<div class="d-flex align-items-center gap-2 px-3 mb-3">
+					<div class="user-avatar">
+						@User.GetUserFullName()?.FirstOrDefault()
+					</div>
+					<div>
+						<div class="fw-bold small">@User.GetUserFullName()</div>
+						<div class="text-muted small" dir="ltr">@User.Identity?.Name</div>
+					</div>
+				</div>
+				<nav class="nav flex-column">
+					<a asp-controller="Dashboard" asp-action="Index" class="nav-link @Active("Dashboard")">
+						<i class="bi bi-speedometer2"></i> داشبورد
+					</a>
+					<a asp-controller="Orders" asp-action="Index" class="nav-link @Active("Orders")">
+						<i class="bi bi-receipt"></i> سفارش‌های من
+					</a>
+					<a asp-controller="Addresses" asp-action="Index" class="nav-link @Active("Addresses")">
+						<i class="bi bi-geo-alt"></i> آدرس‌ها
+					</a>
+					<a asp-controller="Wishlist" asp-action="Index" class="nav-link @Active("Wishlist")">
+						<i class="bi bi-heart"></i> علاقه‌مندی‌ها
+					</a>
+					<a asp-controller="Points" asp-action="Index" class="nav-link @Active("Points")">
+						<i class="bi bi-star"></i> امتیازها
+					</a>
+					<a asp-controller="Profile" asp-action="Index" class="nav-link @Active("Profile")">
+						<i class="bi bi-person-gear"></i> پروفایل
+					</a>
+				</nav>
+			</aside>
+
+			<main class="col-lg-9 col-md-8 p-4">
+				@if (TempData["SuccessMessage"] is string ok)
+				{
+					<div class="alert alert-success alert-dismissible fade show">
+						<i class="bi bi-check-circle"></i> @ok
+						<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+					</div>
+				}
+				@if (TempData["ErrorMessage"] is string err)
+				{
+					<div class="alert alert-danger alert-dismissible fade show">
+						<i class="bi bi-exclamation-triangle"></i> @err
+						<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+					</div>
+				}
+				@RenderBody()
+			</main>
+		</div>
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+	@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

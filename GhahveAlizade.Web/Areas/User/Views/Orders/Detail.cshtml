@@ -1,0 +1,108 @@
+@model OrderDetailDto
+@{
+	var isCancellable = Model.Status is OrderStatus.Pending or OrderStatus.AwaitingPayment
+		or OrderStatus.Paid or OrderStatus.Processing;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+	<h4 class="mb-0"><i class="bi bi-receipt"></i> سفارش <span dir="ltr">@Model.OrderNumber</span></h4>
+	<a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+		<i class="bi bi-arrow-right"></i> بازگشت
+	</a>
+</div>
+
+<div class="user-card">
+	<h6 class="mb-3">اقلام سفارش</h6>
+	<div class="table-responsive">
+		<table class="table align-middle">
+			<thead class="table-light"><tr>
+				<th>محصول</th><th class="text-center">تعداد</th>
+				<th class="text-center">قیمت واحد</th><th class="text-center">جمع</th>
+			</tr></thead>
+			<tbody>
+			@foreach (var i in Model.Items)
+			{
+				<tr>
+					<td>
+						<div class="fw-bold">@i.ProductName</div>
+						@if (!string.IsNullOrEmpty(i.VariantName))
+						{
+							<div class="small text-muted">@i.VariantName</div>
+						}
+					</td>
+					<td class="text-center">@i.Quantity</td>
+					<td class="text-center">@i.UnitPrice.ToString("N0")</td>
+					<td class="text-center fw-bold">@i.TotalPrice.ToString("N0")</td>
+				</tr>
+			}
+			</tbody>
+		</table>
+	</div>
+
+	<div class="row justify-content-end">
+		<div class="col-md-5">
+			<table class="table table-sm">
+				<tr><td>جمع کل</td><td class="text-end">@Model.SubTotal.ToString("N0") تومان</td></tr>
+				<tr><td>تخفیف</td><td class="text-end text-danger">@Model.DiscountAmount.ToString("N0")</td></tr>
+				<tr><td>هزینه ارسال</td><td class="text-end">@Model.ShippingAmount.ToString("N0")</td></tr>
+				<tr class="fw-bold"><td>مبلغ نهایی</td><td class="text-end">@Model.Total.ToString("N0") تومان</td></tr>
+			</table>
+		</div>
+	</div>
+</div>
+
+<div class="row g-3 mt-1">
+	<div class="col-md-6">
+		<div class="user-card h-100">
+			<h6><i class="bi bi-geo-alt"></i> آدرس ارسال</h6>
+			@foreach (var a in Model.Addresses.Where(a => a.AddressType == "Shipping").DefaultIfEmpty())
+			{
+				@if (a is not null)
+				{
+					<div class="small">
+						@a.FirstName @a.LastName — <span dir="ltr">@a.PhoneNumber</span><br />
+						@a.Province، @a.City، @a.AddressLine1
+						@if (!string.IsNullOrEmpty(a.PostalCode))
+						{
+							<br /><span dir="ltr">@a.PostalCode</span>
+						}
+					</div>
+				}
+			}
+		</div>
+	</div>
+	<div class="col-md-6">
+		<div class="user-card h-100">
+			<h6><i class="bi bi-truck"></i> ارسال و پرداخت</h6>
+			@foreach (var s in Model.Shipments)
+			{
+				<div class="small">
+					کد رهگیری: <span dir="ltr">@s.TrackingNumber</span> — @s.StatusName
+				</div>
+			}
+			@foreach (var p in Model.Payments)
+			{
+				<div class="small">
+					پرداخت @p.Amount.ToString("N0") تومان — @p.StatusName
+				</div>
+			}
+		</div>
+	</div>
+</div>
+
+@if (isCancellable)
+{
+	<div class="user-card mt-2">
+		<form asp-action="Cancel" method="post" class="d-flex gap-2 align-items-end"
+			  onsubmit="return confirm('آیا از لغو این سفارش مطمئن هستید؟');">
+			<input type="hidden" name="id" value="@Model.Id" />
+			<div class="flex-grow-1">
+				<label class="form-label small">دلیل لغو (اختیاری)</label>
+				<input name="reason" class="form-control form-control-sm" />
+			</div>
+			<button type="submit" class="btn btn-outline-danger btn-sm">
+				<i class="bi bi-x-circle"></i> لغو سفارش
+			</button>
+		</form>
+	</div>
+}

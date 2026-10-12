@@ -1,0 +1,75 @@
+@model PaginatedList<MyOrderListItemDto>
+@{
+	var status = ViewBag.Status as OrderStatus?;
+	string StatusName(OrderStatus s) => s switch
+	{
+		OrderStatus.Pending => "در انتظار", OrderStatus.AwaitingPayment => "منتظر پرداخت",
+		OrderStatus.Paid => "پرداخت شده", OrderStatus.Processing => "در حال پردازش",
+		OrderStatus.ReadyToShip => "آماده ارسال", OrderStatus.Shipped => "ارسال شده",
+		OrderStatus.Delivered => "تحویل شده", OrderStatus.Cancelled => "لغو شده",
+		OrderStatus.Refunded => "مرجوع شده", OrderStatus.Returned => "بازگشتی", _ => s.ToString()
+	};
+	string StatusClass(OrderStatus s) => s switch
+	{
+		OrderStatus.Paid or OrderStatus.Delivered => "bg-success",
+		OrderStatus.Cancelled or OrderStatus.Refunded or OrderStatus.Returned => "bg-danger",
+		OrderStatus.Shipped or OrderStatus.Processing => "bg-info text-dark",
+		OrderStatus.AwaitingPayment => "bg-warning text-dark", _ => "bg-secondary"
+	};
+}
+
+<h4 class="mb-4"><i class="bi bi-receipt"></i> سفارش‌های من</h4>
+
+<div class="user-card p-0">
+	@if (Model.Items.Count == 0)
+	{
+		<div class="text-center py-5">
+			<div class="fs-1 text-muted mb-2"><i class="bi bi-inbox"></i></div>
+			<p class="text-muted mb-3">سفارشی یافت نشد.</p>
+			<a asp-controller="Products" asp-action="Index" asp-area="" class="btn btn-primary">شروع خرید</a>
+		</div>
+	}
+	else
+	{
+		@foreach (var o in Model.Items)
+		{
+			<div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+				<div>
+					<div class="fw-bold" dir="ltr">@o.OrderNumber</div>
+					<div class="small text-muted">@o.CreatedAtUtc.ToLocalTime().ToString("yyyy/MM/dd HH:mm")</div>
+					<div class="small">@o.ItemCount کالا — @o.Total.ToString("N0") تومان</div>
+				</div>
+				<div class="text-center">
+					<span class="badge @StatusClass(o.Status)">@StatusName(o.Status)</span>
+					<div class="mt-2">
+						<a asp-action="Detail" asp-route-id="@o.Id" class="btn btn-sm btn-outline-primary">
+							مشاهده جزئیات
+						</a>
+					</div>
+				</div>
+			</div>
+		}
+
+		@if (Model.TotalPages > 1)
+		{
+			<div class="p-3">
+				<nav><ul class="pagination justify-content-center mb-0">
+					@if (Model.HasPrevious)
+					{
+						<li class="page-item"><a class="page-link" asp-route-pageNumber="@(Model.PageNumber-1)">قبلی</a></li>
+					}
+					@for (var i = 1; i <= Model.TotalPages; i++)
+					{
+						<li class="page-item @(i == Model.PageNumber ? "active" : "")">
+							<a class="page-link" asp-route-pageNumber="@i">@i</a>
+						</li>
+					}
+					@if (Model.HasNext)
+					{
+						<li class="page-item"><a class="page-link" asp-route-pageNumber="@(Model.PageNumber+1)">بعدی</a></li>
+					}
+				</ul></nav>
+			</div>
+		}
+	}
+</div>

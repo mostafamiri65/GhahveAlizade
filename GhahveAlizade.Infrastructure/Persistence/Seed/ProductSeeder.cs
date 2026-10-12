@@ -158,7 +158,7 @@ public class ProductSeeder
 		{
 			p.Variants =
 			[
-				new() { Name = "۲۵۰ گرم", Price = p.Sku.Contains("GEI") ? 1_950_000m : p.Sku.Contains("ESP") ? 690_000m : 420_000m, Weight = 0.25m, IsDefault = true, DisplayOrder = 1, IsActive = true },
+				new() { Name = "۲۵۰ گرم", Price = p.Sku!.Contains("GEI") ? 1_950_000m : p.Sku.Contains("ESP") ? 690_000m : 420_000m, Weight = 0.25m, IsDefault = true, DisplayOrder = 1, IsActive = true },
 				new() { Name = "۵۰۰ گرم", Price = p.Sku.Contains("GEI") ? 3_700_000m : p.Sku.Contains("ESP") ? 1_290_000m : 790_000m, Weight = 0.5m, DisplayOrder = 2, IsActive = true },
 				new() { Name = "۱ کیلوگرم", Price = p.Sku.Contains("ESP") ? 2_390_000m : 1_490_000m, Weight = 1m, DisplayOrder = 3, IsActive = true },
 			];

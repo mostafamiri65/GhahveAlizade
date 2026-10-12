@@ -1,0 +1,37 @@
+@model List<MyWishlistItemDto>
+
+<h4 class="mb-4"><i class="bi bi-heart"></i> علاقه‌مندی‌های من</h4>
+
+@if (Model.Count == 0)
+{
+	<div class="user-card text-center py-5 text-muted">
+		<div class="fs-1 mb-2"><i class="bi bi-heartbreak"></i></div>
+		لیست علاقه‌مندی‌های شما خالی است.
+	</div>
+}
+else
+{
+	<div class="row g-3">
+		@foreach (var i in Model)
+		{
+			<div class="col-md-4 col-6">
+				<div class="user-card h-100 text-center p-3">
+					@if (!string.IsNullOrEmpty(i.ImageUrl))
+					{
+						<img src="@i.ImageUrl" class="img-fluid rounded mb-2" style="max-height:150px" alt="@i.ProductName" />
+					}
+					<h6>@i.ProductName</h6>
+					<div class="fw-bold mb-2">@i.Price?.ToString("N0") تومان</div>
+					<a asp-controller="Products" asp-action="Details" asp-area="" asp-route-slug="@i.ProductSlug"
+					   class="btn btn-sm btn-outline-primary mb-2">مشاهده</a>
+					<form asp-action="Remove" method="post">
+						<input type="hidden" name="productId" value="@i.ProductId" />
+						<button class="btn btn-sm btn-outline-danger w-100">
+							<i class="bi bi-trash"></i> حذف
+						</button>
+					</form>
+				</div>
+			</div>
+		}
+	</div>
+}
