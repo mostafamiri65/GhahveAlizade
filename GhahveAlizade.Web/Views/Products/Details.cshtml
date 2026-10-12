@@ -1,0 +1,158 @@
+@using GhahveAlizade.Application.Features.Catalog.Products.Dtos
+@model ProductDetailDto
+@{
+    var primaryImage = Model.Images.FirstOrDefault(i => i.IsPrimary)?.ImageUrl
+                       ?? Model.Images.FirstOrDefault()?.ImageUrl;
+}
+
+<div class="container py-4" dir="rtl">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">خانه</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Products" asp-action="Index">فروشگاه</a></li>
+            @if (!string.IsNullOrEmpty(Model.CategoryName))
+            {
+                <li class="breadcrumb-item"><span class="text-muted">@Model.CategoryName</span></li>
+            }
+            <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
+        </ol>
+    </nav>
+
+    <div class="row g-5">
+        <div class="col-lg-6 rise-in">
+            <div class="product-detail-img">
+                @if (!string.IsNullOrEmpty(primaryImage))
+                {
+                    <img id="mainProductImage" src="@primaryImage"
+                         alt="@(Model.Images.FirstOrDefault(i => i.IsPrimary)?.AltText ?? Model.Name)" />
+                }
+                else
+                {
+                    <div class="d-flex align-items-center justify-content-center h-100">
+                        <i class="bi bi-cup-hot fs-1" style="color:var(--caramel)"></i>
+                    </div>
+                }
+            </div>
+            @if (Model.Images.Count > 1)
+            {
+                <div class="thumb-strip d-flex gap-2 mt-3 overflow-auto" style="max-height:90px">
+                    @foreach (var img in Model.Images)
+                    {
+                        <div style="width:84px;height:84px;flex:0 0 auto">
+                            <img src="@(img.ThumbnailUrl ?? img.ImageUrl)" alt="@img.AltText"
+                                 onmouseover="document.getElementById('mainProductImage').src='@img.ImageUrl'" />
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="col-lg-6 rise-in-1">
+            @if (!string.IsNullOrEmpty(Model.BrandName))
+            {
+                <div class="blog-meta mb-1"><i class="bi bi-award"></i> برند: @Model.BrandName</div>
+            }
+            <h1 class="display-serif" style="font-size:clamp(1.5rem,3.5vw,2.2rem)">@Model.Name</h1>
+
+            @if (Model.AverageRating > 0)
+            {
+                <div class="rating-stars my-2">
+                    @for (var i = 1; i <= 5; i++)
+                    {
+                        <i class="bi @(i <= Math.Round(Model.AverageRating) ? "bi-star-fill" : "bi-star")"></i>
+                    }
+                    <span class="blog-meta ms-1">(@Model.ReviewCount نظر)</span>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.ShortDescription))
+            {
+                <p class="coffee-content">@Model.ShortDescription</p>
+            }
+
+            <div class="d-flex flex-wrap gap-2 my-3">
+                @if (!string.IsNullOrEmpty(Model.CoffeeOriginName))
+                {
+                    <span class="badge badge-outline-coffee"><i class="bi bi-geo-alt"></i> خاستگاه: @Model.CoffeeOriginName</span>
+                }
+                @if (!string.IsNullOrEmpty(Model.RoastProfileName))
+                {
+                    <span class="badge badge-outline-coffee"><i class="bi bi-fire"></i> رُست: @Model.RoastProfileName</span>
+                }
+                @if (!string.IsNullOrEmpty(Model.CoffeeProcessName))
+                {
+                    <span class="badge badge-outline-coffee"><i class="bi bi-droplet"></i> پروسس: @Model.CoffeeProcessName</span>
+                }
+                @foreach (var note in Model.FlavorNoteNames)
+                {
+                    <span class="badge badge-coffee">@note</span>
+                }
+            </div>
+
+            <div class="price-box my-3">
+                @if (Model.HasVariants && Model.Variants.Count > 0)
+                {
+                    <h6 class="fw-bold mb-3"><i class="bi bi-basket"></i> انتخاب بسته‌بندی:</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach (var v in Model.Variants)
+                        {
+                            <div class="variant-chip @(v.IsDefault ? "selected" : "")">
+                                <div class="fw-bold small">@v.Name</div>
+                                <div class="product-price small">@v.Price.ToString("N0") تومان</div>
+                            </div>
+                        }
+                    </div>
+                }
+                else if (Model.BasePrice.HasValue)
+                {
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="product-price fs-3">@Model.BasePrice.Value.ToString("N0")</span>
+                        <span class="text-muted">تومان</span>
+                        @if (Model.CompareAtPrice.HasValue && Model.CompareAtPrice > Model.BasePrice)
+                        {
+                            <span class="product-price-old fs-6">@Model.CompareAtPrice.Value.ToString("N0")</span>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <span class="text-muted">برای استعلام قیمت تماس بگیرید.</span>
+                }
+
+                <button class="btn btn-coffee w-100 mt-4" disabled
+                        title="افزودن به سبد خرید به‌زودی فعال می‌شود">
+                    <i class="bi bi-cart-plus"></i> افزودن به سبد خرید
+                </button>
+                <div class="blog-meta text-center mt-2">
+                    <i class="bi bi-info-circle"></i> ثبت سفارش به‌زودی فعال می‌شود.
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <h5 class="section-title mt-4 mb-3">درباره این قهوه</h5>
+                <div class="coffee-content">@Html.Raw(Model.Description)</div>
+            }
+
+            @if (Model.Attributes.Count > 0)
+            {
+                <h5 class="section-title mt-4 mb-3">مشخصات</h5>
+                <div class="coffee-panel" style="overflow:hidden">
+                    <table class="table table-sm mb-0 align-middle">
+                        <tbody>
+                            @foreach (var a in Model.Attributes)
+                            {
+                                <tr>
+                                    <td class="fw-semibold" style="width:35%;color:var(--coffee)">
+                                        @a.AttributeName@(string.IsNullOrEmpty(a.Unit) ? "" : $" ({a.Unit})")
+                                    </td>
+                                    <td>@(a.Value ?? a.CustomValue)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

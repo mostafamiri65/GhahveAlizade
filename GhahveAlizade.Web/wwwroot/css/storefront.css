@@ -1,0 +1,128 @@
+/* ============================================================
+   FIX-UP LAYER — خوانایی، اندازه تصاویر، ریسپانسیو، هدر/فوتر
+   (بعد از Bootstrap و قواعد بالا لود می‌شود تا آن‌ها را اصلاح کند)
+   ============================================================ */
+
+/* ---------- تایپوگرافی پایه ---------- */
+html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+
+body {
+	font-family: "Vazirmatn", system-ui, sans-serif;
+	font-size: 1rem;
+	line-height: 1.8;
+}
+
+p, li, td, th, label, .form-control, .form-select, small { font-size: 1rem; }
+small, .small { font-size: .875rem; }
+.blog-meta { font-size: .875rem; }
+
+/* عنوان‌ها: حداقل خوانا در موبایل، مقیاس‌پذیر در دسکتاپ */
+h1, h2, h3, h4, h5, h6 { line-height: 1.45; }
+.display-serif { font-size: clamp(1.45rem, 2.2vw + 1rem, 2.1rem); }
+.coffee-hero h1 { font-size: clamp(1.7rem, 3.5vw + .8rem, 3rem); }
+.coffee-hero .lead-text { font-size: clamp(1rem, .5vw + .85rem, 1.15rem); }
+
+/* ---------- تصاویر: هرگز سرریز نکنند ---------- */
+img { max-width: 100%; height: auto; }
+
+.product-card .product-img img,
+.blog-card .blog-img img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+/* جزئیات محصول/مقاله: قاب محدود، نه عکس تمام‌صفحه */
+.product-detail-img img {
+	width: 100%;
+	max-height: min(62vh, 560px);
+	object-fit: cover;
+	display: block;
+}
+
+.blog-single-img img {
+	width: 100%;
+	max-height: min(56vh, 520px);
+	object-fit: cover;
+	display: block;
+}
+
+/* متن مقاله: اندازه و سرفصل‌های خوانا */
+.coffee-content { font-size: 1.05rem; }
+.coffee-content h2 { font-size: clamp(1.25rem, 1vw + 1rem, 1.6rem); margin-top: 1.8rem; }
+.coffee-content h3 { font-size: clamp(1.1rem, .6vw + 1rem, 1.3rem); margin-top: 1.4rem; }
+
+/* ---------- هدر: لینک‌ها در یک ردیف افقی ---------- */
+.site-header .navbar-nav {
+	flex-direction: row !important;
+	flex-wrap: wrap;
+	gap: .15rem;
+	align-items: center;
+}
+
+.site-header .nav-link {
+	white-space: nowrap;
+	padding: .45rem .8rem;
+	font-size: .98rem;
+}
+
+/* در موبایل: منوی بازشو عمودی داخل hamburger */
+@media (max-width: 991.98px) {
+	.site-header .navbar-nav {
+		flex-direction: column !important;
+		align-items: stretch;
+		gap: 0;
+		padding-block: .35rem;
+	}
+	.site-header .nav-link { padding: .55rem .75rem; }
+	.site-header .d-flex.align-items-center.gap-2 {
+		padding-block: .6rem;
+		border-top: 1px solid rgba(93, 58, 31, .12);
+		margin-top: .35rem;
+	}
+}
+
+/* ---------- فوتر: ستون‌بندی سالم در همه عرض‌ها ---------- */
+.site-footer h5,
+.site-footer h6 { margin-top: 0; }
+
+.site-footer ul {
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+
+.site-footer ul li { display: block; }
+
+/* روی موبایل هر ستون کامل پهن می‌شود (کلاس‌های col-md/col-lg خودکارند) */
+@media (max-width: 575.98px) {
+	.site-footer .col-lg-2,
+	.site-footer .col-md-6 { width: 100%; }
+}
+
+/* ---------- ریسپانسیو فروشگاه/وبلاگ ---------- */
+/* موبایل: تک‌ستونه با کارت افقی فشرده؛ دسکتاپ: گرید */
+@media (max-width: 575.98px) {
+	.container.py-5 { padding-top: 1.25rem; padding-bottom: 2rem; }
+
+	/* کارت محصول: عکس مربع + متن، بدون عکس غول‌آسا */
+	.product-card .product-img { aspect-ratio: 4 / 3; }
+	.product-card .product-body { padding: .8rem .9rem .95rem; }
+	.product-card .product-title { font-size: .98rem; }
+
+	/* کارت وبلاگ: عکس ۱۶:۹ و متن در ادامه */
+	.blog-card .blog-img { aspect-ratio: 16 / 9; }
+
+	.price-box { padding: 1.1rem 1rem; }
+	.coffee-hero.slim { padding: 2.6rem 1rem 2.4rem; }
+}
+
+@media (min-width: 576px) and (max-width: 991.98px) {
+	.product-card .product-img { aspect-ratio: 1 / 1; }
+}
+
+/* فیلتر چسبان فقط از lg به بالا بچسبد؛ در موبایل بالای لیست بیاید */
+@media (max-width: 991.98px) {
+	.sticky-filter { position: static; }
+}

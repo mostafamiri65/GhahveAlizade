@@ -9,10 +9,10 @@ namespace GhahveAlizade.Web.Controllers
 	{
 		public IActionResult Index()
 		{
-			if (User.Identity?.IsAuthenticated == true && User.IsAdmin())
-			{
-				return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
-			}
+			//	if (User.Identity?.IsAuthenticated == true && User.IsAdmin())
+			//	{
+			//		return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+			//	}
 			return View();
 		}
 
@@ -21,6 +21,16 @@ namespace GhahveAlizade.Web.Controllers
 			return View();
 		}
 
+		public IActionResult About()
+		{
+			ViewData["Title"] = "درباره ما";
+			return View();
+		}
 
+		public IActionResult Contact()
+		{
+			ViewData["Title"] = "تماس با ما";
+			return View();
+		}
 	}
 }

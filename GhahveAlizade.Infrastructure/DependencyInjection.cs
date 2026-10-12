@@ -152,9 +152,12 @@ public static class DependencyInjection
 		services.AddScoped<CategorySeeder>();
 		services.AddScoped<AttributeSeeder>();
 		services.AddScoped<ShippingMethodSeeder>();
-		services.AddScoped<SettingSeeder>(); 
+		services.AddScoped<SettingSeeder>();
+		services.AddScoped<BrandSeeder>();
+		services.AddScoped<ProductSeeder>();
+		services.AddScoped<BlogSeeder>();
 		services.AddScoped<DbInitializer>();
-		
+
 		services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, AppClaimsPrincipalFactory>();
 
 		services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();

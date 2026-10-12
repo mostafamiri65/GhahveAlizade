@@ -1,4 +1,5 @@
-﻿using ErrorOr;
+using ErrorOr;
+using GhahveAlizade.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GhahveAlizade.Web.Controllers;
@@ -13,7 +14,7 @@ public abstract class MvcBaseController : BaseController
 	// ⬅️ حالا از BaseController ارث می‌بره، پس Mediator رو داره
 
 	/// <summary>
-	/// تبدیل ErrorOr<T> به ModelState + نمایش View.
+	/// تبدیل ErrorOr&lt;T&gt; به ModelState + نمایش View.
 	/// </summary>
 	protected IActionResult HandleErrorsAndReturn<T>(
 		ErrorOr<T> result,
@@ -26,6 +27,18 @@ public abstract class MvcBaseController : BaseController
 		}
 
 		return onSuccess(result);
+	}
+
+	/// <summary>
+	/// نمایش صفحه خطای عمومی سایت برای خطاهای سطح صفحه (مثلاً داده پیدا نشد).
+	/// </summary>
+	protected IActionResult HandleError(Error error)
+	{
+		ViewData["ErrorTitle"] = error.Description;
+		return View("~/Views/Shared/Error.cshtml", new ErrorViewModel
+		{
+			TraceId = HttpContext.TraceIdentifier
+		});
 	}
 
 	/// <summary>
