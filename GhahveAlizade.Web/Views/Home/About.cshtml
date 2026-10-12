@@ -2,54 +2,83 @@
     ViewData["Title"] = "درباره ما";
 }
 
-<div class="coffee-hero" style="padding:4rem 1rem;">
-    <h1 class="mb-2">درباره قهوه علیزاده</h1>
-    <p class="lead-text mb-0">داستان ما از یک فنجان شروع شد...</p>
+<div class="coffee-hero slim">
+    <div class="hero-inner">
+        <span class="kicker">☕ داستان ما</span>
+        <h1 class="rise-in" style="font-size:clamp(1.8rem,4vw,2.6rem)">از یک فنجان تا یک برند</h1>
+        <p class="lead-text mb-0">داستان قهوه علیزاده — عشقی که به فنجان ریخت.</p>
+    </div>
 </div>
 
 <div class="container py-5" dir="rtl">
-    <div class="row g-5 align-items-center">
-        <div class="col-lg-6">
-            <h3 class="section-title mb-4">قصه ما</h3>
+    <div class="row g-5 align-items-center mb-5">
+        <div class="col-lg-6 rise-in">
+            <span class="kicker">قصه ما</span>
+            <h3 class="section-title mb-4">قهوه‌ای که فرق دارد</h3>
             <p class="coffee-content">
                 «قهوه علیزاده» از عشق به یک فنجان قهوه‌ی خوب متولد شد. ما باور داریم هر دانه‌ی قهوه
                 یک سفر طولانی از مزرعه تا فنجان را پشت سر می‌گذارد و وظیفه‌ی ما حفظ اصالت همین سفر است.
-                دانه‌ها را مستقیم از مزارع اتیوپی، کلمبیا، برزیل و کنیا تهیه می‌کنیم و در رستری اختصاصی،
-                تازه و به‌موقع رُست می‌کنیم تا عطر و طعم واقعی قهوه تا فنجان شما زنده بماند.
             </p>
             <p class="coffee-content">
-                تیم ما ترکیبی از باریستاهای حرفه‌ای، رُسترهای باتجربه و علاقه‌مندان جدی قهوه است؛
-                همه با یک هدف مشترک: <strong>«هر فنجان، یک تجربه‌ی تکرارنشدنی»</strong>.
+                دانه‌ها را مستقیم از مزارع اتیوپی، کلمبیا، برزیل و کنیا تهیه می‌کنیم و در رستری اختصاصی،
+                تازه و به‌موقع رُست می‌کنیم تا عطر و طعم واقعی قهوه تا فنجان شما زنده بماند.
+                تیم ما ترکیبی از باریستاهای حرفه‌ای، رُسترهای باتجربه و علاقه‌مندان جدی قهوه است.
             </p>
+            <div class="quote-block mt-4">
+                «هر فنجان، یک تجربه‌ی تکرارنشدنی»
+            </div>
+        </div>
+        <div class="col-lg-6 rise-in-1">
+            <img src="https://images.unsplash.com/photo-1445116572660-236099ec97a0?auto=format&fit=crop&w=900&q=75"
+                 alt="قهوه تازه رست‌شده" class="w-100 rounded-4 shadow" style="object-fit:cover;max-height:400px" />
+        </div>
+    </div>
+
+    <!-- خط زمانی -->
+    <div class="row g-5 my-4">
+        <div class="col-lg-6">
+            <h3 class="section-title mb-4">مسیر ما</h3>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h6>شروع ماجرا ☕</h6>
+                    <p class="text-muted small mb-0">با یک دستگاه رُستر کوچک و اشتیاق بی‌پایان، اولین دانه‌ها را رُست کردیم.</p>
+                </div>
+                <div class="timeline-item">
+                    <h6>ارتباط مستقیم با مزارع 🌍</h6>
+                    <p class="text-muted small mb-0">واردات مستقیم از مزارع اتیوپی، کلمبیا، برزیل و کنیا بدون واسطه.</p>
+                </div>
+                <div class="timeline-item">
+                    <h6>رستری اختصاصی 🔥</h6>
+                    <p class="text-muted small mb-0">راه‌اندازی رستری مدرن با کنترل کیفیت هر بچ رُست.</p>
+                </div>
+                <div class="timeline-item">
+                    <h6>فروشگاه آنلاین 🛒</h6>
+                    <p class="text-muted small mb-0">ارسال قهوه تازه به سراسر ایران، درب منزل مشتریان.</p>
+                </div>
+            </div>
         </div>
         <div class="col-lg-6">
-            <img src="https://images.unsplash.com/photo-1445116572660-236099ec97a0?auto=format&fit=crop&w=900&q=70"
-                 alt="قهوه تازه رست‌شده" class="w-100 rounded-4 shadow" style="object-fit:cover;max-height:380px" />
-        </div>
-    </div>
-
-    <div class="row g-4 my-5">
-        <div class="col-md-4">
-            <div class="coffee-panel h-100 p-4 text-center">
-                <div class="fs-1 fw-bold" style="color:var(--coffee-gold)">+۱۲</div>
-                <div class="fw-semibold">سال تجربه</div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="coffee-panel h-100 p-4 text-center">
-                <div class="fs-1 fw-bold" style="color:var(--coffee-gold)">+۴۰</div>
-                <div class="fw-semibold">نوع دانه و بلند</div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="coffee-panel h-100 p-4 text-center">
-                <div class="fs-1 fw-bold" style="color:var(--coffee-gold)">+۱۰,۰۰۰</div>
-                <div class="fw-semibold">مشتری وفادار</div>
+            <div class="stat-band h-100 d-flex flex-column justify-content-center">
+                <div class="row text-center g-4">
+                    <div class="col-4">
+                        <div class="stat"><b>+۱۲</b><span>سال تجربه</span></div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat"><b>+۴۰</b><span>نوع دانه و بلند</span></div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat"><b>+۱۰,۰۰۰</b><span>مشتری وفادار</span></div>
+                    </div>
+                </div>
+                <hr style="border-color:rgba(217,169,92,.3)" />
+                <p class="small mb-0" style="color:var(--gold-soft)">
+                    افتخار ما اعتماد شماست — هر فنجان که می‌نوشید، ما را همراهی می‌کنید.
+                </p>
             </div>
         </div>
     </div>
 
-    <div class="text-center">
+    <div class="text-center mt-4">
         <a asp-controller="Products" asp-action="Index" class="btn btn-coffee px-5">
             با قهوه‌های ما آشنا شوید <i class="bi bi-arrow-left"></i>
         </a>
