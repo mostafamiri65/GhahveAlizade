@@ -144,8 +144,8 @@
                         @foreach (var a in Model.Attributes)
                         {
                             <tr>
-                                <td class="fw-semibold" style="width:35%">@(a.Attribute?.Name ?? a.AttributeName)</td>
-                                <td>@(a.AttributeValue?.Value ?? a.Value)</td>
+                                <td class="fw-semibold" style="width:35%">@a.AttributeName@(string.IsNullOrEmpty(a.Unit) ? "" : $" ({a.Unit})")</td>
+                                <td>@(a.Value ?? a.CustomValue)</td>
                             </tr>
                         }
                     </tbody>
