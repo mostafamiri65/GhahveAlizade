@@ -1,0 +1,109 @@
+@model List<MyAddressDto>
+
+<h4 class="mb-4"><i class="bi bi-geo-alt"></i> آدرس‌های من</h4>
+
+<button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addressModal"
+		onclick="openAddressModal()">
+	<i class="bi bi-plus-lg"></i> افزودن آدرس جدید
+</button>
+
+@if (Model.Count == 0)
+{
+	<div class="user-card text-center py-5 text-muted">
+		هنوز آدرسی ثبت نکرده‌اید.
+	</div>
+}
+else
+{
+	<div class="row g-3">
+		@foreach (var a in Model)
+		{
+			<div class="col-md-6">
+				<div class="user-card h-100 @(a.IsDefault ? "border-primary" : "")">
+					<div class="d-flex justify-content-between">
+						<h6 class="mb-2">@a.Title @(a.IsDefault ? "⭐ پیش‌فرض" : "")</h6>
+					</div>
+					<div class="small">
+						@a.FirstName @a.LastName — <span dir="ltr">@a.PhoneNumber</span><br />
+						@a.Province، @a.City، @a.AddressLine1
+						@if (!string.IsNullOrEmpty(a.AddressLine2))
+						{
+							<br />@a.AddressLine2
+						}
+					</div>
+					<div class="mt-3 d-flex gap-2">
+						<button class="btn btn-sm btn-outline-primary"
+								onclick='openAddressModal(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(a)))'>
+							ویرایش
+						</button>
+						<form asp-action="Delete" method="post"
+							  onsubmit="return confirm('حذف شود؟');">
+							<input type="hidden" name="id" value="@a.Id" />
+							<button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+						</form>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+}
+
+<!-- Modal -->
+<div class="modal fade" id="addressModal" tabindex="-1">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<form asp-action="Save" method="post">
+				<div class="modal-header">
+					<h5 class="modal-title">آدرس</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+					<input type="hidden" name="Id" id="addr_Id" />
+					<div class="row g-3">
+						<div class="col-md-6"><label class="form-label">عنوان</label>
+							<input name="Title" id="addr_Title" class="form-control" required /></div>
+						<div class="col-md-6"><label class="form-label">نام و نام خانوادگی گیرنده</label>
+							<div class="d-flex gap-2">
+								<input name="FirstName" id="addr_FirstName" class="form-control" placeholder="نام" required />
+								<input name="LastName" id="addr_LastName" class="form-control" placeholder="نام خانوادگی" required />
+							</div></div>
+						<div class="col-md-6"><label class="form-label">شماره تماس</label>
+							<input name="PhoneNumber" id="addr_PhoneNumber" class="form-control" dir="ltr" required /></div>
+						<div class="col-md-3"><label class="form-label">استان</label>
+							<input name="Province" id="addr_Province" class="form-control" required /></div>
+						<div class="col-md-3"><label class="form-label">شهر</label>
+							<input name="City" id="addr_City" class="form-control" required /></div>
+						<div class="col-md-4"><label class="form-label">کد پستی</label>
+							<input name="PostalCode" id="addr_PostalCode" class="form-control" dir="ltr" required /></div>
+						<div class="col-md-8"><label class="form-label">آدرس</label>
+							<input name="AddressLine1" id="addr_AddressLine1" class="form-control" required /></div>
+						<div class="col-md-4"><label class="form-label">آدرس تکمیلی</label>
+							<input name="AddressLine2" id="addr_AddressLine2" class="form-control" /></div>
+						<div class="col-12 form-check ms-2">
+							<input type="checkbox" name="IsDefault" id="addr_IsDefault" class="form-check-input" />
+							<label class="form-check-label" for="addr_IsDefault">آدرس پیش‌فرض</label>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+					<button type="submit" class="btn btn-primary">ذخیره</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+<script>
+	function openAddressModal(data) {
+		const f = (id) => document.getElementById('addr_' + id);
+		['Id','Title','FirstName','LastName','PhoneNumber','Province',
+		 'City','PostalCode','AddressLine1','AddressLine2'].forEach(k => {
+			f(k).value = data ? (data[k] ?? '') : '';
+		});
+		f('IsDefault').checked = data ? data.IsDefault : false;
+		new bootstrap.Modal('#addressModal').show();
+	}
+</script>
+}
