@@ -1,0 +1,76 @@
+@model PaginatedList<TicketListItemDto>
+@{
+	var status = ViewBag.Status as TicketStatus?;
+	string StatusName(TicketStatus s) => s switch
+	{
+		TicketStatus.Open => "جدید", TicketStatus.InProgress => "در حال بررسی",
+		TicketStatus.WaitingCustomer => "منتظر پاسخ شما", TicketStatus.Resolved => "حل شده",
+		TicketStatus.Closed => "بسته", _ => s.ToString()
+	};
+	string StatusClass(TicketStatus s) => s switch
+	{
+		TicketStatus.Open => "bg-primary",
+		TicketStatus.InProgress => "bg-info text-dark",
+		TicketStatus.WaitingCustomer => "bg-warning text-dark",
+		TicketStatus.Resolved => "bg-success",
+		TicketStatus.Closed => "bg-secondary", _ => "bg-secondary"
+	};
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+	<h4 class="mb-0"><i class="bi bi-life-preserver"></i> پشتیبانی و تیکت‌ها</h4>
+	<a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> تیکت جدید</a>
+</div>
+
+@if (Model.Items.Count == 0)
+{
+	<div class="user-card text-center py-5 text-muted">
+		<div class="fs-1 mb-2"><i class="bi bi-inbox"></i></div>
+		تیکتی ثبت نکرده‌اید.
+	</div>
+}
+else
+{
+	@foreach (var t in Model.Items)
+	{
+		<a asp-action="Detail" asp-route-id="@t.Id" class="text-decoration-none">
+			<div class="user-card d-flex justify-content-between align-items-center py-3">
+				<div>
+					<div class="fw-bold">
+						@t.Subject
+						@if (t.HasUnreadAdminReply)
+						{
+							<span class="badge bg-danger ms-1">پاسخ جدید</span>
+						}
+					</div>
+					<div class="small text-muted" dir="ltr">@t.TicketNumber</div>
+					<div class="small">@t.MessageCount پیام</div>
+				</div>
+				<div class="text-center">
+					<span class="badge @StatusClass(t.Status)">@StatusName(t.Status)</span>
+					<div class="small text-muted mt-1">@t.CreatedAtUtc.ToLocalTime().ToString("yyyy/MM/dd")</div>
+				</div>
+			</div>
+		</a>
+	}
+
+	@if (Model.TotalPages > 1)
+	{
+		<nav><ul class="pagination justify-content-center">
+			@if (Model.HasPrevious)
+			{
+				<li class="page-item"><a class="page-link" asp-route-pageNumber="@(Model.PageNumber-1)">قبلی</a></li>
+			}
+			@for (var i = 1; i <= Model.TotalPages; i++)
+			{
+				<li class="page-item @(i == Model.PageNumber ? "active" : "")">
+					<a class="page-link" asp-route-pageNumber="@i">@i</a>
+				</li>
+			}
+			@if (Model.HasNext)
+			{
+				<li class="page-item"><a class="page-link" asp-route-pageNumber="@(Model.PageNumber+1)">بعدی</a></li>
+			}
+		</ul></nav>
+	}
+}
