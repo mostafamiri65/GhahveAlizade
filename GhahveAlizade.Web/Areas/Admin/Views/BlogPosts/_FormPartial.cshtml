@@ -1,4 +1,4 @@
-﻿@using GhahveAlizade.Web.Areas.Admin.Models.Content
+@using GhahveAlizade.Web.Areas.Admin.Models.Content
 @model BlogPostFormViewModel
 
 <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
@@ -52,7 +52,12 @@
             <div class="col-md-8">
                 <label asp-for="FeaturedImageUrl" class="form-label"></label>
                 <input asp-for="FeaturedImageUrl" class="form-control" dir="ltr" />
-                <input type="file" name="featuredImageFile" accept="image/*" class="form-control form-control-sm mt-1" />
+                <input type="file" name="featuredImageFile" id="featuredImageFile"
+                       accept="image/png,image/jpeg,image/webp"
+                       data-min-width="1200" data-min-height="800" data-ratio="1.5"
+                       class="form-control form-control-sm mt-1" />
+                <small class="text-muted d-block">حداقل 1200×800 پیکسل با نسبت 3:2 (افقی)</small>
+                <span id="imgDimError" class="text-danger small d-none"></span>
                 @if (!string.IsNullOrEmpty(Model.FeaturedImageUrl))
                 {
                     <img src="@Model.FeaturedImageUrl" style="max-height: 100px; margin-top: 0.5rem; border-radius: 6px;" />
@@ -131,3 +136,28 @@
         </div>
     </div>
 </div>
+
+<script>
+    // اعتبارسنجی سمت کلاینت: ابعاد حداقل و نسبت تصویر قبل از submit
+    document.getElementById('featuredImageFile')?.addEventListener('change', function (e) {
+        var f = e.target.files[0], err = document.getElementById('imgDimError');
+        if (!f) return;
+        var minW = parseInt(this.dataset.minWidth) || 0;
+        var minH = parseInt(this.dataset.minHeight) || 0;
+        var ratio = parseFloat(this.dataset.ratio) || 0;
+        var img = new Image();
+        var url = URL.createObjectURL(f);
+        img.onload = function () {
+            URL.revokeObjectURL(url);
+            var ok = img.naturalWidth >= minW && img.naturalHeight >= minH;
+            if (ok && ratio) ok = Math.abs(img.naturalWidth / img.naturalHeight - ratio) / ratio <= 0.02;
+            err.classList.toggle('d-none', ok);
+            if (!ok) {
+                err.textContent = 'ابعاد باید حداقل ' + minW + '×' + minH +
+                    ' و نسبت ' + ratio + ' باشد. (' + img.naturalWidth + '×' + img.naturalHeight + ')';
+                e.target.value = '';
+            }
+        };
+        img.src = url;
+    });
+</script>
