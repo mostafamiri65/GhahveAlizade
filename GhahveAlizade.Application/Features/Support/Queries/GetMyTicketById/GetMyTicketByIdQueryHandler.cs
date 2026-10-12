@@ -16,7 +16,7 @@ public class GetMyTicketByIdQueryHandler
 
 	public async Task<ErrorOr<TicketDetailDto>> Handle(GetMyTicketByIdQuery request, CancellationToken ct)
 	{
-		var userIdStr = request.UserId.ToString();
+		var userIdStr = request.UserId;
 
 		var ticket = await _context.SupportTickets
 			.AsNoTracking()

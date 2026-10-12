@@ -15,7 +15,7 @@ public class ToggleMyWishlistItemCommandHandler
 
 	public async Task<ErrorOr<bool>> Handle(ToggleMyWishlistItemCommand request, CancellationToken ct)
 	{
-		var userIdStr = request.UserId.ToString();
+		var userIdStr = request.UserId;
 
 		var productExists = await _context.Products
 			.AnyAsync(p => p.Id == request.ProductId && !p.IsDeleted, ct);

@@ -4,6 +4,7 @@ using GhahveAlizade.Application.Features.Support.Commands.UpdateTicket;
 using GhahveAlizade.Application.Features.Support.Queries.GetTicketDetail;
 using GhahveAlizade.Application.Features.Support.Queries.GetTicketsList;
 using GhahveAlizade.Domain.Support;
+using GhahveAlizade.Web.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

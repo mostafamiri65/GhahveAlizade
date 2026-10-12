@@ -21,6 +21,7 @@ public class BlogController : MvcBaseController
 		[FromQuery] BlogFilterViewModel filter,
 		CancellationToken cancellationToken)
 	{
+		if (filter.PageSize is null) filter.PageSize = 12;
 		if (filter.PageNumber < 1) filter.PageNumber = 1;
 		if (filter.PageSize is < 1 or > 24) filter.PageSize = 9;
 

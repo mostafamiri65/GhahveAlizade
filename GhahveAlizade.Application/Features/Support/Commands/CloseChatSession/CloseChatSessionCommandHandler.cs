@@ -14,7 +14,7 @@ public class CloseChatSessionCommandHandler : IRequestHandler<CloseChatSessionCo
 
 	public async Task<ErrorOr<Success>> Handle(CloseChatSessionCommand request, CancellationToken ct)
 	{
-		var userIdStr = request.UserId.ToString();
+		var userIdStr = request.UserId;
 
 		var session = await _context.SupportChatSessions
 			.Where(s => s.Id == request.SessionId && !s.IsDeleted

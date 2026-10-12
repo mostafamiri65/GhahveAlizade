@@ -170,7 +170,7 @@ public class AccountController : MvcBaseController
 		TempData["SuccessMessage"] = "خوش آمدید! ثبت‌نام شما کامل شد.";
 
 		// اگر پسورد ندارد، پیشنهاد تعیین پسورد
-		var user = await _authService.GetCurrentUserAsync(cancellationToken);
+		var user = await _authService.GetCurrentUserAsync();
 		if (user is not null && !user.HasPassword)
 		{
 			TempData["SetPasswordPrompt"] = true;

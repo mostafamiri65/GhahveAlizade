@@ -20,7 +20,7 @@ public class CreateTicketCommandHandler
 		if (string.IsNullOrWhiteSpace(request.Body) || request.Body.Trim().Length < 10)
 			return Error.Validation("Ticket.BodyRequired", "متن تیکت باید حداقل ۱۰ کاراکتر باشد.");
 
-		var userIdStr = request.UserId.ToString();
+		var userIdStr = request.UserId;
 
 		var customer = await _context.Customers
 			.AsNoTracking()

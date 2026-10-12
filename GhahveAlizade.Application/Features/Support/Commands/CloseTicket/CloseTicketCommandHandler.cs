@@ -14,7 +14,7 @@ public class CloseTicketCommandHandler : IRequestHandler<CloseTicketCommand, Err
 
 	public async Task<ErrorOr<Success>> Handle(CloseTicketCommand request, CancellationToken ct)
 	{
-		var userIdStr = request.UserId.ToString();
+		var userIdStr = request.UserId;
 
 		var ticket = await _context.SupportTickets
 			.Where(t => t.Id == request.TicketId && !t.IsDeleted

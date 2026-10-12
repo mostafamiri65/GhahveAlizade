@@ -15,7 +15,7 @@ public class GetMyProfileQueryHandler
 
 	public async Task<ErrorOr<MyProfileDto>> Handle(GetMyProfileQuery request, CancellationToken ct)
 	{
-		var userIdStr = request.UserId.ToString();
+		var userIdStr = request.UserId;
 
 		var customer = await _context.Customers
 			.AsNoTracking()

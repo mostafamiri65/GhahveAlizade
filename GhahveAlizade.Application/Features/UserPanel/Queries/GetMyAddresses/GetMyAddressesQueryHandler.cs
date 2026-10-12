@@ -16,7 +16,7 @@ public class GetMyAddressesQueryHandler
 
 	public async Task<ErrorOr<List<MyAddressDto>>> Handle(GetMyAddressesQuery request, CancellationToken ct)
 	{
-		var userIdStr = request.UserId.ToString();
+		var userIdStr = request.UserId;
 
 		var addresses = await _context.CustomerAddresses
 			.AsNoTracking()

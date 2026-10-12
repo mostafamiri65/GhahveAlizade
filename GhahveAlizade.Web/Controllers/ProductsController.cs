@@ -24,7 +24,7 @@ public class ProductsController : MvcBaseController
 
 		var result = await Mediator.Send(new GetProductsListQuery(
 			PageNumber: filter.PageNumber,
-			PageSize: filter.PageSize.Value,
+			PageSize: filter.PageSize!.Value,
 			Search: filter.Search,
 			CategoryId: filter.CategoryId,
 			BrandId: filter.BrandId,

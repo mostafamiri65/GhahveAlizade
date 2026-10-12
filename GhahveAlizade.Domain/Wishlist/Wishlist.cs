@@ -4,7 +4,7 @@ namespace GhahveAlizade.Domain.Wishlist;
 
 public class Wishlist : BaseEntity
 {
-	public string? UserId { get; set; }
+	public long? UserId { get; set; }
 	public long? CustomerId { get; set; }
 	public Customer.Customer? Customer { get; set; }
 

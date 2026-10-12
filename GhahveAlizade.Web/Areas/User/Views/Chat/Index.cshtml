@@ -1,6 +1,7 @@
+@using GhahveAlizade.Domain.Support
 @{
-	var sessionId = (long)ViewBag.SessionId;
-	var sessionStatus = (Domain.Support.ChatSessionStatus)ViewBag.SessionStatus;
+    var sessionId = (long)ViewBag.SessionId;
+	var sessionStatus = (ChatSessionStatus)ViewBag.SessionStatus;
 }
 
 <h4 class="mb-4"><i class="bi bi-chat-dots"></i> گفتگوی آنلاین با پشتیبانی</h4>
@@ -8,11 +9,11 @@
 <div class="user-card p-0" id="chatCard">
 	<div class="p-3 border-bottom d-flex justify-content-between align-items-center">
 		<span class="small text-muted">
-			@if (sessionStatus == Domain.Support.ChatSessionStatus.Waiting)
+			@if (sessionStatus == ChatSessionStatus.Waiting)
 			{
 				<span><i class="bi bi-hourglass-split"></i> منتظر اپراتور... به‌زودی پاسخ می‌دهیم.</span>
 			}
-			else if (sessionStatus == Domain.Support.ChatSessionStatus.Active)
+			else if (sessionStatus == ChatSessionStatus.Active)
 			{
 				<span class="text-success"><i class="bi bi-circle-fill" style="font-size:8px"></i> گفتگو فعال</span>
 			}

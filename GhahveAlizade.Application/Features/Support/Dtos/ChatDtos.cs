@@ -1,3 +1,5 @@
+using GhahveAlizade.Domain.Support;
+
 namespace GhahveAlizade.Application.Features.Support.Dtos;
 
 public class ChatSessionDto

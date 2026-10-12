@@ -1,6 +1,8 @@
+@using GhahveAlizade.Application.Features.Support.Dtos
+@using GhahveAlizade.Domain.Support
 @model ChatHistoryDto
 @{
-	var isOpen = Model.Status != Domain.Support.ChatSessionStatus.Closed;
+	var isOpen = Model.Status != ChatSessionStatus.Closed;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">

@@ -21,7 +21,7 @@ public class SendChatMessageCommandHandler
 		if (request.Body.Length > 2000)
 			return Error.Validation("Chat.TooLong", "پیام حداکثر ۲۰۰۰ کاراکتر است.");
 
-		var senderIdStr = request.SenderUserId.ToString();
+		var senderIdStr = request.SenderUserId;
 
 		var session = await _context.SupportChatSessions
 			.Where(s => s.Id == request.SessionId && !s.IsDeleted

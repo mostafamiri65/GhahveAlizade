@@ -1,17 +1,19 @@
+@using GhahveAlizade.Application.Features.Support.Dtos
+@using GhahveAlizade.Domain.Support
 @model List<ChatSessionDto>
 @{
-	var status = ViewBag.Status as Domain.Support.ChatSessionStatus?;
-	string StatusName(Domain.Support.ChatSessionStatus s) => s switch
+	var status = ViewBag.Status as ChatSessionStatus?;
+	string StatusName(ChatSessionStatus s) => s switch
 	{
-		Domain.Support.ChatSessionStatus.Waiting => "منتظر اپراتور",
-		Domain.Support.ChatSessionStatus.Active => "فعال",
-		Domain.Support.ChatSessionStatus.Closed => "بسته", _ => s.ToString()
+		ChatSessionStatus.Waiting => "منتظر اپراتور",
+		ChatSessionStatus.Active => "فعال",
+		ChatSessionStatus.Closed => "بسته", _ => s.ToString()
 	};
-	string StatusClass(Domain.Support.ChatSessionStatus s) => s switch
+	string StatusClass(ChatSessionStatus s) => s switch
 	{
-		Domain.Support.ChatSessionStatus.Waiting => "bg-warning text-dark",
-		Domain.Support.ChatSessionStatus.Active => "bg-success",
-		Domain.Support.ChatSessionStatus.Closed => "bg-secondary", _ => "bg-secondary"
+		ChatSessionStatus.Waiting => "bg-warning text-dark",
+		ChatSessionStatus.Active => "bg-success",
+		ChatSessionStatus.Closed => "bg-secondary", _ => "bg-secondary"
 	};
 }
 
@@ -21,7 +23,7 @@
 			<label class="form-label small">وضعیت</label>
 			<select name="status" class="form-select">
 				<option value="">همه</option>
-				@foreach (Domain.Support.ChatSessionStatus s in Enum.GetValues<Domain.Support.ChatSessionStatus>())
+				@foreach (ChatSessionStatus s in Enum.GetValues<ChatSessionStatus>())
 				{
 					<option value="@((int)s)" selected="@(status == s)">@StatusName(s)</option>
 				}

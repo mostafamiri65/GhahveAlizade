@@ -16,7 +16,21 @@ public class TicketListItemDto
 	public DateTime? LastMessageAtUtc { get; set; }
 	public bool HasUnreadAdminReply { get; set; }
 }
-
+public class TicketDetailWithMetaDto
+{
+	public long Id { get; set; }
+	public string TicketNumber { get; set; } = string.Empty;
+	public string Subject { get; set; } = string.Empty;
+	public string Category { get; set; } = string.Empty;
+	public TicketStatus Status { get; set; }
+	public long? RelatedOrderId { get; set; }
+	public DateTime CreatedAtUtc { get; set; }
+	public string? CustomerName { get; set; }
+	public string? CustomerPhone { get; set; }
+	public long? AssignedToUserId { get; set; }
+	public string? AssignedToName { get; set; }
+	public List<TicketMessageDto> Messages { get; set; } = new();
+}
 public class TicketDetailDto
 {
 	public long Id { get; set; }
