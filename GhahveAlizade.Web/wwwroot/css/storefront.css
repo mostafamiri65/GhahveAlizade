@@ -1,0 +1,259 @@
+/* ============================================================
+   قهوه علیزاده — تم اختصاصی فروشگاه قهوه (Coffee Theme)
+   پالت: اسپرسو تیره، کاراملی، کرمی، طلایی
+   ============================================================ */
+
+:root {
+	--coffee-espresso: #3b2314;
+	--coffee-dark: #5d3a1f;
+	--coffee-medium: #8b5a2b;
+	--coffee-caramel: #c58f4a;
+	--coffee-cream: #f5efe6;
+	--coffee-latte: #efe3d3;
+	--coffee-gold: #d4a24e;
+	--coffee-ink: #2a1a0f;
+
+	/* سازگاری با متغیرهای قبلی پروژه */
+	--color-primary: var(--coffee-dark);
+	--color-accent: var(--coffee-gold);
+}
+
+body {
+	font-family: "Vazirmatn", system-ui, sans-serif;
+	background-color: var(--coffee-cream);
+	color: var(--coffee-ink);
+}
+
+/* ---------- دکمه‌ها ---------- */
+.btn-coffee {
+	background: linear-gradient(135deg, var(--coffee-dark), var(--coffee-medium));
+	color: #fff;
+	border: none;
+	border-radius: 2rem;
+	padding: .55rem 1.6rem;
+	font-weight: 600;
+	transition: transform .15s ease, box-shadow .15s ease;
+}
+
+	.btn-coffee:hover {
+		color: #fff;
+		transform: translateY(-2px);
+		box-shadow: 0 8px 20px rgba(61, 34, 20, .25);
+	}
+
+.btn-caramel {
+	background: var(--coffee-gold);
+	color: var(--coffee-ink);
+	border: none;
+	border-radius: 2rem;
+	padding: .55rem 1.6rem;
+	font-weight: 600;
+}
+
+	.btn-caramel:hover {
+		background: var(--coffee-caramel);
+		color: var(--coffee-ink);
+	}
+
+/* ---------- کارت محصول ---------- */
+.product-card {
+	background: #fff;
+	border: 1px solid rgba(93, 58, 31, .12);
+	border-radius: 1rem;
+	overflow: hidden;
+	transition: transform .2s ease, box-shadow .2s ease;
+	height: 100%;
+}
+
+	.product-card:hover {
+		transform: translateY(-4px);
+		box-shadow: 0 14px 34px rgba(59, 35, 20, .16);
+	}
+
+	.product-card .product-img {
+		position: relative;
+		aspect-ratio: 1 / 1;
+		background: var(--coffee-latte);
+		overflow: hidden;
+	}
+
+		.product-card .product-img img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			transition: transform .35s ease;
+		}
+
+		.product-card:hover .product-img img {
+			transform: scale(1.06);
+		}
+
+	.product-card .product-body {
+		padding: 1rem 1.1rem 1.2rem;
+	}
+
+	.product-card .product-title {
+		font-weight: 700;
+		color: var(--coffee-espresso);
+		text-decoration: none;
+		font-size: 1.02rem;
+		line-height: 1.7;
+	}
+
+		.product-card .product-title:hover {
+			color: var(--coffee-medium);
+		}
+
+.product-price {
+	font-weight: 800;
+	color: var(--coffee-dark);
+}
+
+.product-price-old {
+	text-decoration: line-through;
+	color: #a08a76;
+	font-size: .85rem;
+}
+
+/* نشان‌ها */
+.badge-coffee {
+	background: var(--coffee-gold);
+	color: var(--coffee-ink);
+	font-weight: 600;
+}
+
+.badge-outline-coffee {
+	border: 1px solid var(--coffee-caramel);
+	color: var(--coffee-medium);
+	background: transparent;
+}
+
+/* ---------- هدر کافی‌شاپی ---------- */
+.coffee-hero {
+	background:
+		linear-gradient(rgba(43, 24, 12, .78), rgba(43, 24, 12, .78)),
+		url("https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=1600&q=70") center/cover no-repeat;
+	color: var(--coffee-cream);
+	border-radius: 0 0 2rem 2rem;
+	padding: 5.5rem 1rem;
+	text-align: center;
+}
+
+	.coffee-hero h1 {
+		font-weight: 900;
+		text-shadow: 0 2px 12px rgba(0, 0, 0, .4);
+	}
+
+	.coffee-hero .lead-text {
+		color: var(--coffee-latte);
+		max-width: 640px;
+		margin-inline: auto;
+	}
+
+/* ---------- سکشن‌ها ---------- */
+.section-title {
+	font-weight: 800;
+	color: var(--coffee-espresso);
+	position: relative;
+	display: inline-block;
+	padding-bottom: .4rem;
+}
+
+	.section-title::after {
+		content: "";
+		position: absolute;
+		bottom: 0;
+		right: 0;
+		width: 55%;
+		height: 3px;
+		border-radius: 3px;
+		background: linear-gradient(90deg, var(--coffee-gold), transparent);
+	}
+
+/* ---------- فرم‌ها و فیلترها ---------- */
+.coffee-panel {
+	background: #fff;
+	border: 1px solid rgba(93, 58, 31, .14);
+	border-radius: 1rem;
+	box-shadow: 0 6px 22px rgba(59, 35, 20, .07);
+}
+
+.form-control:focus,
+.form-select:focus {
+	border-color: var(--coffee-caramel);
+	box-shadow: 0 0 0 .2rem rgba(197, 143, 74, .18);
+}
+
+/* ---------- بلاگ ---------- */
+.blog-card {
+	background: #fff;
+	border-radius: 1rem;
+	overflow: hidden;
+	border: 1px solid rgba(93, 58, 31, .12);
+	transition: transform .2s ease, box-shadow .2s ease;
+	height: 100%;
+}
+
+	.blog-card:hover {
+		transform: translateY(-3px);
+		box-shadow: 0 12px 28px rgba(59, 35, 20, .14);
+	}
+
+	.blog-card .blog-img {
+		aspect-ratio: 16 / 9;
+		background: var(--coffee-latte);
+		overflow: hidden;
+	}
+
+		.blog-card .blog-img img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+
+/* ---------- جزئیات محصول ---------- */
+.product-detail-img {
+	border-radius: 1.2rem;
+	background: var(--coffee-latte);
+	overflow: hidden;
+	aspect-ratio: 1 / 1;
+}
+
+	.product-detail-img img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+.rating-stars {
+	color: var(--coffee-gold);
+	letter-spacing: 1px;
+}
+
+/* ---------- صفحه بندی ---------- */
+.pagination .page-link {
+	color: var(--coffee-dark);
+	border-color: rgba(93, 58, 31, .2);
+}
+
+.pagination .page-item.active .page-link {
+	background: var(--coffee-dark);
+	border-color: var(--coffee-dark);
+	color: #fff;
+}
+
+/* ---------- متن محتوایی (بلاگ/درباره ما) ---------- */
+.coffee-content {
+	line-height: 2.1;
+	color: #4a3524;
+}
+
+	.coffee-content img {
+		max-width: 100%;
+		border-radius: .8rem;
+	}
+
+/* ---------- فوتر (بازنویسی رنگ لینک‌ها) ---------- */
+.site-footer a:hover {
+	color: var(--coffee-gold) !important;
+}
