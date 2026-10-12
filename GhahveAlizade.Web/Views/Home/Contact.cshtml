@@ -1,0 +1,64 @@
+@{
+    ViewData["Title"] = "تماس با ما";
+}
+
+<div class="coffee-hero" style="padding:4rem 1rem;">
+    <h1 class="mb-2">تماس با ما</h1>
+    <p class="lead-text mb-0">همیشه پاسخگوی شما هستیم ☕</p>
+</div>
+
+<div class="container py-5" dir="rtl">
+    <div class="row g-5">
+        <div class="col-lg-5">
+            <h3 class="section-title mb-4">اطلاعات تماس</h3>
+            <ul class="list-unstyled coffee-content">
+                <li class="mb-3"><i class="bi bi-geo-alt-fill" style="color:var(--coffee-gold)"></i> تهران، خیابان ولیعصر، پلاک ۱۲۳</li>
+                <li class="mb-3"><i class="bi bi-telephone-fill" style="color:var(--coffee-gold)"></i> <span dir="ltr">021-12345678</span></li>
+                <li class="mb-3"><i class="bi bi-envelope-fill" style="color:var(--coffee-gold)"></i> info&#64;ghahvealizade.ir</li>
+                <li class="mb-3"><i class="bi bi-clock-fill" style="color:var(--coffee-gold)"></i> شنبه تا پنج‌شنبه، ۹ صبح تا ۹ شب</li>
+            </ul>
+
+            <div class="coffee-panel p-4">
+                <h6 class="fw-bold mb-3"><i class="bi bi-chat-heart"></i> ما را در شبکه‌های اجتماعی دنبال کنید</h6>
+                <div class="d-flex gap-3 fs-4">
+                    <a href="#" class="text-decoration-none" style="color:var(--coffee-medium)"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="text-decoration-none" style="color:var(--coffee-medium)"><i class="bi bi-telegram"></i></a>
+                    <a href="#" class="text-decoration-none" style="color:var(--coffee-medium)"><i class="bi bi-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <h3 class="section-title mb-4">پیام بگذارید</h3>
+            <div class="coffee-panel p-4">
+                @* فرم تماس به‌زودی به Backend وصل می‌شود؛ فعلاً نمایشی است *@
+                <form method="post" asp-controller="Home" asp-action="Contact">
+                    @* <span class="text-danger small">ثبت پیام به‌زودی فعال می‌شود.</span> *@
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">نام و نام خانوادگی</label>
+                            <input name="Name" class="form-control" required maxlength="100" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">ایمیل</label>
+                            <input name="Email" type="email" class="form-control" required maxlength="150" dir="ltr" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">موضوع</label>
+                            <input name="Subject" class="form-control" maxlength="150" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">پیام شما</label>
+                            <textarea name="Message" class="form-control" rows="5" required maxlength="2000"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-coffee" disabled title="به‌زودی فعال می‌شود">
+                                <i class="bi bi-send"></i> ارسال پیام
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
