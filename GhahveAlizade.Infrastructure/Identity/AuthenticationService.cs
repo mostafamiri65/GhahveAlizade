@@ -1,4 +1,4 @@
-﻿using ErrorOr;
+using ErrorOr;
 using GhahveAlizade.Application.Common.Interfaces;
 using GhahveAlizade.Domain.Identity;
 using Microsoft.AspNetCore.Identity;
@@ -22,7 +22,6 @@ public class AuthenticationService : IAuthenticationService
 		_userManager = userManager;
 		_jwtService = jwtService;
 		_jwtSettings = jwtSettings.Value;
-		_currentUser = currentUserService;
 	}
 
 	public async Task<ErrorOr<long>> ValidatePasswordAsync(
@@ -102,30 +101,4 @@ public class AuthenticationService : IAuthenticationService
 		await _jwtService.RevokeRefreshTokenAsync(refreshToken);
 		return Result.Success;
 	}
-
-	public async Task<IdentityUserDto?> GetCurrentUserAsync(long? userId = null)
-	{
-		var id = userId ?? _currentUser.UserId;
-		if (id is null) return null;
-
-		var user = await _userManager.FindByIdAsync(id.Value.ToString());
-		if (user is null || user.IsDeleted) return null;
-
-		return new IdentityUserDto(
-				Id: user.Id,
-				UserName: user.UserName ?? string.Empty,
-				Email: user.Email,
-				PhoneNumber: user.PhoneNumber,
-				FirstName: user.FirstName,
-				LastName: user.LastName,
-				FullName: user.FullName,
-				AvatarUrl: user.AvatarUrl,
-				HasPassword: user.HasPassword,
-				IsPhoneVerified: user.IsPhoneVerified,
-				IsActive: user.IsActive,
-				IsDeleted: user.IsDeleted,
-				LastLoginAtUtc: user.LastLoginAtUtc,
-				LastLoginProvider: user.LastLoginProvider);
-	}
-
 }
