@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace GhahveAlizade.Infrastructure.Persistence.Seed;
 
 /// <summary>
-/// دیتای دمو فروشگاه: برندها، محصولات قهوه با واریانت/تصویر.
+/// دیتای دمو فروشگاه: برندها، محصولات قهوه با واریانت/تصویر اختصاصی.
 /// Idempotent — فقط اگر هیچ محصولی نباشد اجرا می‌شود.
 /// </summary>
 public class ProductSeeder
@@ -158,7 +158,7 @@ public class ProductSeeder
 			},
 		};
 
-		// واریانت‌ها و تصاویر
+		// واریانت‌ها
 		foreach (var p in products.Where(x => x.HasVariants))
 		{
 			p.Variants =
@@ -169,12 +169,46 @@ public class ProductSeeder
 			];
 		}
 
+		// تصاویر اختصاصی هر محصول (Unsplash CDN)
+		var imageMap = new Dictionary<string, (string Main, string Alt)>
+		{
+			["ethiopia-yirgacheffe"] = (
+				"https://images.unsplash.com/photo-1611854779393-1b2da9d400fe?auto=format&fit=crop&w=900&q=75",
+				"https://images.unsplash.com/photo-1610632380989-680f404325ff?auto=format&fit=crop&w=900&q=75"),
+			["colombia-huila"] = (
+				"https://images.unsplash.com/photo-1610632380989-680f404325ff?auto=format&fit=crop&w=900&q=75",
+				"https://images.unsplash.com/photo-1580933073521-dc49ac0d4e6a?auto=format&fit=crop&w=900&q=75"),
+			["alizade-espresso-blend"] = (
+				"https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?auto=format&fit=crop&w=900&q=75",
+				"https://images.unsplash.com/photo-1585494156145-1c70a4edc1d0?auto=format&fit=crop&w=900&q=75"),
+			["kenya-aa"] = (
+				"https://images.unsplash.com/photo-1521302200778-33500795e126?auto=format&fit=crop&w=900&q=75",
+				"https://images.unsplash.com/photo-1498804103079-e6fe530c5842?auto=format&fit=crop&w=900&q=75"),
+			["brazil-santos"] = (
+				"https://images.unsplash.com/photo-1524350876685-274059332603?auto=format&fit=crop&w=900&q=75",
+				"https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=900&q=75"),
+			["guatemala-antigua"] = (
+				"https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=900&q=75",
+				"https://images.unsplash.com/photo-1512568400610-62da28bc8a13?auto=format&fit=crop&w=900&q=75"),
+			["panama-geisha"] = (
+				"https://images.unsplash.com/photo-1507133750040-4a8f57021571?auto=format&fit=crop&w=900&q=75",
+				"https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=900&q=75"),
+			["costa-rica-honey"] = (
+				"https://images.unsplash.com/photo-1514432324607-a61d498e228e?auto=format&fit=crop&w=900&q=75",
+				"https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=900&q=75"),
+		};
+
 		foreach (var p in products)
 		{
+			var (main, alt) = imageMap.TryGetValue(p.Slug, out var imgs)
+				? imgs
+				: ("https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=900&q=75",
+				   "https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=900&q=75");
+
 			p.Images =
 			[
-				new() { ImageUrl = "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=800&q=70", AltText = p.Name, IsPrimary = true, DisplayOrder = 1 },
-				new() { ImageUrl = "https://images.unsplash.com/photo-1514432324607-a61d498e228e?auto=format&fit=crop&w=800&q=70", AltText = $"{p.Name} - دانه قهوه", DisplayOrder = 2 },
+				new() { ImageUrl = main, AltText = p.Name, IsPrimary = true, DisplayOrder = 1 },
+				new() { ImageUrl = alt, AltText = $"{p.Name} - نمای دوم", DisplayOrder = 2 },
 			];
 
 			// نکته‌های طعمی
