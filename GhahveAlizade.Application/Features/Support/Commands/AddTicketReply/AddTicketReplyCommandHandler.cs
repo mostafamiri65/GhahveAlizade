@@ -36,8 +36,17 @@ public class AddTicketReplyCommandHandler : IRequestHandler<AddTicketReplyComman
 			Body = request.Body.Trim(),
 			SenderUserId = request.UserId,
 			SenderName = request.IsFromAdmin ? "پشتیبانی" : "مشتری",
-			IsFromAdmin = request.IsFromAdmin
+			IsFromAdmin = request.IsFromAdmin,
+			IsInternalNote = request.IsInternalNote
 		});
+
+		// اولین پاسخ ادمین
+		if (request.IsFromAdmin && ticket.FirstResponseAtUtc is null)
+			ticket.FirstResponseAtUtc = DateTime.UtcNow;
+
+		// اگر ادمین پاسخ داد → منتظر مشتری (مگر یادداشت داخلی باشد)
+		if (request.IsFromAdmin && !request.IsInternalNote)
+			ticket.Status = TicketStatus.WaitingCustomer;
 
 		// اگر مشتری پاسخ داد و تیکت منتظر مشتری بود → در حال بررسی
 		if (!request.IsFromAdmin && ticket.Status == TicketStatus.WaitingCustomer)
