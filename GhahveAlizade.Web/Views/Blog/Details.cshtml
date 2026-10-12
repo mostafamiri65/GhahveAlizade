@@ -29,8 +29,9 @@
 
         @if (!string.IsNullOrEmpty(Model.FeaturedImageUrl))
         {
-            <img src="@Model.FeaturedImageUrl" alt="@(Model.FeaturedImageAlt ?? Model.Title)"
-                 class="w-100 rounded-4 shadow mb-4" style="max-height:430px;object-fit:cover" />
+            <div class="blog-single-img rounded-4 shadow mb-4 overflow-hidden">
+                <img src="@Model.FeaturedImageUrl" alt="@(Model.FeaturedImageAlt ?? Model.Title)" />
+            </div>
         }
 
         @if (!string.IsNullOrEmpty(Model.Summary))
