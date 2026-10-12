@@ -26,8 +26,8 @@ public class GetMyDashboardQueryHandler : IRequestHandler<GetMyDashboardQuery, E
 			.Where(o => o.Status != OrderStatus.Cancelled)
 			.SumAsync(o => (decimal?)o.Total, ct) ?? 0m;
 		var pendingOrders = await ordersQuery
-			.CountAsync(o => o.Status is OrderStatus.Pending or OrderStatus.AwaitingPayment
-				or OrderStatus.Paid or OrderStatus.Processing, ct);
+			.CountAsync(o=> o.Status == OrderStatus.Pending || o.Status == OrderStatus.AwaitingPayment
+			|| o.Status == OrderStatus.Paid || o.Status == OrderStatus.Processing , ct);
 
 		var wishlistCount = await _context.WishlistItems.AsNoTracking()
 			.CountAsync(i => !i.IsDeleted

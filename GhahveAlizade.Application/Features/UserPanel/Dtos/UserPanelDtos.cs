@@ -1,3 +1,5 @@
+using GhahveAlizade.Domain.Enums;
+
 namespace GhahveAlizade.Application.Features.UserPanel.Dtos;
 
 public class MyProfileDto
