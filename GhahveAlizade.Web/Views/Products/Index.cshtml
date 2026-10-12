@@ -1,0 +1,184 @@
+@using GhahveAlizade.Web.Models
+@model ProductListViewModel
+@{
+    ViewData["Title"] = "فروشگاه قهوه";
+}
+
+<div class="container py-4" dir="rtl">
+    <h2 class="section-title mb-4"><i class="bi bi-cup-hot"></i> فروشگاه قهوه</h2>
+
+    <div class="row g-4">
+        <!-- فیلترها -->
+        <div class="col-lg-3">
+            <form method="get" class="coffee-panel p-3">
+                <h6 class="fw-bold mb-3"><i class="bi bi-funnel"></i> فیلترها</h6>
+
+                <input type="hidden" asp-for="Filter.PageNumber" value="1" />
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">جستجو</label>
+                    <input asp-for="Filter.Search" class="form-control form-control-sm" placeholder="نام محصول..." />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">دسته‌بندی</label>
+                    <select asp-for="Filter.CategoryId" class="form-select form-select-sm">
+                        <option value="">همه</option>
+                        @if (ViewBag.Categories is List<CategoryOption> cats)
+                        {
+                            @foreach (var c in cats)
+                            {
+                                <option value="@c.Id">@c.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">برند</label>
+                    <select asp-for="Filter.BrandId" class="form-select form-select-sm">
+                        <option value="">همه</option>
+                        @if (ViewBag.Brands is List<CategoryOption> brands)
+                        {
+                            @foreach (var b in brands)
+                            {
+                                <option value="@b.Id">@b.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label small fw-semibold">حداقل قیمت</label>
+                        <input asp-for="Filter.MinPrice" class="form-control form-control-sm" type="number" min="0" />
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small fw-semibold">حداکثر قیمت</label>
+                        <input asp-for="Filter.MaxPrice" class="form-control form-control-sm" type="number" min="0" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">مرتب‌سازی</label>
+                    <select asp-for="Filter.SortBy" class="form-select form-select-sm">
+                        <option value="createdAt">جدیدترین</option>
+                        <option value="price">ارزان‌ترین</option>
+                        <option value="soldcount">پرفروش‌ترین</option>
+                        <option value="viewcount">پربازدیدترین</option>
+                        <option value="name">نام (الفبا)</option>
+                    </select>
+                </div>
+                <select asp-for="Filter.SortDir" class="d-none" hidden></select>
+
+                <button type="submit" class="btn btn-coffee w-100 btn-sm">
+                    <i class="bi bi-check2-circle"></i> اعمال فیلتر
+                </button>
+                <a asp-controller="Products" asp-action="Index" class="btn btn-outline-secondary btn-sm w-100 mt-2">
+                    حذف فیلترها
+                </a>
+            </form>
+        </div>
+
+        <!-- محصولات -->
+        <div class="col-lg-9">
+            @if (Model.Products.Items.Count == 0)
+            {
+                <div class="coffee-panel p-5 text-center text-muted">
+                    <i class="bi bi-cup fs-1 d-block mb-3"></i>
+                    محصولی با این فیلترها پیدا نشد.
+                </div>
+            }
+            else
+            {
+                <div class="row g-3">
+                    @foreach (var p in Model.Products.Items)
+                    {
+                        <div class="col-md-4 col-6">
+                            <div class="product-card">
+                                <a asp-controller="Products" asp-action="Details" asp-route-slug="@p.Slug" class="product-img d-block">
+                                    @if (!string.IsNullOrEmpty(p.PrimaryImageUrl))
+                                    {
+                                        <img src="@p.PrimaryImageUrl" alt="@p.Name" loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <div class="d-flex align-items-center justify-content-center h-100">
+                                            <i class="bi bi-cup-hot fs-1" style="color:var(--coffee-caramel)"></i>
+                                        </div>
+                                    }
+                                </a>
+                                <div class="product-body">
+                                    @if (p.IsBestSeller)
+                                    {
+                                        <span class="badge badge-coffee mb-2">پرفروش</span>
+                                    }
+                                    else if (p.IsNew)
+                                    {
+                                        <span class="badge badge-outline-coffee mb-2">جدید</span>
+                                    }
+                                    <a asp-controller="Products" asp-action="Details" asp-route-slug="@p.Slug"
+                                       class="product-title d-block mb-2">@p.Name</a>
+
+                                    @if (!string.IsNullOrEmpty(p.BrandName))
+                                    {
+                                        <div class="text-muted small mb-2"><i class="bi bi-award"></i> @p.BrandName</div>
+                                    }
+
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        @if (p.HasVariants)
+                                        {
+                                            <span class="product-price small">
+                                                از @(p.MinVariantPrice?.ToString("N0")) تومان
+                                            </span>
+                                        }
+                                        else if (p.BasePrice.HasValue)
+                                        {
+                                            <span class="product-price">@p.BasePrice.Value.ToString("N0") تومان</span>
+                                            if (p.CompareAtPrice.HasValue && p.CompareAtPrice > p.BasePrice)
+                                            {
+                                                <span class="product-price-old">@p.CompareAtPrice.Value.ToString("N0")</span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small">قیمت تماس بگیرید</span>
+                                        }
+                                    </div>
+
+                                    @if (p.TotalStock <= 0)
+                                    {
+                                        <div class="text-danger small mt-2"><i class="bi bi-x-circle"></i> ناموجود</div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- صفحه‌بندی -->
+                @if (Model.Products.TotalPages > 1)
+                {
+                    <nav class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            @for (var i = 1; i <= Model.Products.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == Model.Products.PageNumber ? "active" : "")">
+                                    <a class="page-link"
+                                       asp-controller="Products" asp-action="Index"
+                                       asp-route-Filter.PageNumber="@i"
+                                       asp-route-Filter.Search="@Model.Filter.Search"
+                                       asp-route-Filter.CategoryId="@Model.Filter.CategoryId"
+                                       asp-route-Filter.BrandId="@Model.Filter.BrandId"
+                                       asp-route-Filter.MinPrice="@Model.Filter.MinPrice"
+                                       asp-route-Filter.MaxPrice="@Model.Filter.MaxPrice"
+                                       asp-route-Filter.SortBy="@Model.Filter.SortBy">@i</a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                }
+            }
+        </div>
+    </div>
+</div>
