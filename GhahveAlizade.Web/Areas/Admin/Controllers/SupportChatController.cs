@@ -3,6 +3,7 @@ using GhahveAlizade.Application.Features.Support.Commands.SendChatMessage;
 using GhahveAlizade.Application.Features.Support.Queries.GetChatHistory;
 using GhahveAlizade.Application.Features.Support.Queries.GetChatSessionsList;
 using GhahveAlizade.Domain.Support;
+using GhahveAlizade.Web.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

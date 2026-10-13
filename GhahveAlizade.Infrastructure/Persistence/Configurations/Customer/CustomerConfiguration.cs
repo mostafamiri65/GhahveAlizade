@@ -10,9 +10,6 @@ public class CustomerConfiguration : BaseEntityConfiguration<Domain.Customer.Cus
 	{
 		builder.ToTable("Customers");
 
-		builder.Property(x => x.UserId)
-			.HasMaxLength(450);
-
 		builder.Property(x => x.FirstName)
 			.HasMaxLength(200);
 

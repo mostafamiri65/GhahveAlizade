@@ -15,7 +15,7 @@ public class GetMyPointsQueryHandler : IRequestHandler<GetMyPointsQuery, ErrorOr
 
 	public async Task<ErrorOr<MyPointDto>> Handle(GetMyPointsQuery request, CancellationToken ct)
 	{
-		var userIdStr = request.UserId.ToString();
+		var userIdStr = request.UserId;
 
 		var account = await _context.CustomerPointAccounts
 			.AsNoTracking()

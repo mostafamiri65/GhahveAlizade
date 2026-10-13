@@ -19,7 +19,7 @@ public class GetMyOrdersQueryHandler
 	public async Task<ErrorOr<PaginatedList<MyOrderListItemDto>>> Handle(
 		GetMyOrdersQuery request, CancellationToken ct)
 	{
-		var userIdStr = request.UserId.ToString();
+		var userIdStr = request.UserId;
 
 		var query = _context.Orders
 			.AsNoTracking()

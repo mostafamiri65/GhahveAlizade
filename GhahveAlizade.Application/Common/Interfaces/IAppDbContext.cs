@@ -30,6 +30,7 @@ namespace GhahveAlizade.Application.Common.Interfaces;
 public interface IAppDbContext
 {
 	DbSet<AppSetting> AppSettings { get; }
+	DbSet<ApplicationUser> Users { get; }
 	DbSet<ApplicationRole> Roles { get; }
 	DbSet<PhoneOtp> PhoneOtps { get; }
 	DbSet<RefreshToken> RefreshTokens { get; }

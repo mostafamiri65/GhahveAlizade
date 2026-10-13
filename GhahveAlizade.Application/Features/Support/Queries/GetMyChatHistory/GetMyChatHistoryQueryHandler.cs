@@ -16,7 +16,7 @@ public class GetMyChatHistoryQueryHandler
 
 	public async Task<ErrorOr<ChatHistoryDto>> Handle(GetMyChatHistoryQuery request, CancellationToken ct)
 	{
-		var userIdStr = request.UserId.ToString();
+		var userIdStr = request.UserId;
 
 		var session = await _context.SupportChatSessions
 			.AsNoTracking()

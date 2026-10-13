@@ -14,7 +14,7 @@ public class UpdateMyProfileCommandHandler : IRequestHandler<UpdateMyProfileComm
 
 	public async Task<ErrorOr<Updated>> Handle(UpdateMyProfileCommand request, CancellationToken ct)
 	{
-		var userIdStr = request.UserId.ToString();
+		var userIdStr = request.UserId;
 
 		var customer = await _context.Customers
 			.Where(c => c.UserId == userIdStr && !c.IsDeleted)

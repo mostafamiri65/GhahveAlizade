@@ -18,7 +18,7 @@ public class GetMyTicketsQueryHandler
 	public async Task<ErrorOr<PaginatedList<TicketListItemDto>>> Handle(
 		GetMyTicketsQuery request, CancellationToken ct)
 	{
-		var userIdStr = request.UserId.ToString();
+		var userIdStr = request.UserId;
 
 		var query = _context.SupportTickets
 			.AsNoTracking()

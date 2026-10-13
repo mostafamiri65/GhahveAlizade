@@ -16,7 +16,7 @@ public class GetMyDashboardQueryHandler : IRequestHandler<GetMyDashboardQuery, E
 
 	public async Task<ErrorOr<MyDashboardDto>> Handle(GetMyDashboardQuery request, CancellationToken ct)
 	{
-		var userIdStr = request.UserId.ToString();
+		var userIdStr = request.UserId;
 
 		var ordersQuery = _context.Orders.AsNoTracking()
 			.Where(o => !o.IsDeleted && o.UserId == userIdStr);

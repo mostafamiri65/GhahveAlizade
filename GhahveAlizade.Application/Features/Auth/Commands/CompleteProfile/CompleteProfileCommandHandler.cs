@@ -51,7 +51,7 @@ public class CompleteProfileCommandHandler : IRequestHandler<CompleteProfileComm
 		await _userManager.UpdateAsync(user);
 
 		// به‌روزرسانی/ساخت Customer
-		var userIdStr = user.Id.ToString();
+		var userIdStr = user.Id;
 		var customer = await _context.Customers
 			.FirstOrDefaultAsync(c => c.UserId == userIdStr && !c.IsDeleted, ct);
 

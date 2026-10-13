@@ -176,7 +176,8 @@ public static class DependencyInjection
 
 		// ============ AI (Gemini — free tier) ============
 		services.Configure<GeminiOptions>(configuration.GetSection(GeminiOptions.SectionName));
-		services.AddHttpClient<IAiChatService, GeminiChatService>(client =>
+		services.Configure<OpenAiCompatibleOptions>(configuration.GetSection("Ai"));
+		services.AddHttpClient<IAiChatService, OpenAiCompatibleChatService>(client =>
 		{
 			client.Timeout = TimeSpan.FromSeconds(60);
 			client.DefaultRequestHeaders.Add("User-Agent", "GhahveAlizade/1.0");

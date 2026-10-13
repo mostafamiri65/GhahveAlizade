@@ -17,7 +17,7 @@ public class AddTicketReplyCommandHandler : IRequestHandler<AddTicketReplyComman
 		if (string.IsNullOrWhiteSpace(request.Body) || request.Body.Trim().Length < 2)
 			return Error.Validation("Ticket.ReplyRequired", "متن پاسخ را وارد کنید.");
 
-		var userIdStr = request.UserId.ToString();
+		var userIdStr = request.UserId;
 
 		var ticket = await _context.SupportTickets
 			.Include(t => t.Messages)

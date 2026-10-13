@@ -6,21 +6,6 @@ using Microsoft.Extensions.Options;
 
 namespace GhahveAlizade.Infrastructure.Services.Ai;
 
-/// <summary>
-/// تنظیمات سرویس AI سازگار با فرمت OpenAI.
-/// پیش‌فرض: OpenRouter (قابل استفاده از ایران، مدل‌های رایگان مثل llama-3.3-70b:free).
-/// با Groq / Together / هر سرویس OpenAI-compatible هم کار می‌کند.
-/// </summary>
-public class OpenAiCompatibleOptions
-{
-	public const string SectionName = "Ai";
-	public string ApiKey { get; set; } = string.Empty;
-	public string BaseUrl { get; set; } = "https://openrouter.ai/api/v1";
-	public string Model { get; set; } = "meta-llama/llama-3.3-70b-instruct:free";
-	public int MaxOutputTokens { get; set; } = 700;
-	public double Temperature { get; set; } = 0.7;
-}
-
 public class OpenAiCompatibleChatService : IAiChatService
 {
 	private readonly HttpClient _http;
@@ -82,8 +67,10 @@ public class OpenAiCompatibleChatService : IAiChatService
 		{
 			var response = await _http.SendAsync(request, ct);
 			if (!response.IsSuccessStatusCode)
+			{
+				var body = await response.Content.ReadAsStringAsync(ct);
 				return new AiChatResult(false, "", $"AI service error {(int)response.StatusCode}");
-
+			}
 			var json = await response.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: ct);
 			var text = json.GetProperty("choices")[0]
 				.GetProperty("message")

@@ -16,7 +16,7 @@ public class GetOrCreateMyChatSessionQueryHandler
 
 	public async Task<ErrorOr<ChatSessionDto>> Handle(GetOrCreateMyChatSessionQuery request, CancellationToken ct)
 	{
-		var userIdStr = request.UserId.ToString();
+		var userIdStr = request.UserId;
 
 		var session = await _context.SupportChatSessions
 			.Where(s => !s.IsDeleted && s.UserId == userIdStr

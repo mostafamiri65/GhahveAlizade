@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GhahveAlizade.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class AddDbClassesMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -64,6 +64,56 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AccountingSyncLogs", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AiAdvisorSessions",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsClosed = table.Column<bool>(type: "bit", nullable: false),
+                    ClosedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<long>(type: "bigint", nullable: true),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<long>(type: "bigint", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<long>(type: "bigint", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AiAdvisorSessions", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AppSettings",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Key = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Group = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    ValueType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    IsPublic = table.Column<bool>(type: "bit", nullable: false),
+                    DisplayOrder = table.Column<int>(type: "int", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<long>(type: "bigint", nullable: true),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<long>(type: "bigint", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<long>(type: "bigint", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppSettings", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -507,6 +557,36 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PhoneOtps",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Code = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    Purpose = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    ExpiresAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AttemptCount = table.Column<int>(type: "int", nullable: false),
+                    MaxAttempts = table.Column<int>(type: "int", nullable: false),
+                    IsUsed = table.Column<bool>(type: "bit", nullable: false),
+                    UsedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IpAddress = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    UserAgent = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<long>(type: "bigint", nullable: true),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<long>(type: "bigint", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<long>(type: "bigint", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PhoneOtps", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PriceLists",
                 columns: table => new
                 {
@@ -597,6 +677,32 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RefreshTokens",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<long>(type: "bigint", nullable: false),
+                    Token = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    ExpiresAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsRevoked = table.Column<bool>(type: "bit", nullable: false),
+                    RevokedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ReplacedByToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<long>(type: "bigint", nullable: true),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<long>(type: "bigint", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<long>(type: "bigint", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RefreshTokens", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RoastProfiles",
                 columns: table => new
                 {
@@ -632,6 +738,7 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
                     Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     IsSystemRole = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -760,10 +867,14 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     LastLoginAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true),
+                    CreatedBy = table.Column<long>(type: "bigint", maxLength: 450, nullable: true),
                     UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true),
+                    UpdatedBy = table.Column<long>(type: "bigint", maxLength: 450, nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    IsPhoneVerified = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    PhoneVerifiedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    HasPassword = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    LastLoginProvider = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -772,7 +883,7 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
                     TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
@@ -849,6 +960,35 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_WholesaleRequests", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AiAdvisorMessages",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SessionId = table.Column<long>(type: "bigint", nullable: false),
+                    Role = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<long>(type: "bigint", nullable: true),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<long>(type: "bigint", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<long>(type: "bigint", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AiAdvisorMessages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AiAdvisorMessages_AiAdvisorSessions_SessionId",
+                        column: x => x.SessionId,
+                        principalTable: "AiAdvisorSessions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -1291,7 +1431,7 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true),
+                    UserId = table.Column<long>(type: "bigint", nullable: true),
                     FirstName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     LastName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -1729,7 +1869,7 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     OrderNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     CustomerId = table.Column<long>(type: "bigint", nullable: true),
-                    UserId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true),
+                    UserId = table.Column<long>(type: "bigint", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),
                     CouponCode = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     SubTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
@@ -1848,6 +1988,93 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SupportChatSessions",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CustomerId = table.Column<long>(type: "bigint", nullable: true),
+                    UserId = table.Column<long>(type: "bigint", nullable: true),
+                    GuestName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    GuestPhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AssignedToUserId = table.Column<long>(type: "bigint", nullable: true),
+                    AssignedToId = table.Column<long>(type: "bigint", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    Subject = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StartedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ClosedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ClosedByUserId = table.Column<long>(type: "bigint", nullable: true),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<long>(type: "bigint", nullable: true),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<long>(type: "bigint", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<long>(type: "bigint", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SupportChatSessions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SupportChatSessions_Customers_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Customers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_SupportChatSessions_Users_AssignedToId",
+                        column: x => x.AssignedToId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SupportTickets",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TicketNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CustomerId = table.Column<long>(type: "bigint", nullable: true),
+                    UserId = table.Column<long>(type: "bigint", nullable: true),
+                    GuestName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    GuestPhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Subject = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Body = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Category = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    Priority = table.Column<int>(type: "int", nullable: false),
+                    AssignedToUserId = table.Column<long>(type: "bigint", nullable: true),
+                    AssignedToId = table.Column<long>(type: "bigint", nullable: true),
+                    FirstResponseAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ResolvedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ClosedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RelatedOrderId = table.Column<long>(type: "bigint", nullable: true),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<long>(type: "bigint", nullable: true),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<long>(type: "bigint", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<long>(type: "bigint", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SupportTickets", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SupportTickets_Customers_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Customers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_SupportTickets_Users_AssignedToId",
+                        column: x => x.AssignedToId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "WholesaleCustomers",
                 columns: table => new
                 {
@@ -1893,7 +2120,7 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true),
+                    UserId = table.Column<long>(type: "bigint", nullable: true),
                     CustomerId = table.Column<long>(type: "bigint", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     IsPublic = table.Column<bool>(type: "bit", nullable: false),
@@ -2613,6 +2840,72 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ChatMessages",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SessionId = table.Column<long>(type: "bigint", nullable: false),
+                    SenderUserId = table.Column<long>(type: "bigint", nullable: true),
+                    SenderName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsFromAdmin = table.Column<bool>(type: "bit", nullable: false),
+                    Body = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ReadAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<long>(type: "bigint", nullable: true),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<long>(type: "bigint", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<long>(type: "bigint", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ChatMessages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ChatMessages_SupportChatSessions_SessionId",
+                        column: x => x.SessionId,
+                        principalTable: "SupportChatSessions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TicketMessages",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TicketId = table.Column<long>(type: "bigint", nullable: false),
+                    SenderUserId = table.Column<long>(type: "bigint", nullable: true),
+                    SenderName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsFromAdmin = table.Column<bool>(type: "bit", nullable: false),
+                    Body = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AttachmentUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsInternalNote = table.Column<bool>(type: "bit", nullable: false),
+                    ReadAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<long>(type: "bigint", nullable: true),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<long>(type: "bigint", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<long>(type: "bigint", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TicketMessages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TicketMessages_SupportTickets_TicketId",
+                        column: x => x.TicketId,
+                        principalTable: "SupportTickets",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "WishlistItems",
                 columns: table => new
                 {
@@ -2818,6 +3111,28 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
                 name: "IX_AccountingSyncLogs_Success_Date",
                 table: "AccountingSyncLogs",
                 columns: new[] { "IsSuccessful", "SyncedAtUtc" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AiAdvisorMessages_SessionId",
+                table: "AiAdvisorMessages",
+                column: "SessionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppSetting_CreatedAtUtc",
+                table: "AppSettings",
+                column: "CreatedAtUtc");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppSettings_Group_Order",
+                table: "AppSettings",
+                columns: new[] { "Group", "DisplayOrder" });
+
+            migrationBuilder.CreateIndex(
+                name: "UX_AppSettings_Key",
+                table: "AppSettings",
+                column: "Key",
+                unique: true,
+                filter: "[IsDeleted] = 0");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Attribute_CreatedAtUtc",
@@ -3073,6 +3388,11 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
                 column: "Slug",
                 unique: true,
                 filter: "[IsDeleted] = 0");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChatMessages_SessionId",
+                table: "ChatMessages",
+                column: "SessionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CoffeeOrigin_CreatedAtUtc",
@@ -3449,6 +3769,21 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
                 filter: "[IsDeleted] = 0");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PhoneOtp_CreatedAtUtc",
+                table: "PhoneOtps",
+                column: "CreatedAtUtc");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PhoneOtps_Expiry",
+                table: "PhoneOtps",
+                column: "ExpiresAtUtc");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PhoneOtps_Phone_Status",
+                table: "PhoneOtps",
+                columns: new[] { "PhoneNumber", "IsUsed", "ExpiresAtUtc" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PointTransaction_CreatedAtUtc",
                 table: "PointTransactions",
                 column: "CreatedAtUtc");
@@ -3783,6 +4118,23 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
                 filter: "[IsDeleted] = 0");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RefreshToken_CreatedAtUtc",
+                table: "RefreshTokens",
+                column: "CreatedAtUtc");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefreshTokens_Token",
+                table: "RefreshTokens",
+                column: "Token",
+                unique: true,
+                filter: "[IsDeleted] = 0");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefreshTokens_UserId_IsRevoked",
+                table: "RefreshTokens",
+                columns: new[] { "UserId", "IsRevoked" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ReviewImage_CreatedAtUtc",
                 table: "ReviewImages",
                 column: "CreatedAtUtc");
@@ -3963,6 +4315,31 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
                 column: "WarehouseId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SupportChatSessions_AssignedToId",
+                table: "SupportChatSessions",
+                column: "AssignedToId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SupportChatSessions_CustomerId",
+                table: "SupportChatSessions",
+                column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SupportTickets_AssignedToId",
+                table: "SupportTickets",
+                column: "AssignedToId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SupportTickets_CustomerId",
+                table: "SupportTickets",
+                column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TicketMessages_TicketId",
+                table: "TicketMessages",
+                column: "TicketId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserClaims_UserId",
                 table: "UserClaims",
                 column: "UserId");
@@ -3992,6 +4369,12 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
                 table: "Users",
                 column: "NationalCode",
                 filter: "[NationalCode] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_PhoneNumber",
+                table: "Users",
+                column: "PhoneNumber",
+                filter: "[PhoneNumber] IS NOT NULL AND [IsDeleted] = 0");
 
             migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
@@ -4106,6 +4489,12 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
                 name: "AccountingSyncLogs");
 
             migrationBuilder.DropTable(
+                name: "AiAdvisorMessages");
+
+            migrationBuilder.DropTable(
+                name: "AppSettings");
+
+            migrationBuilder.DropTable(
                 name: "BannerPlacements");
 
             migrationBuilder.DropTable(
@@ -4122,6 +4511,9 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "CartItems");
+
+            migrationBuilder.DropTable(
+                name: "ChatMessages");
 
             migrationBuilder.DropTable(
                 name: "CoffeeRegions");
@@ -4154,6 +4546,9 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
                 name: "PaymentTransactions");
 
             migrationBuilder.DropTable(
+                name: "PhoneOtps");
+
+            migrationBuilder.DropTable(
                 name: "PointTransactions");
 
             migrationBuilder.DropTable(
@@ -4184,6 +4579,9 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
                 name: "ReferralRewards");
 
             migrationBuilder.DropTable(
+                name: "RefreshTokens");
+
+            migrationBuilder.DropTable(
                 name: "ReviewImages");
 
             migrationBuilder.DropTable(
@@ -4206,6 +4604,9 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "StockReservations");
+
+            migrationBuilder.DropTable(
+                name: "TicketMessages");
 
             migrationBuilder.DropTable(
                 name: "UserClaims");
@@ -4232,6 +4633,9 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
                 name: "AbandonedCarts");
 
             migrationBuilder.DropTable(
+                name: "AiAdvisorSessions");
+
+            migrationBuilder.DropTable(
                 name: "Banners");
 
             migrationBuilder.DropTable(
@@ -4242,6 +4646,9 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "BlogTags");
+
+            migrationBuilder.DropTable(
+                name: "SupportChatSessions");
 
             migrationBuilder.DropTable(
                 name: "Coupons");
@@ -4277,10 +4684,10 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
                 name: "ShippingMethods");
 
             migrationBuilder.DropTable(
-                name: "Roles");
+                name: "SupportTickets");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "Roles");
 
             migrationBuilder.DropTable(
                 name: "Wishlists");
@@ -4302,6 +4709,9 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "Attributes");
+
+            migrationBuilder.DropTable(
+                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "Products");

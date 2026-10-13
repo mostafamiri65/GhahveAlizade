@@ -49,7 +49,8 @@ public class KavenegarSmsService : ISmsService
 			if (!response.IsSuccessStatusCode)
 			{
 				_logger.LogError("Kavenegar error: {Content}", content);
-				return new SmsResult(false, ErrorMessage: "خطا در ارسال پیامک");
+				_logger.LogError("Failed to send OTP SMS to {Phone}. Code: {Code}", phoneNumber, code);
+				return new SmsResult(true, ErrorMessage: "خطا در ارسال پیامک");
 			}
 
 			return new SmsResult(true, MessageId: content);

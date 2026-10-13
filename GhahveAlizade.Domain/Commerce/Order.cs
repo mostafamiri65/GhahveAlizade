@@ -12,7 +12,7 @@ public class Order : BaseEntity
 
 	public long? CustomerId { get; set; }
 	public Customer.Customer? Customer { get; set; }
-	public string? UserId { get; set; }
+	public long? UserId { get; set; }
 
 	public OrderStatus Status { get; set; } = OrderStatus.Pending;
 
