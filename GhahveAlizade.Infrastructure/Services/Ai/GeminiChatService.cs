@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using GhahveAlizade.Application.Common.Interfaces;
@@ -5,20 +6,37 @@ using Microsoft.Extensions.Options;
 
 namespace GhahveAlizade.Infrastructure.Services.Ai;
 
-public class GeminiChatService : IAiChatService
+/// <summary>
+/// تنظیمات سرویس AI سازگار با فرمت OpenAI.
+/// پیش‌فرض: OpenRouter (قابل استفاده از ایران، مدل‌های رایگان مثل llama-3.3-70b:free).
+/// با Groq / Together / هر سرویس OpenAI-compatible هم کار می‌کند.
+/// </summary>
+public class OpenAiCompatibleOptions
+{
+	public const string SectionName = "Ai";
+	public string ApiKey { get; set; } = string.Empty;
+	public string BaseUrl { get; set; } = "https://openrouter.ai/api/v1";
+	public string Model { get; set; } = "meta-llama/llama-3.3-70b-instruct:free";
+	public int MaxOutputTokens { get; set; } = 700;
+	public double Temperature { get; set; } = 0.7;
+}
+
+public class OpenAiCompatibleChatService : IAiChatService
 {
 	private readonly HttpClient _http;
-	private readonly GeminiOptions _options;
+	private readonly OpenAiCompatibleOptions _options;
 
 	private const string SystemPrompt = """
-		شما «مشاور قهوه علیزاده» هستید؛ متخصص قهوه فروشگاه قهوه علیزاده.
-		- از سلیقه مشتری بپرسید: طعم (تلخ/میوه‌ای/شکلاتی)، تلخی، اسیدیته، روش دم‌آوری، بودجه.
-		- فقط از محصولات موجود در لیست پیشنهاد بدهید. حداکثر ۳ پیشنهاد با لینک.
-		- ترکیب عربیکا/روبستا را توضیح دهید (مثلا ۷۰/۳۰) و بگویید هر دانه چه اثری در طعم دارد.
-		- پاسخ فارسی، کوتاه (حداکثر ۶ خط)، دوستانه.
+		شما «مشاور قهوه علیزاده» هستید؛ متخصص قهوه فروشگاه اینترنتی قهوه علیزاده (ghahvealizade.ir).
+		وظایف شما:
+		1. از سلیقه مشتری بپرسید: طعم‌های مورد علاقه (تلخ/میوه‌ای/شکلاتی/خامه‌ای)، میزان تلخی، اسیدیته، روش دم‌آوری (اسپرسو/دمی/ترک/فرنچ‌پرس/کپسول)، بودجه.
+		2. فقط از بین «محصولات موجود» (که در پیام برایتان ارسال می‌شود) پیشنهاد بدهید. هرگز محصولی که در لیست نیست را معرفی نکنید.
+		3. درباره ترکیب توضیح دهید: مثلا «این بلند ۷۰٪ عربیکا و ۳۰٪ روبستا است؛ روبستا کرِما و بدنه بیشتر می‌دهد، عربیکا عطر و اسیدیته».
+		4. پاسخ‌ها کوتاه (حداکثر ۶-۷ خط)، دوستانه و فارسی باشند. حداکثر ۳ پیشنهاد محصول با لینک بدهید.
+		5. اگر سوال خارج از حوزه قهوه بود، مؤدبانه به موضوع برگردید.
 		""";
 
-	public GeminiChatService(HttpClient http, IOptions<GeminiOptions> options)
+	public OpenAiCompatibleChatService(HttpClient http, IOptions<OpenAiCompatibleOptions> options)
 	{
 		_http = http;
 		_options = options.Value;
@@ -31,38 +49,46 @@ public class GeminiChatService : IAiChatService
 		CancellationToken ct = default)
 	{
 		if (string.IsNullOrWhiteSpace(_options.ApiKey))
-			return new AiChatResult(false, "", "کلید Gemini تنظیم نشده (appsettings → Gemini:ApiKey).");
+			return new AiChatResult(false, "", "کلید سرویس AI تنظیم نشده (appsettings → Ai:ApiKey).");
 
-		var url = $"https://generativelanguage.googleapis.com/v1beta/models/{_options.Model}:generateContent?key={_options.ApiKey}";
+		var url = $"{_options.BaseUrl.TrimEnd('/')}/chat/completions";
 
-		var contents = new List<object>();
+		var messages = new List<object> { new { role = "system", content = SystemPrompt } };
 		foreach (var turn in history)
-			contents.Add(new { role = turn.Role, parts = new[] { new { text = turn.Content } } });
+			messages.Add(new { role = turn.Role == "model" ? "assistant" : "user", content = turn.Content });
 
 		// پیام کاربر + کاتالوگ محصولات
-		contents.Add(new
+		messages.Add(new
 		{
 			role = "user",
-			parts = new[] { new { text = $"{userMessage}\n\n[لیست محصولات موجود برای پیشنهاد]:\n{catalogContext}" } }
+			content = $"{userMessage}\n\n[لیست محصولات موجود برای پیشنهاد]:\n{catalogContext}"
 		});
 
 		var payload = new
 		{
-			system_instruction = new { parts = new[] { new { text = SystemPrompt } } },
-			contents,
-			generationConfig = new { temperature = 0.7, maxOutputTokens = 600 }
+			model = _options.Model,
+			messages,
+			temperature = _options.Temperature,
+			max_tokens = _options.MaxOutputTokens
 		};
+
+		using var request = new HttpRequestMessage(HttpMethod.Post, url)
+		{
+			Content = JsonContent.Create(payload)
+		};
+		request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _options.ApiKey);
 
 		try
 		{
-			var response = await _http.PostAsJsonAsync(url, payload, ct);
+			var response = await _http.SendAsync(request, ct);
 			if (!response.IsSuccessStatusCode)
-				return new AiChatResult(false, "", $"Gemini error {(int)response.StatusCode}");
+				return new AiChatResult(false, "", $"AI service error {(int)response.StatusCode}");
 
 			var json = await response.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: ct);
-			var text = json.GetProperty("candidates")[0]
-				.GetProperty("content").GetProperty("parts")[0]
-				.GetProperty("text").GetString();
+			var text = json.GetProperty("choices")[0]
+				.GetProperty("message")
+				.GetProperty("content")
+				.GetString();
 
 			return new AiChatResult(true, text ?? "");
 		}
