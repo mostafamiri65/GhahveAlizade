@@ -14,7 +14,7 @@ public class CancelMyOrderCommandHandler : IRequestHandler<CancelMyOrderCommand,
 
 	public async Task<ErrorOr<Success>> Handle(CancelMyOrderCommand request, CancellationToken ct)
 	{
-		var userIdStr = request.UserId.ToString();
+		var userIdStr = request.UserId;
 
 		var order = await _context.Orders
 			.Where(o => o.Id == request.OrderId && !o.IsDeleted && o.UserId == userIdStr)

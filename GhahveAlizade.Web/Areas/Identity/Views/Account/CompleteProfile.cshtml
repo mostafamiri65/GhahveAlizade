@@ -1,0 +1,60 @@
+@model CompleteProfileViewModel
+@{
+	ViewData["Title"] = "تکمیل ثبت‌نام";
+}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+	<div class="card shadow-sm" style="max-width: 480px; width: 100%;">
+		<div class="card-body p-4">
+			<div class="text-center mb-4">
+				<div class="fs-1">☕</div>
+				<h4>تکمیل ثبت‌نام</h4>
+				<p class="text-muted small">برای تکمیل ثبت‌نام، مشخصات خود را وارد کنید</p>
+			</div>
+
+			<form asp-action="CompleteProfile" method="post">
+				<input type="hidden" asp-for="ReturnUrl" />
+				<div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+				<div class="row g-3">
+					<div class="col-6">
+						<label asp-for="FirstName" class="form-label small"></label>
+						<input asp-for="FirstName" class="form-control" placeholder="نام" />
+					</div>
+					<div class="col-6">
+						<label asp-for="LastName" class="form-label small"></label>
+						<input asp-for="LastName" class="form-control" placeholder="نام خانوادگی" />
+					</div>
+					<div class="col-12">
+						<label asp-for="Email" class="form-label small"></label>
+						<input asp-for="Email" class="form-control" dir="ltr" placeholder="example@email.com" />
+					</div>
+					<div class="col-6">
+						<label asp-for="NationalCode" class="form-label small"></label>
+						<input asp-for="NationalCode" class="form-control" dir="ltr" maxlength="10" />
+					</div>
+					<div class="col-6">
+						<label asp-for="BirthDate" class="form-label small"></label>
+						<input asp-for="BirthDate" type="date" class="form-control" />
+					</div>
+					<div class="col-12">
+						<label asp-for="Gender" class="form-label small"></label>
+						<select asp-for="Gender" class="form-select">
+							<option value="">انتخاب کنید</option>
+							<option value="Male">مرد</option>
+							<option value="Female">زن</option>
+						</select>
+					</div>
+				</div>
+
+				<button type="submit" class="btn btn-primary w-100 mt-4">
+					<i class="bi bi-check-lg"></i> تکمیل ثبت‌نام
+				</button>
+			</form>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+}

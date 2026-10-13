@@ -1,4 +1,4 @@
-﻿using GhahveAlizade.Application.Common.Interfaces;
+using GhahveAlizade.Application.Common.Interfaces;
 using GhahveAlizade.Domain.Catalog;
 using GhahveAlizade.Domain.Coffee;
 using GhahveAlizade.Domain.Commerce;
@@ -16,6 +16,7 @@ using GhahveAlizade.Domain.Review;
 using GhahveAlizade.Domain.SEO;
 using GhahveAlizade.Domain.Settings;
 using GhahveAlizade.Domain.Shipping;
+using GhahveAlizade.Domain.Support;
 using GhahveAlizade.Domain.Wholesale;
 using GhahveAlizade.Domain.Wishlist;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -138,6 +139,14 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
 	// Accounting
 	public DbSet<Domain.Accounting.AccountingSyncLog> AccountingSyncLogs => Set<Domain.Accounting.AccountingSyncLog>();
 	public DbSet<Domain.Accounting.AccountingMapping> AccountingMappings => Set<Domain.Accounting.AccountingMapping>();
+
+	// Support (تیکتینگ)
+	public DbSet<SupportTicket> SupportTickets => Set<SupportTicket>();
+	public DbSet<TicketMessage> TicketMessages => Set<TicketMessage>();
+
+	// Support (چت آنلاین)
+	public DbSet<SupportChatSession> SupportChatSessions => Set<SupportChatSession>();
+	public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
 
 	// Identity
 	public DbSet<Permission> Permissions => Set<Permission>();

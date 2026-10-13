@@ -1,0 +1,40 @@
+@{
+	ViewData["Title"] = "ثبت تیکت جدید";
+}
+
+<h4 class="mb-4"><i class="bi bi-plus-circle"></i> ثبت تیکت جدید</h4>
+
+<div class="user-card">
+	<form asp-action="Create" method="post">
+		<div class="mb-3">
+			<label class="form-label">موضوع *</label>
+			<input name="subject" class="form-control" required minlength="5" maxlength="200"
+				   placeholder="خلاصه مشکل یا درخواست خود را بنویسید" />
+		</div>
+		<div class="row g-3 mb-3">
+			<div class="col-md-6">
+				<label class="form-label">دسته‌بندی</label>
+				<select name="category" class="form-select">
+					<option value="General">عمومی</option>
+					<option value="Order">سفارش</option>
+					<option value="Shipping">ارسال</option>
+					<option value="Payment">پرداخت</option>
+					<option value="Product">محصول</option>
+					<option value="Complaint">شکایت</option>
+				</select>
+			</div>
+			<div class="col-md-6">
+				<label class="form-label">شماره سفارش مرتبط (اختیاری)</label>
+				<input name="relatedOrderId" type="number" class="form-control" dir="ltr" />
+			</div>
+		</div>
+		<div class="mb-3">
+			<label class="form-label">متن تیکت *</label>
+			<textarea name="body" class="form-control" rows="6" required minlength="10"
+					  placeholder="توضیحات کامل را اینجا بنویسید..."></textarea>
+		</div>
+		<button type="submit" class="btn btn-primary">
+			<i class="bi bi-send"></i> ارسال تیکت
+		</button>
+	</form>
+</div>

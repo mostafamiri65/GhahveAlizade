@@ -14,8 +14,6 @@ public class OrderConfiguration : BaseEntityConfiguration<Order>
 			.IsRequired()
 			.HasMaxLength(50);
 
-		builder.Property(x => x.UserId)
-			.HasMaxLength(450);
 
 		builder.Property(x => x.CouponCode)
 			.HasMaxLength(100);

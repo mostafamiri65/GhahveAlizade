@@ -14,7 +14,7 @@ public class SaveMyAddressCommandHandler : IRequestHandler<SaveMyAddressCommand,
 
 	public async Task<ErrorOr<Created>> Handle(SaveMyAddressCommand request, CancellationToken ct)
 	{
-		var userIdStr = request.UserId.ToString();
+		var userIdStr = request.UserId;
 
 		if (string.IsNullOrWhiteSpace(request.Title) || string.IsNullOrWhiteSpace(request.AddressLine1))
 			return Error.Validation("Address.Invalid", "عنوان و آدرس الزامی است.");
@@ -33,7 +33,7 @@ public class SaveMyAddressCommandHandler : IRequestHandler<SaveMyAddressCommand,
 			address = await _context.CustomerAddresses
 				.Where(a => a.Id == request.AddressId.Value && !a.IsDeleted
 					&& a.Customer != null && a.Customer.UserId == userIdStr) // بررسی مالکیت
-				.FirstOrDefaultAsync(ct);
+				.FirstAsync(ct);
 
 			if (address is null)
 				return Error.NotFound("Address.NotFound", "آدرس یافت نشد.");

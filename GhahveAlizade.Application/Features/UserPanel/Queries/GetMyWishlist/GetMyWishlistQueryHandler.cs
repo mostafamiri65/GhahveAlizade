@@ -16,7 +16,7 @@ public class GetMyWishlistQueryHandler
 
 	public async Task<ErrorOr<List<MyWishlistItemDto>>> Handle(GetMyWishlistQuery request, CancellationToken ct)
 	{
-		var userIdStr = request.UserId.ToString();
+		var userIdStr = request.UserId;
 
 		var items = await _context.WishlistItems
 			.AsNoTracking()

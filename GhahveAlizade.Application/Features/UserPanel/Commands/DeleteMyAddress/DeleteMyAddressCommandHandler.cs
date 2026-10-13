@@ -13,7 +13,7 @@ public class DeleteMyAddressCommandHandler : IRequestHandler<DeleteMyAddressComm
 
 	public async Task<ErrorOr<Deleted>> Handle(DeleteMyAddressCommand request, CancellationToken ct)
 	{
-		var userIdStr = request.UserId.ToString();
+		var userIdStr = request.UserId;
 
 		var address = await _context.CustomerAddresses
 			.Where(a => a.Id == request.AddressId && !a.IsDeleted

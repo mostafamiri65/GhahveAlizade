@@ -19,7 +19,7 @@ public class SetPasswordCommandHandler : IRequestHandler<SetPasswordCommand, Err
 			return Error.NotFound("User.NotFound", "کاربر یافت نشد.");
 
 		// اگه پسورد داره، باید حذف بشه بعد جدید اضافه بشه
-		if (user.HasPassword)
+		if (!string.IsNullOrEmpty(user.PasswordHash))
 		{
 			var removeResult = await _userManager.RemovePasswordAsync(user);
 			if (!removeResult.Succeeded)

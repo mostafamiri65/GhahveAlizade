@@ -16,7 +16,7 @@ public class GetMyOrderByIdQueryHandler
 
 	public async Task<ErrorOr<OrderDetailDto>> Handle(GetMyOrderByIdQuery request, CancellationToken ct)
 	{
-		var userIdStr = request.UserId.ToString();
+		var userIdStr = request.UserId;
 
 		var order = await _context.Orders
 			.AsNoTracking()

@@ -1,4 +1,4 @@
-﻿using ErrorOr;
+using ErrorOr;
 
 namespace GhahveAlizade.Application.Common.Interfaces;
 
@@ -35,6 +35,7 @@ public interface IAuthenticationService
 	Task<ErrorOr<Success>> RevokeRefreshTokenAsync(
 		string refreshToken,
 		CancellationToken cancellationToken = default);
+	Task<IdentityUserDto?> GetCurrentUserAsync(long? userId = null);
 }
 
 public record AuthTokens(
