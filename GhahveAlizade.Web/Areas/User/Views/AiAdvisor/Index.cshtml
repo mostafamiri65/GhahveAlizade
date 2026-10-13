@@ -1,0 +1,60 @@
+@{
+	ViewData["Title"] = "مشاور هوشمند قهوه";
+}
+
+<h4 class="mb-4"><i class="bi bi-stars"></i> مشاور هوشمند قهوه ☕🤖</h4>
+
+<div class="user-card p-0">
+	<div class="p-3 small text-muted border-bottom">
+		سلیقه‌تان را بگویید: طعم مورد علاقه، میزان تلخی، روش دم‌آوری، بودجه — ما بهترین ترکیب (عربیکا/روبستا) را پیشنهاد می‌دهیم!
+	</div>
+	<div id="aiMessages" class="p-3" style="height: 420px; overflow-y: auto; display: flex; flex-direction: column;"></div>
+	<div class="border-top p-3 d-flex gap-2">
+		<input id="aiInput" class="form-control" maxlength="2000"
+			   placeholder="مثلا: قهوه‌ای میخوام با طعم شکلاتی، برای اسپرسو، بودجه تا ۵۰۰ هزار تومن..." />
+		<button id="aiSendBtn" class="btn btn-primary"><i class="bi bi-send"></i></button>
+	</div>
+</div>
+
+@section Scripts {
+<style>
+	.chat-bubble { max-width: 80%; padding: .6rem 1rem; border-radius: 1rem; margin-bottom: .5rem; }
+	.chat-ai { background: #eef2ff; border: 1px solid #dbe4ff; align-self: flex-start; }
+	.chat-user { background: #fff3e0; border: 1px solid #ffe0b2; align-self: flex-end; }
+</style>
+<script>
+	function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+	function addBubble(text, isUser) {
+		$('#aiMessages').append(`<div class="chat-bubble ${isUser ? 'chat-user' : 'chat-ai'}">${escapeHtml(text)}</div>`);
+		$('#aiMessages').scrollTop($('#aiMessages')[0].scrollHeight);
+	}
+
+	addBubble("سلام! ☕ من مشاور قهوه علیزاده هستم. بگویید چه طعمی دوست دارید (تلخ، میوه‌ای، شکلاتی...)، با چه روشی دم می‌کنید و بودجه‌تان چقدر است تا بهترین ترکیب را پیشنهاد بدهم!", false);
+
+	$('#aiSendBtn').on('click', async () => {
+		const body = $('#aiInput').val().trim();
+		if (!body) return;
+		addBubble(body, true);
+		$('#aiInput').val('');
+		$('#aiSendBtn').prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
+
+		try {
+			const token = $('input[name="__RequestVerificationToken"]').first().val();
+			const res = await fetch('/user/aiadvisor/send', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+				body: `message=${encodeURIComponent(body)}&__RequestVerificationToken=${encodeURIComponent(token)}`
+			});
+			const data = await res.json();
+			if (data.success) addBubble(data.reply, false);
+			else addBubble('⚠️ ' + data.message, false);
+		} catch (e) {
+			addBubble('⚠️ خطا در ارتباط با سرور. دوباره تلاش کنید.', false);
+		} finally {
+			$('#aiSendBtn').prop('disabled', false).html('<i class="bi bi-send"></i>');
+		}
+	});
+
+	$('#aiInput').on('keypress', e => { if (e.key === 'Enter') $('#aiSendBtn').click(); });
+</script>
+}

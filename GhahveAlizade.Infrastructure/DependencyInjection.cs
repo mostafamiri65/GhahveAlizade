@@ -7,6 +7,7 @@ using GhahveAlizade.Infrastructure.Persistence.Interceptors;
 using GhahveAlizade.Infrastructure.Persistence.Seed;
 using GhahveAlizade.Infrastructure.Seo;
 using GhahveAlizade.Infrastructure.Services;
+using GhahveAlizade.Infrastructure.Services.Ai;
 using GhahveAlizade.Infrastructure.Services.Sms;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -172,6 +173,16 @@ public static class DependencyInjection
 		});
 
 		services.AddScoped<IOtpService, OtpService>();
+
+		// ============ AI (Gemini — free tier) ============
+		services.Configure<GeminiOptions>(configuration.GetSection(GeminiOptions.SectionName));
+		services.Configure<OpenAiCompatibleOptions>(configuration.GetSection("Ai"));
+		services.AddHttpClient<IAiChatService, OpenAiCompatibleChatService>(client =>
+		{
+			client.Timeout = TimeSpan.FromSeconds(60);
+			client.DefaultRequestHeaders.Add("User-Agent", "GhahveAlizade/1.0");
+		});
+
 		return services;
 	}
 }

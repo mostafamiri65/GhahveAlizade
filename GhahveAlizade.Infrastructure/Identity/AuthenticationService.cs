@@ -17,12 +17,12 @@ public class AuthenticationService : IAuthenticationService
 		UserManager<ApplicationUser> userManager,
 		IJwtTokenService jwtService,
 		IOptions<JwtSettings> jwtSettings,
-		ICurrentUserService currentUserService)
+		ICurrentUserService currentUser)
 	{
 		_userManager = userManager;
 		_jwtService = jwtService;
 		_jwtSettings = jwtSettings.Value;
-		_currentUser = currentUserService;
+		_currentUser = currentUser;
 	}
 
 	public async Task<ErrorOr<long>> ValidatePasswordAsync(

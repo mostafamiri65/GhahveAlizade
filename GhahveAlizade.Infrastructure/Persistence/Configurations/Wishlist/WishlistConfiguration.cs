@@ -10,6 +10,7 @@ public class WishlistConfiguration : BaseEntityConfiguration<Domain.Wishlist.Wis
 	{
 		builder.ToTable("Wishlists");
 
+
 		builder.Property(x => x.Name).IsRequired().HasMaxLength(200);
 		builder.Property(x => x.ShareToken).HasMaxLength(100);
 

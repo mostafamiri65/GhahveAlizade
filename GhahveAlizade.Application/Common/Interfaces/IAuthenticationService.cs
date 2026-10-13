@@ -35,7 +35,13 @@ public interface IAuthenticationService
 	Task<ErrorOr<Success>> RevokeRefreshTokenAsync(
 		string refreshToken,
 		CancellationToken cancellationToken = default);
+
+	/// <summary>
+	/// دریافت کاربر جاری (برای بررسی HasPassword و ...).
+	/// اگر userId داده نشود، از ICurrentUserService خوانده میشود.
+	/// </summary>
 	Task<IdentityUserDto?> GetCurrentUserAsync(long? userId = null);
+
 }
 
 public record AuthTokens(

@@ -57,7 +57,7 @@ public class VerifyOtpCommandHandler : IRequestHandler<VerifyOtpCommand, ErrorOr
 				IsActive = true,
 				CreatedAtUtc = _dateTime.UtcNow,
 				CreatedBy = 1,
-				Email = phone+"@gahvehalizade.ir"
+				Email = phone+"@ghahvealizade.ir",
 			};
 
 			var createResult = await _userManager.CreateAsync(user);

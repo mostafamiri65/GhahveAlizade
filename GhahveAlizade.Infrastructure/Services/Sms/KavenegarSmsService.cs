@@ -49,7 +49,7 @@ public class KavenegarSmsService : ISmsService
 			if (!response.IsSuccessStatusCode)
 			{
 				_logger.LogError("Kavenegar error: {Content}", content);
-				_logger.LogInformation("Ramz Baraye Shomare Telefone " + phoneNumber + " Hast :" + code);
+				_logger.LogError("Failed to send OTP SMS to {Phone}. Code: {Code}", phoneNumber, code);
 				return new SmsResult(true, ErrorMessage: "خطا در ارسال پیامک");
 			}
 
