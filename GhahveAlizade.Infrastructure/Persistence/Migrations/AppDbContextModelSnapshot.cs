@@ -2763,6 +2763,7 @@ namespace GhahveAlizade.Infrastructure.Persistence.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<long?>("UserId")
+                        .HasMaxLength(450)
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");

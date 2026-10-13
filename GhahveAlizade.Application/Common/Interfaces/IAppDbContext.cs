@@ -32,6 +32,7 @@ public interface IAppDbContext
 	DbSet<AppSetting> AppSettings { get; }
 	DbSet<ApplicationUser> Users { get; }
 	DbSet<ApplicationRole> Roles { get; }
+	DbSet<ApplicationUser> Users { get; }
 	DbSet<PhoneOtp> PhoneOtps { get; }
 	DbSet<RefreshToken> RefreshTokens { get; }
 	DbSet<RolePermission> RolePermissions { get; }
